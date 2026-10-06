@@ -60,3 +60,21 @@ def test_compilation_experiments_do_not_change_model_cache_or_production_cache()
     for bad in ('../shared', '/work/vllm', '', 3):
         with pytest.raises(ValueError, match='experiment group'):
             remote.kernel_cache_base({**config, 'kernel_cache_group': bad})
+
+
+@pytest.mark.skipif(__import__('sys').platform != 'linux', reason='Linux serving socket semantics')
+def test_closed_connections_allow_restart_but_live_listener_still_blocks():
+    import socket
+    server=socket.socket()
+    server.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+    server.bind(('127.0.0.1',0));server.listen(1)
+    port=server.getsockname()[1]
+    try:
+        with pytest.raises(ValueError,match='port remains busy'):
+            remote.wait_for_port_release(port,timeout=0.05)
+        client=socket.create_connection(('127.0.0.1',port));peer,_=server.accept()
+        peer.shutdown(socket.SHUT_WR);peer.close();client.recv(1);client.close()
+    finally:
+        server.close()
+    # The listener exited, but an accepted connection is still in TIME_WAIT.
+    remote.wait_for_port_release(port,timeout=0.05)

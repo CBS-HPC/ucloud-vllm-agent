@@ -74,9 +74,11 @@ print(json.dumps({"vllm_version": version("vllm"), "devices": devices}))'''
     if shutil.disk_usage(root).free < config["required_disk_gib"] * GIB:
         raise ValueError("Available disk is below the planned storage allowance")
     with socket.socket() as listener:
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listener.bind(("127.0.0.1", config["port"]))
     if config.get("task") == "pii":
         with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind(("127.0.0.1", config["port"] + 1))
     return {"state": "preflight_passed", "gpu": gpu,
             "note": "Verify mounted persistence and container RAM limits separately before launch."}
@@ -93,6 +95,9 @@ def wait_for_port_release(port: int, timeout: float = 60) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         with socket.socket() as listener:
+            # Match the Linux server's address reuse. Closed connections in
+            # TIME_WAIT are safe to reuse; an active listener still blocks bind.
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 listener.bind(("127.0.0.1", port))
                 return

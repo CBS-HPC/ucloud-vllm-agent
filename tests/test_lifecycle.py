@@ -245,6 +245,7 @@ def test_stop_waits_for_port_release_instead_of_killing_by_port(monkeypatch):
     class Listener:
         def __enter__(self): return self
         def __exit__(self, *args): pass
+        def setsockopt(self, *args): pass
         def bind(self, target):
             attempts.append(target)
             if len(attempts) < 3: raise OSError('shutdown still in progress')
