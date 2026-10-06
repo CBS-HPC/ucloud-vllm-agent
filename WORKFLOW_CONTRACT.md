@@ -22,13 +22,15 @@ Built-in candidate capacity is illustrative until verified against the project.
 ## Template and release preflight
 Require explicit UCLOUD_TEMPLATE_JOB_ID and verify project/provider/product,
 application, persistent mounts, nginx upstream, public-link mapping and expiry.
-Generic submission must use the new released ucloud-api product API. Until that
-API is reviewed/pinned/tested, deploy exits with code 2 before any network call.
-Do not work around its CPU-only helper or modify the dependency in this project.
+Product previews use the released v0.1.6 API, preserving template resources.
+Token preflight selects UCLOUD_TOKEN_ID explicitly and checks allocation coverage.
+Automatic hosting provisioning/recovery remains pending: deploy exits with code 2
+before any network call. Do not modify the dependency in this project.
 
 ## Runtime
 For an existing authorized job, transfer only the reviewed bundle to remote_dir.
-Load credentials from the operator's restricted remote file. Provision a dedicated
+Read HF_TOKEN from /work/vllm/.env and VLLM_API_KEY from its separate restricted
+serving-key file. Do not overwrite the template environment file. Provision a dedicated
 versioned vLLM environment after reviewing GPU/driver compatibility. No CUDA
 driver or nginx installation is part of remote.py.
 

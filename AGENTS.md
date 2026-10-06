@@ -13,7 +13,8 @@ the execution contract. Respond in the operator's language; repository text is E
   latest job. Inspect and preserve template mounts, application and networking.
 - ucloud-api owns generic job/product selection, credentials and SSH transport.
   Consume a released package. Do not edit dependency repositories or duplicate
-  their submission logic here. GPU submission awaits its upcoming release.
+  their submission logic here. The product adapter uses released v0.1.6;
+  automatic hosting provisioning/recovery remains pending.
 - This project owns HF inspection, sizing, model configuration, deployment
   evidence and the vLLM serving lifecycle. Never copy Moody's data-specific logic.
 
@@ -53,13 +54,14 @@ without repeated confirmations. Planning alone does not authorize allocating GPU
 time. Ask only for missing decisions or actions outside the requested scope.
 Never print tokens, private keys, environment dumps or raw credentialed responses.
 Do not read .env contents into model context. Local settings may be read by code;
-remote credentials are provisioned by the operator in a restricted runtime file.
+remote HF access comes from /work/vllm/.env; the operator provisions the serving
+key separately in /work/vllm/secrets/vllm.env. Do not modify either implicitly.
 Do not transfer local .env, use credentials as CLI arguments or commit run artifacts.
 
 ## State and maintenance
 Prepared bundles live in deployments/<name>/<run-id>/, ignored by Git. A plan
 is not a launch; a session is not readiness; an endpoint check is not a durable
 allocation. Report the actual status, artifact path, recommendation and blockers.
-Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. When the new
-ucloud-api release arrives, inspect its API, pin it, add adapter tests and validate
-one live template-based GPU deployment before removing the submission gate.
+Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. v0.1.6 is
+pinned and product previews are tested. Complete hosting provisioning/recovery
+and validate one live template-based deployment before removing the lifecycle gate.

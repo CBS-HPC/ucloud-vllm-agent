@@ -18,7 +18,8 @@ Inspect plan blockers before allocating resources or launching runtime. Unknown
 architectures and quantization are review cases, not permission to guess memory.
 Research their actual layout or propose a supported alternative when appropriate.
 
-Automatic submission awaits the released upstream GPU API. Read
+Product previews use released ucloud-api v0.1.6; automatic hosting provisioning
+and recovery are still pending. Read
 [the integration boundary](../../docs/ucloud-access.md) before remote work.
 Keep existing authorization, but do not equate a prepare request with permission
 to consume allocation. Run a reviewed bundle in an identified authorized job only.

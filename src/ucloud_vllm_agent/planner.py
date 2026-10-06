@@ -37,11 +37,13 @@ def prepare(request: dict, metadata: dict, machines: list[dict], output_root: Pa
         blockers.append("configure_UCLOUD_TEMPLATE_JOB_ID")
     if not request["public_base_url"]:
         blockers.append("confirm_template_https_api_url")
+    if not os.getenv("VLLM_API_KEY"):
+        blockers.append("configure_vllm_serving_key_before_launch")
     if selected and not selected.get("verified"):
         blockers.append("verify_machine_capacity_and_product_in_project")
     blockers.extend(["review_model_license_and_runtime_compatibility",
                      "inspect_template_nginx_upstream_mounts_and_secret_file",
-                     "await_released_ucloud_gpu_submission_adapter"])
+                     "hosting_job_lifecycle_integration_pending"])
     plan = {"schema": "ucloud.vllm.deployment_plan.v1", "run_id": run_id,
             "state": "prepared", "request": request,
             "template_job_id": os.getenv("UCLOUD_TEMPLATE_JOB_ID") or None,
@@ -66,6 +68,7 @@ def prepare(request: dict, metadata: dict, machines: list[dict], output_root: Pa
                    "required_disk_gib": capacity["required_disk_gib_estimate"],
                    "required_ram_gib": capacity["required_system_ram_gib_estimate"],
                    "vllm_version": request["vllm_version"], "secret_file": request["secret_file"],
+                   "hf_env_file": request["hf_env_file"], "nginx_config": request["nginx_config"],
                    "cache_dir": request["work_folder"].rstrip("/") + "/cache/huggingface",
                    "venv_dir": request["work_folder"].rstrip("/") + "/environments/vllm-" + (request["vllm_version"] or "UNSELECTED")}
         write_json(root / "runtime.json", runtime)

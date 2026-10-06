@@ -13,7 +13,8 @@ from .checks import check_endpoint
 from .config import load_env, load_json, validate_request
 from .huggingface import inspect_model
 from .planner import prepare, write_json
-from .ucloud_access import ReleasePendingError, inspect_template, integration_status, require_hosting_adapter
+from .ucloud_access import (ReleasePendingError, inspect_template, integration_status,
+                           require_hosting_adapter, token_status, preview_job)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -29,7 +30,14 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--output", type=Path, default=Path("deployments"))
     commands.add_parser("doctor")
     commands.add_parser("inspect-template")
-    commands.add_parser("deploy", help="Release gate: submission awaits the new upstream GPU API")
+    commands.add_parser("deploy", help="Lifecycle gate: automatic provisioning/recovery is not enabled yet")
+    command = commands.add_parser("token-status")
+    command.add_argument("--hours", type=int, default=1)
+    command = commands.add_parser("preview-job")
+    command.add_argument("--hours", type=int, required=True)
+    command.add_argument("--product-id")
+    command.add_argument("--product-category")
+    command.add_argument("--product-provider")
     command = commands.add_parser("check")
     command.add_argument("--base-url", required=True)
     command.add_argument("--model", required=True)
@@ -42,10 +50,21 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "doctor":
             result = {"agent_version": __version__, "ucloud_integration": integration_status(),
                       "configured": {key: bool(os.getenv(key)) for key in (
-                          "UCLOUD_PROJECT", "UCLOUD_TOKEN", "UCLOUD_TEMPLATE_JOB_ID", "UCLOUD_PUBLIC_BASE_URL")}}
+                          "UCLOUD_PROJECT", "UCLOUD_TOKEN", "UCLOUD_TOKEN_ID", "UCLOUD_TEMPLATE_JOB_ID",
+                          "UCLOUD_PUBLIC_BASE_URL", "VLLM_API_KEY")}}
             print(json.dumps(result, indent=2))
         elif args.command == "inspect-template":
             print(json.dumps(inspect_template(), indent=2))
+        elif args.command == "token-status":
+            result = token_status(args.hours)
+            print(json.dumps(result, indent=2))
+            return 0 if result["supports_allocation"] else 1
+        elif args.command == "preview-job":
+            selection = [args.product_id, args.product_category, args.product_provider]
+            if any(selection) and not all(selection):
+                raise ValueError("Product override requires id, category and provider together")
+            product = dict(zip(("id", "category", "provider"), selection)) if all(selection) else None
+            print(json.dumps(preview_job(hours=args.hours, product=product), indent=2))
         elif args.command == "check":
             result = check_endpoint(args.base_url, args.model)
             args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -73,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     except ReleasePendingError as exc:
         print("Deployment blocked: " + str(exc), file=sys.stderr)
         return 2
-    except (ValueError, OSError, KeyError, TypeError, RuntimeError) as exc:
+    except (ValueError, OSError, KeyError, TypeError, RuntimeError, ImportError) as exc:
         # Do not print upstream response bodies, credentials or a stack trace.
         reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
         print("Operation failed: " + reason, file=sys.stderr)

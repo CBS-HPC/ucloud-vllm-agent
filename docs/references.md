@@ -7,9 +7,10 @@ Reviewed 2026-10-06. Recheck mutable docs against selected runtime releases.
   Adopted request-to-case planning, estimates backed by evidence, pinned runtime,
   upstream reuse and isolated state. Its CPU/data estimates do not apply to vLLM,
   and its automatic batch job termination must not be copied into hosting.
-- [CBS-HPC/ucloud-api](https://github.com/CBS-HPC/ucloud-api): local v0.1.5
-  jobs/settings/client/catalog/transport inspected. Generic product support is
-  pending upstream; this project's submission gate remains closed.
+- [CBS-HPC/ucloud-api v0.1.6](https://github.com/CBS-HPC/ucloud-api/releases/tag/v0.1.6):
+  released wheel downloaded and SHA256 checked; GPU/MIG/template-product builder
+  tested. Real token metadata and the operator's template were inspected read-only.
+  Automatic hosting provisioning/recovery still gates submission in this project.
 - [CBS-HPC/chatbot](https://github.com/CBS-HPC/chatbot): vLLM model serving and
   nginx streaming configuration provide hosting context. GPU/compiler workarounds
   and broad process cleanup are not adopted as general hosting rules.

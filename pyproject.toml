@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ucloud-vllm-agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Template-based UCloud model hosting workspace and deployment planner"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
-ucloud = ["ucloud-workflow @ git+https://github.com/CBS-HPC/ucloud-api.git@v0.1.5"]
+ucloud = ["ucloud-workflow @ git+https://github.com/CBS-HPC/ucloud-api.git@v0.1.6"]
 dev = ["pytest>=8"]
 
 [project.scripts]

@@ -17,10 +17,12 @@ selection/configuration and serving. A successful hosting job stays running.
 - Compare editable machine candidates, including MIG versus full GPUs.
 - Prepare reproducible plans and a standalone remote vLLM helper.
 - Check model listing, chat inference, SSE completion and rejected anonymous requests.
-- Inspect configured UCloud template metadata through the existing package.
+- Inspect the configured UCloud template, preview GPU/MIG job specifications and
+  check the expiry of the exact token identified by UCLOUD_TOKEN_ID.
 
-**Automatic job submission awaits the new ucloud-api GPU release.** The `deploy`
-command fails before any UCloud call. Prepared bundles can be reviewed and run in
+**The GPU/product adapter uses released ucloud-api v0.1.6.** Automated hosting
+provisioning/recovery is still pending; `deploy` fails before any UCloud call.
+Prepared bundles can be reviewed and run in
 an existing authorized job; no live UCloud deployment has been verified yet.
 
 ## Setup on Windows
@@ -36,8 +38,30 @@ vllm-agent doctor
 ```
 
 The core CLI uses only the standard library. Optional read-only UCloud integration
-is pinned to ucloud-workflow v0.1.5; install it with `pip install -e '.[ucloud]'`
-inside this environment. The GPU adapter will be added against a released API.
+is pinned to ucloud-workflow v0.1.6; install it with `pip install -e '.[ucloud]'`
+inside this environment. Product previews use the released builder directly.
+
+The template workspace is `/work/vllm`: nginx loads `/work/vllm/nginx.conf`, and
+the existing `/work/vllm/.env` supplies HF_TOKEN. Generated runtime configuration
+uses these paths without modifying either file. The serving key has its own file,
+`/work/vllm/secrets/vllm.env`. Override these paths in the request or through
+UCLOUD_HF_ENV_FILE, UCLOUD_NGINX_CONFIG and UCLOUD_VLLM_SECRET_FILE if needed.
+
+UCLOUD_PUBLIC_BASE_URL accepts a bare hostname or full HTTPS URL; plans normalize
+it to an HTTPS API base ending in /v1. This is formatting, not proof that TLS or
+the proxy route works. The actual endpoint must still pass verification.
+
+```powershell
+vllm-agent token-status --hours 4
+vllm-agent preview-job --hours 4
+# No product flags keeps the explicit template's GPU product.
+# A product override requires --product-id, --product-category and --product-provider.
+```
+
+Token checks select UCLOUD_TOKEN_ID from non-secret API metadata and require it
+to outlast the requested allocation plus one hour. They do not create or rotate
+tokens. Neither command submits a job. VLLM_API_KEY may remain empty during
+planning, but launching and authenticated endpoint checks require it.
 
 ## Ask the agent
 
@@ -81,8 +105,10 @@ must research their memory layout and vLLM support before extending the estimato
 Use an existing authorized UCloud job while submission integration is pending.
 Confirm the template's persistent mount, GPU allocation, nginx upstream port,
 driver and job expiry. Upload only the prepared bundle to its exact `remote_dir`.
-Provision HF_TOKEN (if needed) and VLLM_API_KEY in the remote `secret_file`; restrict
-it to owner access (chmod 600). Never upload this repository's .env.
+The runtime reads HF_TOKEN from the existing template `hf_env_file`. Provision
+VLLM_API_KEY separately in `secret_file` and restrict that file to owner access
+(chmod 600). Use the same serving key for local endpoint checks. Never upload this
+repository's .env or overwrite the template's HF token file.
 
 ```bash
 # Run inside the uploaded bundle on the selected Linux job.

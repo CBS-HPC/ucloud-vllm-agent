@@ -38,6 +38,7 @@ def validate_request(request: dict) -> dict:
         "name", "model", "revision", "context_length", "concurrency", "dtype",
         "gpu_memory_utilization", "runtime_reserve_gib", "weight_overhead_fraction",
         "vllm_version", "vllm_port", "work_folder", "public_base_url", "secret_file",
+        "hf_env_file", "nginx_config",
     }
     if set(request) - allowed:
         raise ValueError("Unknown request fields: " + ", ".join(sorted(set(request) - allowed)))
@@ -45,14 +46,17 @@ def validate_request(request: dict) -> dict:
         raise ValueError("name must be a lowercase deployment name, up to 48 characters")
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", request.get("model", "")):
         raise ValueError("model must be an owner/repository Hugging Face ID")
+    work_folder = request.get("work_folder") or os.getenv("UCLOUD_WORK_FOLDER") or "/work/vllm"
     result = {
         "revision": "main", "context_length": 4096, "concurrency": 1,
         "dtype": "bfloat16", "gpu_memory_utilization": 0.85,
         "runtime_reserve_gib": 3.0, "weight_overhead_fraction": 0.1,
         "vllm_version": None, "vllm_port": 8000,
-        "work_folder": os.getenv("UCLOUD_WORK_FOLDER") or "/work/ucloud-vllm",
+        "work_folder": work_folder,
         "public_base_url": os.getenv("UCLOUD_PUBLIC_BASE_URL") or None,
-        "secret_file": "/work/ucloud-vllm/secrets/runtime.env",
+        "secret_file": os.getenv("UCLOUD_VLLM_SECRET_FILE") or work_folder.rstrip("/") + "/secrets/vllm.env",
+        "hf_env_file": os.getenv("UCLOUD_HF_ENV_FILE") or work_folder.rstrip("/") + "/.env",
+        "nginx_config": os.getenv("UCLOUD_NGINX_CONFIG") or work_folder.rstrip("/") + "/nginx.conf",
         **request,
     }
     for key in ("context_length", "concurrency", "vllm_port"):
@@ -72,7 +76,7 @@ def validate_request(request: dict) -> dict:
         raise ValueError("gpu_memory_utilization must be in (0, 0.95]")
     if result["runtime_reserve_gib"] < 1 or not 0 <= result["weight_overhead_fraction"] <= 1:
         raise ValueError("Require at least 1 GiB runtime reserve and overhead fraction in [0, 1]")
-    for key in ("work_folder", "secret_file"):
+    for key in ("work_folder", "secret_file", "hf_env_file", "nginx_config"):
         value = result[key]
         if not isinstance(value, str) or not value.startswith("/work/") or ".." in value.split("/"):
             raise ValueError(f"{key} must be a path below the verified /work mount")
@@ -82,10 +86,23 @@ def validate_request(request: dict) -> dict:
     if version is not None and not re.fullmatch(r"\d+\.\d+\.\d+(?:[a-z0-9.]+)?", version):
         raise ValueError("vllm_version must be an exact release version")
     if result["public_base_url"]:
-        validate_base_url(result["public_base_url"], external=True)
+        result["public_base_url"] = normalize_public_url(result["public_base_url"])
+    if result["secret_file"] == result["hf_env_file"]:
+        raise ValueError("Use separate files for the template HF token and vLLM serving key")
     if not isinstance(result["revision"], str) or not result["revision"]:
         raise ValueError("revision must be a non-empty HF revision")
     return result
+
+
+def normalize_public_url(url: str) -> str:
+    """Accept an operator's hostname or root URL; require HTTPS and append /v1."""
+    url = url.strip()
+    if "://" not in url:
+        url = "https://" + url
+    parts = urlsplit(url)
+    if not parts.path.rstrip("/").endswith("/v1"):
+        url = url.rstrip("/") + "/v1"
+    return validate_base_url(url, external=True)
 
 
 def validate_base_url(url: str, *, external: bool = False) -> str:

@@ -40,6 +40,10 @@ def preflight(config: dict, root: Path) -> dict:
         raise ValueError("Provision the pinned environment before launch")
     if not shutil.which("tmux"):
         raise ValueError("Template must provide tmux")
+    if not Path(config["nginx_config"]).is_file():
+        raise ValueError("The template nginx config is missing at its recorded path")
+    if not Path(config["hf_env_file"]).is_file():
+        raise ValueError("The template HF environment file is missing at its recorded path")
     secret = Path(config["secret_file"])
     if not secret.is_file() or secret.stat().st_mode & 0o077:
         raise ValueError("Remote runtime secret file must exist and be readable only by its owner")
@@ -78,10 +82,13 @@ def write_state(root: Path, state: str, **details) -> None:
 
 def load_runtime_secrets(config: dict) -> dict:
     env = os.environ.copy()
-    for raw in Path(config["secret_file"]).read_text(encoding="utf-8").splitlines():
-        key, separator, value = raw.strip().partition("=")
-        if separator and key in {"HF_TOKEN", "VLLM_API_KEY"}:
-            env[key] = value.strip().strip("\"'")
+    # Read only the intended key from each source; neither file is evaluated or
+    # rewritten. A blank serving key can never disable authentication silently.
+    for source, allowed_key in ((config["hf_env_file"], "HF_TOKEN"), (config["secret_file"], "VLLM_API_KEY")):
+        for raw in Path(source).read_text(encoding="utf-8-sig").splitlines():
+            key, separator, value = raw.strip().partition("=")
+            if separator and key == allowed_key:
+                env[key] = value.strip().strip("\"'")
     if not env.get("VLLM_API_KEY"):
         raise ValueError("Remote secret configuration must provide VLLM_API_KEY")
     env["HF_HOME"] = config["cache_dir"]

@@ -1,7 +1,9 @@
 # Remaining work
 
-- [ ] Consume the new released ucloud-api GPU/product API and update its pin.
-- [ ] Add thin submission/SSH adapter, durable job state, recovery and explicit release.
+- [x] Consume released ucloud-api v0.1.6 and test GPU/MIG specification previews.
+- [x] Support UCLOUD_TOKEN_ID and verify the configured token/template read-only.
+- [x] Reuse /work/vllm/nginx.conf and the existing HF_TOKEN environment file.
+- [ ] Add submission/SSH provisioning, durable job state, recovery and explicit release.
 - [ ] Verify one real template: project/product, mount, URL, nginx upstream and expiry.
 - [ ] Select a compatible pinned vLLM release and test a real GPU deployment.
 - [ ] Replace illustrative machine candidates with project-verified products/capacities.

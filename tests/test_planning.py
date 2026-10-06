@@ -74,7 +74,7 @@ def test_prepare_keeps_revision_and_records_release_gate(tmp_path, monkeypatch, 
     plan = json.loads((root / "plan.json").read_text())
     runtime = json.loads((root / "runtime.json").read_text())
     assert plan["job_id"] is None
-    assert "await_released_ucloud_gpu_submission_adapter" in plan["blockers"]
+    assert "hosting_job_lifecycle_integration_pending" in plan["blockers"]
     assert runtime["revision"] == "a" * 40
     assert runtime["concurrency"] == workload["concurrency"]
     assert (root / "remote.py").exists()

@@ -9,7 +9,5 @@
   "runtime_reserve_gib": 3,
   "weight_overhead_fraction": 0.1,
   "vllm_version": null,
-  "vllm_port": 8000,
-  "work_folder": "/work/ucloud-vllm",
-  "secret_file": "/work/ucloud-vllm/secrets/runtime.env"
+  "vllm_port": 8000
 }

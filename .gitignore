@@ -16,3 +16,4 @@ deployments/
 *.egg-info/
 build/
 dist/
+.inspect/

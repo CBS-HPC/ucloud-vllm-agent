@@ -1,33 +1,42 @@
 # Upstream integration boundary
 
-Reference: the operator's moody_agent uses released ucloud-workflow, explicit
-UCLOUD_TEMPLATE_JOB_ID, persistent environments and isolated case artifacts.
-Here the workload is an ongoing HTTP model service; it must not inherit the batch
-runner's automatic job termination after outputs are collected.
+The operator's moody_agent uses released ucloud-workflow, explicit template IDs,
+persistent environments and isolated case artifacts. Here the workload is an
+ongoing HTTP service and must not inherit automatic batch-job termination.
 
-The optional dependency is currently pinned to v0.1.5 for read-only template
-inspection. That release's build_job_specification and submit helper generate a
-CPU product. GPU/product selection is being implemented in the owning ucloud-api
-project and will arrive in a release. Do not copy an interim submit client here.
+## Released product adapter
+The optional dependency is pinned to v0.1.6. preview_job_specification calls the
+released build_job_specification with a complete product reference or preserves
+the template product. It never generates a CPU product from a GPU name. The
+adapter preserves template application parameters, mounts and public-link resources.
+CLI preview-job performs read-only lookup through UCLOUD_TEMPLATE_JOB_ID and
+returns a sanitized preview, not raw application parameters or credentials.
 
-vllm-agent deploy is a release gate, not a partially working submit command. It
-always exits before network calls. This keeps preparation/test work useful while
-avoiding accidental CPU allocations. The CLI's inspect-template uses the existing
-client and returns only selected non-secret metadata and resource types.
+token-status selects UCLOUD_TOKEN_ID from API metadata. Expiry must cover the
+requested hours plus a one-hour margin. The operator must supply the matching
+ID; the agent cannot infer it from the credential. No tokens are created/rotated.
 
-## After the upstream release
-1. Inspect released documentation/source and the exact product-selection API.
-2. Update the pyproject optional dependency pin to that release.
-3. Add the thin adapter using the released API and require explicit template ID.
-4. Verify template application, parameters, mounts and URL resources are preserved
-   when selecting a GPU/MIG product. Detect public links already attached to another
-   active job; preserve the requested topology rather than silently replacing it.
-5. Persist submitted job ID immediately; block duplicate submissions on unknown
-   outcomes. Use upstream SSH helpers with explicit configuration and host checks.
-6. Keep the job alive on successful setup and local agent exit. Add explicit
-   status/recovery/stop/release operations with owned deployment identifiers.
-7. Test with a real authorized GPU template and record the endpoint results.
+## Operator template contract
+- UCLOUD_WORK_FOLDER=/work/vllm is the mounted working root.
+- /work/vllm/nginx.conf is configured and loaded by the template.
+- /work/vllm/.env supplies HF_TOKEN and remains read-only to the runtime helper.
+- /work/vllm/secrets/vllm.env supplies VLLM_API_KEY separately before launch.
+- A bare public hostname is normalized to https://HOST/v1 for plans; actual TLS,
+  route, authentication and inference still need an endpoint check.
 
-Host-key behavior is part of release review: the older update_ssh_config helper
-disables verification. Do not adopt it blindly. Do not change dependency source
-here; route generic transport improvements to its owner.
+## Hosting lifecycle still pending
+deploy exits before network calls until automated provisioning and recovery are
+implemented/tested. A released product API alone is not a complete deployment.
+Reviewed runtime bundles can be used in an existing explicitly authorized job.
+
+Before enabling automated deployment:
+1. Persist the submitted job ID immediately and block duplicates on unknown outcomes.
+2. Reuse upstream SSH transport with explicit configuration and verified host keys.
+   Review released transport behavior rather than adopting unsafe defaults.
+3. Verify template mounts, nginx port, secret sources and allocated GPU visibility.
+4. Provision/start vLLM in the owned session, then run local/proxy/external checks.
+5. Keep the job alive after success and local exit; add explicit recovery/status/release.
+6. Validate a real authorized template deployment with a pinned model/runtime.
+
+Do not edit dependency source or duplicate generic UCloud product/transport logic
+here. Route generic improvements to the owning ucloud-api project.

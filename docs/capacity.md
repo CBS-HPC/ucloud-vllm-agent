@@ -32,7 +32,7 @@ The default candidate list is illustrative and uses conservative VRAM allowances
 It has no authoritative product/category/provider identifiers, prices or live
 availability. Prefer the least total allocated VRAM among fitting candidates;
 this is not a fastest/cheapest-machine claim. Replace it with project-verified
-capacities and the product identifiers supported by the upcoming ucloud-api API.
+capacities and the product identifiers supported by the released v0.1.6 API.
 
 Models with unknown architecture, quantization, MoE, MLA, hybrid or multimodal
 layout require specific analysis. Model parameter count is total resident weights,
