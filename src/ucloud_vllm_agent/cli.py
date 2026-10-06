@@ -30,6 +30,9 @@ def main(argv: list[str] | None = None) -> int:
         if name == "prepare":
             command.add_argument("--output", type=Path, default=Path("deployments"))
     commands.add_parser("doctor")
+    command = commands.add_parser("models", help="List previously validated model types and untested candidates offline")
+    command.add_argument("--type", choices=("chat", "anonymisation", "classification"))
+    command.add_argument("--status", choices=("validated", "candidate"))
     for name in ("prepare-profile", "preview-profile"):
         command = commands.add_parser(name)
         command.add_argument("--profile", type=Path, required=True)
@@ -72,7 +75,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     load_env()
     try:
-        if args.command in ("prepare-profile", "preview-profile"):
+        if args.command == "models":
+            from .model_catalog import list_models
+            print(json.dumps(list_models(args.type, args.status), indent=2))
+        elif args.command in ("prepare-profile", "preview-profile"):
             profile = validate_profile(load_json(args.profile))
             if args.command == "prepare-profile":
                 request = profile["request"]

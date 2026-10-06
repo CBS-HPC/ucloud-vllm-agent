@@ -1,0 +1,85 @@
+{
+  "schema": "ucloud.vllm.model_catalog.v1",
+  "updated_on": "2026-10-06",
+  "status_meaning": "validated means previously tested, not currently running; candidate means not deployed or runtime-verified here",
+  "models": [
+    {
+      "id": "qwen-small",
+      "use_case": "chat",
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct",
+      "revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+      "status": "validated",
+      "capabilities": ["instruction following", "chat completions", "streaming"],
+      "runtime": "vllm",
+      "runtime_version": "0.31.0",
+      "serving_task": "chat",
+      "endpoints": ["/v1/models", "/v1/chat/completions"],
+      "profile": "config/hosting.qwen-small.json",
+      "notebook": "notebooks/test_model.ipynb",
+      "tested_machine": "B200 MIG 1g.23gb",
+      "tested_context_tokens": 4096,
+      "tested_concurrency": [1, 2],
+      "evidence": ["docs/live-validation.md", "docs/benchmark-results.json"],
+      "notes": "Public authentication, inference, streaming, replacement, rollback, renewal and compilation-cache reuse tested."
+    },
+    {
+      "id": "pii-tracer",
+      "use_case": "anonymisation",
+      "model": "perplexity-ai/PII-Tracer-vLLM",
+      "source": "https://huggingface.co/perplexity-ai/PII-Tracer-vLLM",
+      "revision": "9f34cd1f5010a1de5a7b464eaf3c3a39db01b15a",
+      "status": "validated",
+      "capabilities": ["PII span detection", "text masking", "token scoring"],
+      "runtime": "vllm-pooling-with-reviewed-pii-adapter",
+      "runtime_version": "0.31.0",
+      "serving_task": "pii",
+      "endpoints": ["/v1/models", "/v1/pii", "/v1/scoring"],
+      "profile": "config/hosting.pii-tracer.json",
+      "notebook": "notebooks/test_pii_tracer.ipynb",
+      "tested_machine": "B200 MIG 1g.23gb",
+      "tested_context_tokens": 4096,
+      "tested_concurrency": [2],
+      "evidence": ["docs/pii-tracer.md", "docs/live-validation.md", "docs/benchmark-results.json"],
+      "notes": "Synthetic English and Danish inputs tested; masking is not a guarantee that all personal data is removed."
+    },
+    {
+      "id": "claes-preview",
+      "use_case": "classification",
+      "model": "syvai/claes-preview",
+      "source": "https://huggingface.co/syvai/claes-preview",
+      "revision": "85bfaef5d5f7c81d0efcb9c6b72ca6c8ee165d17",
+      "status": "candidate",
+      "capabilities": ["Danish supplied-choice classification", "presence decisions"],
+      "runtime": "laya-candidate",
+      "runtime_version": null,
+      "serving_task": null,
+      "endpoints": [],
+      "profile": null,
+      "notebook": null,
+      "tested_machine": null,
+      "tested_context_tokens": null,
+      "tested_concurrency": [],
+      "evidence": [],
+      "preview_metadata": {
+        "inspected_on": "2026-10-06",
+        "parameters": 321908998,
+        "license": "apache-2.0",
+        "encoder": "ModernBertForMaskedLM",
+        "max_len": 1024,
+        "sources": [
+          "https://huggingface.co/api/models/syvai/claes-preview",
+          "https://huggingface.co/syvai/claes-preview/blob/85bfaef5d5f7c81d0efcb9c6b72ca6c8ee165d17/README.md",
+          "https://huggingface.co/syvai/claes-preview/blob/85bfaef5d5f7c81d0efcb9c6b72ca6c8ee165d17/rl_agent_config.json"
+        ]
+      },
+      "next_steps": [
+        "Reinspect the published full release and pin its actual repository/revision.",
+        "Review and pin Laya inference dependencies and checkpoint loading.",
+        "Determine serving adapter and API; vLLM compatibility is unverified.",
+        "Reject oversized input explicitly instead of silently truncating.",
+        "Measure machine needs and test synthetic Danish classification fixtures before marking validated."
+      ]
+    }
+  ]
+}

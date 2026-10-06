@@ -17,8 +17,12 @@
 - [x] Full live CLI deployment, replacement, recovery, restart and exact-job release.
   Evidence and remaining limits: docs/live-validation.md.
 - [x] Observe model and compilation-cache reuse across GPU jobs; measure restarts.
-- [ ] Controlled cold/warm startup comparison with identical configuration.
-- [ ] Representative concurrent load testing; calibrate runtime allowances.
+- [x] Controlled cold/warm compilation startup comparison with identical engine
+  configuration in the same job: 148.089 seconds cold, 45.176/45.162 seconds warm.
+- [x] Baseline chat and concurrent PII load, including exact 4096-token inputs;
+  sampled device memory supports existing conservative runtime allowances.
+  Numeric evidence and limits: docs/benchmark-results.json and docs/live-validation.md.
+- [ ] Long-duration load and broader model/hardware calibration when workloads require it.
 - [x] PII-Tracer bidirectional token-classification deployment, authenticated scoring/masking,
   encoder-specific sizing, full-context checks and synthetic-email notebook.
 - [ ] Specialized MoE/MLA/recurrent/multimodal sizing when workloads require it.
@@ -26,8 +30,14 @@
 - [x] Recover ended CPU preparation stages automatically, with archived ownership
   evidence, distinct attempts and stale-result removal; unknown submissions block retries.
 - [x] Explicit rollback to the reviewed predecessor and renewal by same-profile
-  replacement; durable retry/resume without duplicate allocations. Offline regression-tested.
-- [ ] Live validation of preparation expiry recovery, rollback and renewal.
+  replacement; durable retry/resume without duplicate allocations. Live and regression-tested.
+- [x] Live validation of ended-preparation recovery, rollback and renewal, including
+  repeated-command reuse; controlled CPU termination exercised the expiry recovery branch.
 - [ ] Automatic scheduled renewal and transactional replacement without downtime.
   Explicit replacement/rollback/renewal currently require downtime and new allocations.
-- [ ] Choose GitHub destination and publish when requested.
+- [x] Published to private GitHub repository CBS-HPC/ucloud-vllm-agent with CI;
+  credentials and runtime artifacts are excluded.
+- [x] Offline model catalog of tested chat/anonymisation models and classification
+  candidates, including the inspected CLAES preview revision.
+- [ ] Review CLAES's full release, serving dependencies/API, sizing and Danish task
+  fixtures before adding hosting support; no classification model has been hosted yet.

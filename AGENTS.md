@@ -72,8 +72,12 @@ allocation. Report the actual status, artifact path, recommendation and blockers
 Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. v0.1.6 is
 pinned and product previews are tested. Live deployment/replacement/recovery/restart were validated on the baseline;
 see docs/live-validation.md for scope and remaining limits.
-Preparation expiry recovery, explicit rollback and renewal-by-replacement are
-offline regression-tested; they require separate live validation. Never renew or
+Ended-preparation recovery, explicit rollback and renewal-by-replacement passed
+live validation on 2026-10-06; see docs/live-validation.md for fault injection and limits. Never renew or
 rollback automatically after an operator stops a job. Both commands can allocate
 GPU time and involve downtime; use them only when requested.
 Require UCLOUD_PROJECT to match both templates before allocating any jobs.
+Consult `vllm-agent models` and docs/model-catalog.md for previously validated
+model types and candidates. Keep the packaged data/model_catalog.json current
+after live tests. Candidate entries do not imply implemented runtime support or
+authorize deployment; CLAES currently needs Laya/runtime review and a tested adapter.

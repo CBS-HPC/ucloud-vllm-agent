@@ -131,3 +131,19 @@ Task checks passed on loopback, nginx and public HTTPS. Two 4096-token inputs
 passed together; 4097 tokens was rejected without truncation. Use the repository's
 notebooks/test_pii_tracer.ipynb for synthetic email tests. Sensitivity is a separate
 conversation-level score; masking uses decoded spans without a sensitivity gate.
+
+
+## Validated lifecycle and benchmarks (2026-10-06)
+
+Agent source: https://github.com/CBS-HPC/ucloud-vllm-agent (private).
+Ended CPU preparation recovery, Qwen-to-PII replacement, rollback to Qwen,
+and same-profile renewal passed loopback, nginx and public HTTPS checks.
+Repeated rollback/renewal reused their recorded GPU jobs.
+Qwen compilation startup: 148.089 seconds cold, 45.176/45.162 seconds warm.
+PII: 64 short Danish emails and 32 exact 4096-token inputs passed with two clients.
+See docs/live-validation.md and docs/benchmark-results.json in the Git checkout.
+
+These were temporary validation allocations. Hosting is not intended to remain
+running after the validation. Query UCloud job state before assuming availability.
+Models and compilation caches are retained. Both credentials still come from
+/work/vllm/.env; no duplicate credential files were introduced.

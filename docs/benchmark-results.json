@@ -1,0 +1,134 @@
+{
+  "schema": "ucloud.vllm.live_validation.v1",
+  "date": "2026-10-06",
+  "timezone": "Europe/Copenhagen",
+  "gpu": "NVIDIA B200 MIG 1g.23gb",
+  "vllm": "0.31.0",
+  "startup": [
+    {
+      "label": "cold-compilation",
+      "seconds": 148.089,
+      "passed": true,
+      "cache_namespace": "runtime-cache-a",
+      "cache_path": "/work/vllm/cache/kernels/experiments/benchmark-group-a/runtime-cache-a"
+    },
+    {
+      "label": "warm-compilation-1",
+      "seconds": 45.176,
+      "passed": true,
+      "cache_namespace": "runtime-cache-a",
+      "cache_path": "/work/vllm/cache/kernels/experiments/benchmark-group-a/runtime-cache-a"
+    },
+    {
+      "label": "warm-compilation-2",
+      "seconds": 45.162,
+      "passed": true,
+      "cache_namespace": "runtime-cache-a",
+      "cache_path": "/work/vllm/cache/kernels/experiments/benchmark-group-a/runtime-cache-a"
+    }
+  ],
+  "chat": {
+    "passed": true,
+    "model": "qwen-small",
+    "task": "chat",
+    "workers": 1,
+    "requests": 32,
+    "wall_seconds": 7.468,
+    "median_request_seconds": 0.225,
+    "p95_request_seconds": 0.273,
+    "successful_requests": 32,
+    "requests_per_second": 4.285,
+    "input_tokens_per_second": 178.63,
+    "completion_tokens_per_second": 140.6,
+    "note": "Synthetic HTTP workload; latency includes network and proxy. Model quality is not measured."
+  },
+  "operations": {
+    "preparation_recovery": {
+      "passed": true,
+      "ended_cpu_job": "lifecycle-ended-cpu",
+      "recovered_gpu_job": "lifecycle-qwen-gpu",
+      "fault": "Owned CPU clone ended before activation; same terminal-state recovery path as expiry."
+    },
+    "replacement": {
+      "passed": true,
+      "from_job": "lifecycle-qwen-gpu",
+      "to_job": "lifecycle-pii-gpu",
+      "observed_outage_seconds": 43.809
+    },
+    "rollback": {
+      "passed": true,
+      "from_job": "lifecycle-pii-gpu",
+      "to_job": "rollback-qwen-gpu",
+      "command_seconds": 72.9,
+      "observed_outage_seconds": 68.014,
+      "repeat_reused_job": true,
+      "fault": "Exact owned PII process stopped before rollback."
+    },
+    "renewal": {
+      "passed": true,
+      "from_job": "rollback-qwen-gpu",
+      "to_job": "renewed-qwen-gpu",
+      "command_seconds": 70.042,
+      "observed_outage_seconds": 46.236,
+      "hours": 1,
+      "repeat_reused_job": true
+    }
+  },
+  "pii_short": {
+    "passed": true,
+    "model": "pii-tracer",
+    "task": "pii",
+    "workers": 2,
+    "requests": 64,
+    "wall_seconds": 7.563,
+    "median_request_seconds": 0.1705,
+    "p95_request_seconds": 0.376,
+    "successful_requests": 64,
+    "requests_per_second": 8.462,
+    "input_tokens_per_second": 566.97,
+    "completion_tokens_per_second": 0.0,
+    "note": "Synthetic HTTP workload; latency includes network and proxy. Model quality is not measured.",
+    "input_tokens_per_request": [
+      67
+    ]
+  },
+  "pii_full_context": {
+    "passed": true,
+    "model": "pii-tracer",
+    "task": "pii",
+    "workers": 2,
+    "requests": 32,
+    "wall_seconds": 5.768,
+    "median_request_seconds": 0.3495,
+    "p95_request_seconds": 0.412,
+    "successful_requests": 32,
+    "requests_per_second": 5.548,
+    "input_tokens_per_second": 22723.77,
+    "completion_tokens_per_second": 0.0,
+    "note": "Synthetic HTTP workload; latency includes network and proxy. Model quality is not measured.",
+    "input_tokens_per_request": [
+      4096
+    ]
+  },
+  "pii_memory": {
+    "total_bytes": 22011707392,
+    "peak_used_bytes": 1896153088,
+    "minimum_used_bytes": 1896153088,
+    "samples": 200,
+    "interval_seconds": 0.1,
+    "note": "Device usage includes the sampler CUDA context; not allocator-level profiling."
+  },
+  "validation_jobs_final_states": {
+    "lifecycle-recovery-cpu": "SUCCESS",
+    "lifecycle-qwen-gpu": "SUCCESS",
+    "lifecycle-ended-cpu": "SUCCESS",
+    "validation-job-a": "SUCCESS",
+    "lifecycle-pii-gpu": "SUCCESS",
+    "validation-job-b": "SUCCESS",
+    "rollback-qwen-gpu": "SUCCESS",
+    "validation-job-c": "SUCCESS",
+    "renewed-qwen-gpu": "SUCCESS"
+  },
+  "completed_at": "2026-10-06T11:16:50.974288+00:00",
+  "publication_note": "Operational identifiers use role labels and cache paths are placeholders; measured numeric results are unchanged."
+}

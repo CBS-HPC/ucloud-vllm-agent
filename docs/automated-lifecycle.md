@@ -81,8 +81,9 @@ Models persist under `/work/vllm/cache/huggingface`. Kernel caches persist under
 GPU capability and platform evidence. vLLM, FlashInfer, Triton, TorchInductor
 and CUDA cache paths are configured before launch. Stable linker paths avoid
 deployment-specific inputs; caches are never cleared implicitly. Cache loads were observed across two GPU jobs with an identical namespace;
-a measured restart with verification took 46 seconds. Comparative cold/warm
-benchmarking remains pending. See
+a measured restart with verification took 46 seconds. A controlled follow-up
+measured 148.089 seconds cold and 45.176/45.162 seconds warm in the same job
+and cache group; see live-validation.md for the measured scope. See
 [vLLM environment variables](https://docs.vllm.ai/en/stable/configuration/env_vars/)
 and [FlashInfer workspace configuration](https://github.com/flashinfer-ai/flashinfer/blob/v0.7.0.post1/flashinfer/jit/env.py).
 

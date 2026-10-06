@@ -19,9 +19,13 @@ see [deployment and recovery](docs/automated-lifecycle.md) for commands and vali
 
 Recovery can replace an ended CPU preparation attempt before activation. Explicit
 `rollback` restores the previous reviewed profile; `renew --hours N` replaces an
-allocation using the same pinned model and machine. These safeguards are offline
-regression-tested and preserve caches. Rollback and renewal require downtime and
-new allocations; their live validation remains pending.
+allocation using the same pinned model and machine. These safeguards passed live
+validation and preserve caches. Rollback and renewal require downtime and new
+allocations; measured outages are recorded in [live validation](docs/live-validation.md).
+
+Use `vllm-agent models` for the [model catalog](docs/model-catalog.md): tested chat
+and anonymisation models, plus classification candidates. A validated entry is
+historical evidence, not a claim that its endpoint is currently running.
 
 The full CLI workflow, replacement, recovery and restart passed live tests on
 2026-10-06. See [live validation](docs/live-validation.md). The Qwen deployment

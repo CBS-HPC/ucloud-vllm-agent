@@ -53,6 +53,86 @@ Live findings fixed in code and regression tests:
 - Retry Windows journal replacement on transient sharing violations, without retrying submission.
 - Isolate unit-test lifecycle locks from the real deployment lock.
 
-Remaining limits: sizing for specialized architectures/other hardware, multi-MIG
-parallelism validation, sustained/full-context benchmarks, automatic renewal,
-expired preparation-stage recovery and transactional replacement rollback.
+The follow-up below covers preparation recovery, full-context PII load and explicit
+rollback/renewal. Remaining limits include specialized architectures/other hardware,
+multi-MIG parallelism, long-duration load, automatic scheduled renewal and
+transactional replacement without downtime.
+
+## Follow-up benchmarks on 2026-10-06
+
+Public HTTPS measurements used the pinned Qwen and PII profiles on a single
+B200 MIG 1g.23gb slice. Sanitized numeric evidence is committed in
+[benchmark-results.json](benchmark-results.json); commands and measurement
+boundaries are documented in [benchmarks.md](benchmarks.md).
+
+Three Qwen restarts in job **lifecycle-qwen-gpu** used identical engine settings (4096
+context, concurrency 1) and the same isolated compilation-cache group. Every
+measurement started with an already stopped service. Cold compilation took
+**148.089 seconds**; two warm starts took **45.176** and **45.162 seconds**.
+The mean warm run was about **3.28 times faster**, a 69.5% reduction in this
+startup-and-verification interval. Model weights and the environment were already
+cached for all runs; no shared caches were cleared. This measures compilation
+reuse, not download performance or GPU provisioning time.
+
+| Public HTTP workload | Successful requests | Clients | Input tokens/request | Median seconds | p95 seconds | Requests/second |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen short chat | 32/32 | 1 | 41–42 | 0.225 | 0.273 | 4.285 |
+| PII synthetic Danish email | 64/64 | 2 | 67 | 0.1705 | 0.376 | 8.462 |
+| PII full-context synthetic text | 32/32 | 2 | 4096 | 0.3495 | 0.412 | 5.548 |
+
+PII ran in job **lifecycle-pii-gpu**. The full-context fixture was constructed using the
+actual cached tokenizer; every returned token count was exactly 4096. Checks
+validated model identity and PII span offsets. These short runs include network
+and proxy overhead and do not measure Danish PII detection accuracy or establish
+sustained throughput across other models.
+
+During full-context PII load, 200 device-memory samples at 0.1-second intervals
+reported 1,896,153,088 bytes used (about 1.77 GiB) on a 22,011,707,392-byte slice.
+The sampler's CUDA context is included, and brief allocator peaks may be missed.
+The existing encoder activation allowance and 3 GiB runtime reserve are retained;
+the measured workload supports the selected slice without justifying smaller
+unverified products or lower safety margins.
+
+Live restart findings fixed and regression-tested:
+
+- The transport now allows 180 seconds for the helper's bounded per-port shutdown waits.
+- Linux port probes use address reuse to distinguish a live listener from closed
+  connections in TIME_WAIT. A focused live reproducer failed before the fix and
+  passed afterward; a Linux regression test also checks that live listeners block.
+- The final comparison was rerun after those fixes. Failed pilot measurements are
+  excluded from the benchmark table.
+
+## Recovery, rollback and renewal follow-up
+
+All three endpoint paths and their task/authentication checks passed after each
+operation. These were temporary validation allocations; **all nine recorded CPU
+and GPU jobs ended with SUCCESS** after explicit cleanup. Templates, mounted
+credentials, model downloads and compilation caches were preserved.
+
+- Preparation: owned CPU job **lifecycle-ended-cpu** was deliberately ended after preparation
+  but before activation. Recovery archived it, created **lifecycle-recovery-cpu**, reused the
+  cached environment/model, activated the bundle and submitted GPU **lifecycle-qwen-gpu**.
+  This tests the terminal-state recovery path without spending an hour waiting
+  for literal allocation expiry; naturally expired-job recovery remains covered
+  by the same branch rather than a separately observed clock-expiry event.
+- Replacement: Qwen **lifecycle-qwen-gpu** was replaced by PII **lifecycle-pii-gpu**; observed public
+  model-listing unavailability was **43.809 seconds**.
+- Rollback: the exact owned PII process was stopped to simulate failure. Rollback
+  restored the pinned predecessor Qwen profile in **rollback-qwen-gpu**, passing inference
+  and streaming. The command took **72.9 seconds**, with **68.014 seconds** of
+  observed public unavailability including the injected failure. Repeating
+  rollback reused job rollback-qwen-gpu without another bundle/allocation.
+- Renewal: the same pinned Qwen model/machine profile was replaced with a new
+  one-hour allocation **renewed-qwen-gpu**. The observed outage was **46.236 seconds**.
+  Repeating renewal reused that same job and passed verification. The renewed
+  allocation was then explicitly released with the other validation records.
+
+Availability was polled through public HTTPS `/v1/models` every 0.5 seconds with
+a two-second request timeout. Outage durations are observations at that sampling
+resolution, not guaranteed bounds. Rollback was tested using an injected stopped
+process, not every possible submission/startup failure. Unknown submission outcomes
+remain blocking and are exercised by regression tests.
+
+The private [GitHub repository](https://github.com/CBS-HPC/ucloud-vllm-agent)
+contains the source, notebooks, model catalog and sanitized benchmark evidence.
+Local credentials and detailed runtime journals remain excluded from Git.
