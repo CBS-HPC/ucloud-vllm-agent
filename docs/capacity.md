@@ -38,6 +38,20 @@ Reports give the minimum fitting allocation and a recommendation preferring
 minimizes allocated VRAM, not price or latency. Accounting rates retain API units.
 See [comparison and evidence](sizing-research.md).
 
+The separate [model catalog](model-catalog.md), available through `models`, records
+exact HF parameter counts and machine capacities from tested profiles. Its Qwen
+and PII entries use one B200 MIG 1g.23gb slice with 20.5 GiB measured visible VRAM
+and a conservative 30 GiB RAM allowance. Those are validated selections for
+recorded input settings, not universal minimums. Re-run `size` when changing
+revision, dtype, context or concurrency. Candidate models have no verified size.
+
+PII-Tracer's bidirectional encoder uses an activation allowance instead of retained
+decoder KV cache: about 1.11 GiB weights, 1.75 GiB activations for two 4096-token
+inputs and 3 GiB runtime reserve. This is a specific supported profile, not a
+general estimator for every encoder or classification head. CLAES's Laya runtime
+and machine needs remain unverified. See [PII hosting](pii-tracer.md) and
+[measured workload evidence](live-validation.md).
+
 AWQ 4-bit, GPTQ 4/8-bit and FP8 checkpoints require pinned file sizes; explicit
 FP8 KV halves the KV estimate without assuming that weight quantization changes KV.
 Models with unknown architecture/quantization, MoE, MLA, recurrent hybrid or multimodal

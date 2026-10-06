@@ -37,6 +37,9 @@ Sizing reserves approximately 1.11 GiB weights, 1.75 GiB encoder activations for
 two full-context inputs and a 3 GiB runtime allowance. There is no retained
 decoder KV cache. Runtime reported 1.12 GiB weights. This is a task-specific
 conservative allowance, not a generic encoder estimator or throughput prediction.
+The model has 596,088,870 parameters. The tested slice exposes 20.5 GiB VRAM;
+the hosting profile uses a conservative 30 GiB RAM allowance. Exact count/source
+and machine fields are maintained in the [model catalog](model-catalog.md).
 
 ## Live evidence, 2026-10-06
 
@@ -51,8 +54,9 @@ masking/offsets, scoring alignment, concurrency and absent/wrong-key rejection o
 all routes. A batch of two 4096-token synthetic inputs passed; 4097 tokens was
 rejected without truncation. Test data remained synthetic.
 
-Open [the email notebook](../notebooks/test_pii_tracer.ipynb), edit
-`synthetic_email` and run the cells in order. It shows detected spans, masked
+Open [the email notebook](../notebooks/test_pii_tracer.ipynb), choose
+`selected_example = "møde"`, `"it-support"` or `"english"`, then edit the selected
+synthetic email and run the cells in order. It shows detected spans, masked
 email and sensitivity. Inference and scoring cells were tested against the live
 endpoint; the saved notebook contains no output or credentials.
 
@@ -64,3 +68,6 @@ vllm-agent status --deployment deployments/pii-tracer/<RUN_ID>
 Model detection quality and thresholds need evaluation on the intended data.
 Chat-only benchmarks/notebooks do not apply to this service. Query status for the
 current allocation and expiry; successful checks do not automatically renew jobs.
+All jobs from the later validation session were released. The follow-up passed
+64 short Danish-email requests and 32 exact 4096-token requests with two clients;
+see [measured results and limits](live-validation.md) and [benchmark commands](benchmarks.md).

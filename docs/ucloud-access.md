@@ -21,9 +21,9 @@ ID; the agent cannot infer it from the credential. No tokens are created/rotated
   UCLOUD_SSH_CONFIG_PATH selects the SSH config file; neither setting enables deployment by itself.
 - UCLOUD_WORK_FOLDER=/work/vllm is the mounted working root.
 - /work/vllm/nginx.conf is configured and loaded by the template.
-- /work/vllm/.env supplies HF_TOKEN and remains read-only to the runtime helper.
 - /work/vllm/.env supplies both HF_TOKEN and VLLM_API_KEY, with mode 0600.
-  The local project .env is retained and never uploaded.
+  Runtime helpers read it without rewriting its contents. The local project .env
+  is retained and never uploaded; no duplicate credential file is required.
 - A bare public hostname is normalized to https://HOST/v1 for plans; actual TLS,
   route, authentication and inference still need an endpoint check.
 

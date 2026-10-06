@@ -10,7 +10,8 @@ Reviewed 2026-10-06. Recheck mutable docs against selected runtime releases.
 - [CBS-HPC/ucloud-api v0.1.6](https://github.com/CBS-HPC/ucloud-api/releases/tag/v0.1.6):
   released wheel downloaded and SHA256 checked; GPU/MIG/template-product builder
   tested. Real token metadata and the operator's template were inspected read-only.
-  Automatic hosting provisioning/recovery still gates submission in this project.
+  This project implements the hosting-specific CPU/GPU provisioning and recovery
+  workflow against that released adapter; see live-validation.md for evidence.
 - [CBS-HPC/chatbot](https://github.com/CBS-HPC/chatbot): vLLM model serving and
   nginx streaming configuration provide hosting context. GPU/compiler workarounds
   and broad process cleanup are not adopted as general hosting rules.

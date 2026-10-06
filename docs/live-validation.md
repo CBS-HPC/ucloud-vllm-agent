@@ -43,7 +43,8 @@ Both GPU jobs used kernel namespace `runtime-cache-a`. It contained 468
 files after restart; cache-load messages appeared in the runtime log. The pinned
 3,087,467,144-byte weight file retained its earlier timestamp. Models and kernel
 caches therefore survived GPU replacement. A controlled cold-versus-warm
-performance comparison remains future work.
+comparison had not been run at this earlier stage; the follow-up below records
+the completed comparison.
 
 Live findings fixed in code and regression tests:
 

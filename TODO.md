@@ -38,6 +38,7 @@
 - [x] Published to private GitHub repository CBS-HPC/ucloud-vllm-agent with CI;
   credentials and runtime artifacts are excluded.
 - [x] Offline model catalog of tested chat/anonymisation models and classification
-  candidates, including the inspected CLAES preview revision.
+  candidates, including pinned parameter counts/sources, tested GPU/VRAM/RAM
+  capacity, profiles/notebooks and the inspected CLAES preview revision.
 - [ ] Review CLAES's full release, serving dependencies/API, sizing and Danish task
   fixtures before adding hosting support; no classification model has been hosted yet.

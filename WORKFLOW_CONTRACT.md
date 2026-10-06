@@ -8,6 +8,11 @@ Ask for missing model/capability, context/concurrency or target decisions; do no
 repeat already-granted deployment authorization.
 
 ## Prepare
+Consult `vllm-agent models` and docs/model-catalog.md for known model types and
+previous validation. This offline history is distinct from the live UCloud
+machine `catalog`. Candidate entries require runtime review before a hosting
+profile is introduced; a parameter count alone is not a machine recommendation.
+
 1. Normalize a request from config/request.example.json or the user's instructions.
 2. Inspect HF metadata/config at the requested revision, resolving a commit hash.
 3. Review model card, license, tokenizer/chat template and selected vLLM support.
@@ -56,6 +61,10 @@ completed response; SSE requires content, a finish reason and the DONE marker.
 For non-chat capabilities use their actual API requests; chat checks are not proof
 of embedding or multimodal functionality. Record streaming behavior through the
 real proxy as well as the check's event timings.
+The supported PII profile uses scoring/masking/offset checks instead of chat or
+SSE. Use `check --task pii`; its ten checks cover model identity, masking, scoring,
+concurrency and missing/incorrect credentials. CLAES has no implemented runtime
+task or task-specific endpoint checks yet.
 
 State meanings:
 - prepared: plan and files exist; no job submitted.
@@ -63,6 +72,15 @@ State meanings:
 - endpoint_verified: the tested endpoint passed checks.
 - verification_failed: one or more checks failed.
 - stopped: the exact deployment session was stopped; allocation may remain active.
+- released: exact recorded owned jobs ended; artifacts and caches remain.
+- replaced / rolled_back / renewed: the predecessor was retired after successor verification.
+
+Catalog `validated` is a separate historical status, not deployment readiness.
+Record exact parameters and pinned metadata sources, tested machine GPU/VRAM/RAM
+capacity, dtype/context/concurrency, profile, notebook and evidence after live
+validation. Keep the catalog JSON, catalog table, README and relevant task docs
+consistent. An untested candidate must retain null machine/profile/runtime-task
+fields until it has an appropriate reviewed and verified serving implementation.
 
 Do not call a prepared plan deployed, or a session publicly ready. Record job ID,
 URL, allocation expiry, renewal responsibility and exact owned session before

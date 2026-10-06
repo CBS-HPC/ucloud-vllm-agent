@@ -10,6 +10,11 @@ Use the CLI for model metadata, estimates and preparation; see
 [capacity assumptions](../../docs/capacity.md) when comparing machine choices.
 
 Gather the model/capability, total context length and concurrency from the request.
+Consult `vllm-agent models` and [the model catalog](../../docs/model-catalog.md)
+for pinned revisions, parameter counts, tested machine capacities, profiles and
+notebooks. Historical validation is not current uptime or authorization to deploy.
+Keep candidates separate; CLAES needs a reviewed serving path before classification
+can be hosted. Use `catalog`/`size` for current UCloud product selection and sizing.
 Use UCLOUD_TEMPLATE_JOB_ID explicitly. The operator already owns template URL and
 nginx; verify its vLLM upstream port instead of creating another proxy.
 
@@ -27,3 +32,6 @@ to consume allocation. Run a reviewed bundle in an identified authorized job onl
 Keep the hosting job alive after successful setup and agent exit. Test the actual
 HTTPS endpoint and record results. A stop request targets its exact session;
 releasing the UCloud job is a separate explicit operation.
+After live validation, maintain the catalog's exact counts/sources, machine
+capacity, dtype/context/concurrency and evidence, plus relevant task docs and TODO.
+Use the task's actual checks: chat/SSE for chat, scoring/masking/offsets for PII.

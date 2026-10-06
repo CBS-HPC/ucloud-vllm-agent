@@ -4,12 +4,17 @@ Use `config/hosting.qwen-small.json` as the starting profile. It records the
 configuration verified on UCloud on 2026-10-06. Credentials, project, template
 IDs and public hostname remain in local `.env`; credentials never enter profiles
 or generated bundles.
+For anonymisation, use `config/hosting.pii-tracer.json` with `request.task=pii`.
+The [model catalog](model-catalog.md) lists pinned revisions, parameters, tested
+machine capacities and notebooks. CLAES is a classification candidate without a
+hosting profile; do not copy a chat/PII task value to imply classification support.
 
 Change these profile values for a new workload:
 
 | Value | Effect |
 | --- | --- |
 | `request.name` | Served model alias and deployment name. |
+| `request.task` | `chat` for generative chat; `pii` for the reviewed token-classification adapter. |
 | `request.model`, `request.revision` | Hugging Face repository and pinned revision. Preparation resolves an unpinned revision into the bundle's exact commit. |
 | `request.context_length`, `request.concurrency` | Context and simultaneous sequence limits; both affect the memory estimate. |
 | `request.dtype`, `request.gpu_memory_utilization` | Model dtype and GPU memory budget. |
@@ -49,7 +54,8 @@ No model repository code is enabled by this profile.
 
 1. Prepare the model/profile, inspect its pinned metadata and review the blockers.
 2. Use the explicit CPU preparation template and verify the persistent shared mount.
-3. Upload the bundle, stable initialization script and workspace README. Prepare
+3. Upload the reviewed bundle and stable initialization script. Preserve the
+   mounted workspace README; maintain its context when explicitly needed. Prepare
    the verified environment and cache the pinned model using the remote HF token.
 4. Select the reviewed bundle with `/work/vllm/active`. Confirm both remote keys in the workspace `.env` (mode 0600). Refuse an implicit replacement of another deployment.
 5. Build from the explicit nginx serving template. Preserve mounts, nginx and
@@ -58,7 +64,8 @@ No model repository code is enabled by this profile.
    requires recovery rather than another allocation.
 7. Register the WEB session on the running job. Confirm the returned host matches
    the configured public URL, then wait for model readiness.
-8. Run seven deterministic checks on loopback, nginx and external HTTPS. Save
+8. Run task-specific checks on loopback, nginx and external HTTPS: seven for chat
+   or ten for PII. Save
    evidence, current job state and allocation expiry. Keep a verified job running.
 
 UCloud interactive SHELL is the recovery path for inspecting a failed startup
@@ -67,6 +74,9 @@ retry first checks the owned process and port; it does not create a second job.
 Successful script execution and a RUNNING job alone are not model readiness.
 
 Automated CPU provisioning, submit recovery, route registration and tmux lifecycle
-are implemented and unit-tested. Live CLI deployment/replacement passed on 2026-10-06.
-See [commands and recovery semantics](automated-lifecycle.md). The earlier
-successful deployment used reviewed manual control scripts.
+are implemented and tested. Deployment, ended-preparation recovery, replacement,
+rollback and renewal passed live validation on 2026-10-06. Rollback and renewal
+create replacement allocations with downtime; repeated commands resume their
+recorded bundle. See [commands and recovery semantics](automated-lifecycle.md)
+and [dated validation evidence](live-validation.md). The validation jobs were
+explicitly released; historical success does not imply a currently running service.

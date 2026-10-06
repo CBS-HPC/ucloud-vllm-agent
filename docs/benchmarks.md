@@ -33,8 +33,11 @@ restarts in the **same GPU job**, with identical model, revision, context,
 concurrency and cache group. A restart includes preflight, process shutdown when
 needed, engine startup, public readiness and endpoint validation. It excludes
 GPU queueing, CPU preparation, downloads and first-time system package setup.
-Record whether the process was running before each restart: a cold run measured
-after an explicit stop excludes the stop duration; warm restarts include it.
+Stop the exact owned service before each measured restart so cold and warm runs
+start from the same state. Exclude those explicit stop operations from the timing.
+If comparing a restart from a running process, record it separately: its shutdown
+duration changes the timing boundary. The final live comparison used already
+stopped processes for all three measurements.
 Use cache evidence and runtime profiles to verify identical compatibility hashes.
 These measurements compare compilation reuse with warm checkpoint storage; they
 are not a cold model-download benchmark.
