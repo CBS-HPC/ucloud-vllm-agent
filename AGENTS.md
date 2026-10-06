@@ -1,0 +1,65 @@
+# UCloud vLLM hosting agent
+
+## Mission and reference
+Use the same request-to-case-to-UCloud pattern as the operator's moody_agent,
+with model hosting as the workload. Codex/Claude is the conversational agent;
+the Python CLI provides deterministic planning, artifacts and verification.
+Read skills/vllm-hosting/SKILL.md for model setup and WORKFLOW_CONTRACT.md for
+the execution contract. Respond in the operator's language; repository text is English.
+
+## Ownership
+- The operator configures the URL and nginx in a known-good UCloud template.
+- UCLOUD_TEMPLATE_JOB_ID is mandatory for submission. Never fall back to the
+  latest job. Inspect and preserve template mounts, application and networking.
+- ucloud-api owns generic job/product selection, credentials and SSH transport.
+  Consume a released package. Do not edit dependency repositories or duplicate
+  their submission logic here. GPU submission awaits its upcoming release.
+- This project owns HF inspection, sizing, model configuration, deployment
+  evidence and the vLLM serving lifecycle. Never copy Moody's data-specific logic.
+
+## Planning and operation
+Read pyproject.toml for the installed dependency boundary and docs/ucloud-access.md
+before remote actions. Use the CLI rather than reinventing its estimates/configs.
+Inspect HF model metadata/card, then size weights, KV cache, runtime allowance,
+system RAM and disk for the actual context length and concurrency. Report the
+assumptions and alternatives; memory fit does not prove throughput or compatibility.
+Unrecognized architectures, quantization, multimodal or MoE layouts need an
+appropriate estimator/manual analysis, not guessed dense-model numbers.
+Record the model commit and chosen vLLM release. Never enable remote repository
+code without reviewing the pinned revision and obtaining the operator's decision.
+
+## Template and runtime invariants
+- Reuse template nginx/URL. Validate its upstream port against the model request;
+  do not install/reconfigure/start a second nginx server by default.
+- Model cache, environment and deployment evidence live on a verified mount.
+  A /work prefix alone does not establish persistence.
+- Start one base model per owned process/session. Multiple models need separate
+  ports and explicit GPU budgets or a deliberate replacement of a serving model.
+- Never aggregate MIG slice memory as if it were one device. Check CUDA visibility
+  and per-device memory before launch and test tensor-parallel compatibility.
+- Never change CUDA drivers, global compiler symlinks, or architecture flags by
+  copying a workaround from another host. Use the verified runtime's instructions.
+- Never terminate a hosting job after successful setup, a local agent exit or
+  completion of endpoint checks. Record allocation expiry and renewal responsibility.
+- Stop only the exact owned session/job when the operator requests that action.
+  No broad process-name/port kills, shared cache clearing or implicit replacement.
+- Test expected model, actual inference, SSE, authentication rejection and the
+  actual external HTTPS endpoint before calling the service publicly verified.
+
+## Authorization and secrets
+Local preparation and read-only inspection are part of ordinary setup work.
+Deploy when requested within the identified target; preserve existing authorization
+without repeated confirmations. Planning alone does not authorize allocating GPU
+time. Ask only for missing decisions or actions outside the requested scope.
+Never print tokens, private keys, environment dumps or raw credentialed responses.
+Do not read .env contents into model context. Local settings may be read by code;
+remote credentials are provisioned by the operator in a restricted runtime file.
+Do not transfer local .env, use credentials as CLI arguments or commit run artifacts.
+
+## State and maintenance
+Prepared bundles live in deployments/<name>/<run-id>/, ignored by Git. A plan
+is not a launch; a session is not readiness; an endpoint check is not a durable
+allocation. Report the actual status, artifact path, recommendation and blockers.
+Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. When the new
+ucloud-api release arrives, inspect its API, pin it, add adapter tests and validate
+one live template-based GPU deployment before removing the submission gate.

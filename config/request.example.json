@@ -1,0 +1,15 @@
+{
+  "name": "qwen-small",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "revision": "main",
+  "context_length": 4096,
+  "concurrency": 4,
+  "dtype": "bfloat16",
+  "gpu_memory_utilization": 0.85,
+  "runtime_reserve_gib": 3,
+  "weight_overhead_fraction": 0.1,
+  "vllm_version": null,
+  "vllm_port": 8000,
+  "work_folder": "/work/ucloud-vllm",
+  "secret_file": "/work/ucloud-vllm/secrets/runtime.env"
+}

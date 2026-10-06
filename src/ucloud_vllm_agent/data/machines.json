@@ -1,0 +1,12 @@
+{
+  "schema": "ucloud.vllm.machine_candidates.v1",
+  "note": "Illustrative capacity candidates, not live product IDs/categories or a verified project catalog. Replace with project-verified records before submission. Full B200 VRAM uses a conservative 160 GiB allowance; actual exposed memory must be measured.",
+  "source": "https://docs.cloud.sdu.dk/guide/resources-products.html",
+  "machines": [
+    {"name": "B200 single MIG slice", "gpu_count": 1, "vram_gib_per_gpu": 21, "ram_gib": 36, "mig": true, "verified": false},
+    {"name": "B200 full GPU", "gpu_count": 1, "vram_gib_per_gpu": 160, "ram_gib": 288, "mig": false, "verified": false},
+    {"name": "B200 two full GPUs", "gpu_count": 2, "vram_gib_per_gpu": 160, "ram_gib": 576, "mig": false, "verified": false},
+    {"name": "B200 four full GPUs", "gpu_count": 4, "vram_gib_per_gpu": 160, "ram_gib": 1152, "mig": false, "verified": false},
+    {"name": "B200 eight full GPUs", "gpu_count": 8, "vram_gib_per_gpu": 160, "ram_gib": 2304, "mig": false, "verified": false}
+  ]
+}
