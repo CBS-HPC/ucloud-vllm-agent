@@ -14,6 +14,11 @@ import subprocess
 import sys
 from pathlib import Path
 import shlex
+import hashlib
+import platform
+import re
+import time
+from importlib.metadata import version
 
 GIB = 1024 ** 3
 
@@ -70,6 +75,9 @@ print(json.dumps({"vllm_version": version("vllm"), "devices": devices}))'''
         raise ValueError("Available disk is below the planned storage allowance")
     with socket.socket() as listener:
         listener.bind(("127.0.0.1", config["port"]))
+    if config.get("task") == "pii":
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", config["port"] + 1))
     return {"state": "preflight_passed", "gpu": gpu,
             "note": "Verify mounted persistence and container RAM limits separately before launch."}
 
@@ -80,8 +88,24 @@ def write_state(root: Path, state: str, **details) -> None:
     temporary.replace(root / "state.json")
 
 
+def wait_for_port_release(port: int, timeout: float = 60) -> None:
+    """Wait for shutdown without signalling any process found by port/name."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        with socket.socket() as listener:
+            try:
+                listener.bind(("127.0.0.1", port))
+                return
+            except OSError:
+                pass
+        time.sleep(0.5)
+    raise ValueError("Owned session stopped but its port remains busy; inspect before restarting")
+
+
 def load_runtime_secrets(config: dict) -> dict:
     env = os.environ.copy()
+    env.pop("VLLM_API_KEY", None)
+    env.pop("HF_TOKEN", None)
     # Read only the intended key from each source; neither file is evaluated or
     # rewritten. A blank serving key can never disable authentication silently.
     for source, allowed_key in ((config["hf_env_file"], "HF_TOKEN"), (config["secret_file"], "VLLM_API_KEY")):
@@ -96,8 +120,82 @@ def load_runtime_secrets(config: dict) -> dict:
     return env
 
 
-def serve(config: dict, root: Path) -> None:
+def cache_namespace(evidence: dict) -> str:
+    return hashlib.sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()[:24]
+
+
+def kernel_cache_base(config: dict) -> Path:
+    """Allow a separate experiment cache without clearing production caches."""
+    base = Path(config["cache_dir"]).parent / "kernels"
+    group = config.get("kernel_cache_group")
+    if group is not None:
+        if not isinstance(group, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,63}", group):
+            raise ValueError("Invalid kernel cache experiment group")
+        base = base / "experiments" / group
+    return base
+
+
+def runtime_environment(config: dict, root: Path) -> dict:
     env = load_runtime_secrets(config)
+    cuda = Path(config["venv_dir"]) / "lib/python3.12/site-packages/nvidia/cu13"
+    if any(version(p) != "13.0.88" for p in ("nvidia-cuda-nvcc", "nvidia-cuda-crt", "nvidia-nvvm")):
+        raise ValueError("CUDA compiler differs from the verified cu130 baseline")
+    library = cuda / "lib/libcudart.so.13"
+    if not library.is_file() or not (cuda / "bin/nvcc").is_file():
+        raise ValueError("Prepared CUDA compiler/runtime files are missing")
+    import torch
+    driver = subprocess.check_output(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+                                     text=True, timeout=15).strip()
+    compiler = subprocess.check_output(["g++", "--version"], text=True, timeout=15).splitlines()[0]
+    evidence = {"vllm": version("vllm"), "torch": torch.__version__, "cuda": torch.version.cuda,
+                "flashinfer": version("flashinfer-python"), "nvcc": version("nvidia-cuda-nvcc"),
+                "python": platform.python_version(), "machine": platform.machine(),
+                "libc": platform.libc_ver(), "compiler": compiler, "driver": driver,
+                "gpus": [{"name": torch.cuda.get_device_name(i), "capability": torch.cuda.get_device_capability(i)}
+                         for i in range(torch.cuda.device_count())]}
+    cache = kernel_cache_base(config) / cache_namespace(evidence)
+    cache.mkdir(parents=True, exist_ok=True)
+    linker = cache / "cuda-linker"
+    linker.mkdir(exist_ok=True)
+    alias = linker / "libcudart.so"
+    if not alias.exists():
+        alias.symlink_to(library)
+    if alias.resolve() != library.resolve():
+        raise ValueError("CUDA linker alias does not match the verified runtime")
+    (cache / "compatibility.json").write_text(json.dumps(evidence, indent=2))
+    env.update(CUDA_HOME=str(cuda),
+               PATH=str(interpreter(config).parent) + ":" + str(cuda / "bin") + ":" + env.get("PATH", ""),
+               FLASHINFER_EXTRA_LDFLAGS="-L" + str(linker), VLLM_CACHE_ROOT=str(cache / "vllm"),
+               FLASHINFER_WORKSPACE_BASE=str(cache / "flashinfer"), TRITON_CACHE_DIR=str(cache / "triton"),
+               TORCHINDUCTOR_CACHE_DIR=str(cache / "torchinductor"), CUDA_CACHE_PATH=str(cache / "cuda-driver"))
+    (root / "cache-evidence.json").write_text(json.dumps({"namespace": cache.name, "path": str(cache),
+                                                       "compatibility": evidence}, indent=2))
+    return env
+
+
+def profiling_evidence(root: Path) -> dict:
+    """Only extract numeric sizing evidence; never return arbitrary log contents."""
+    log = root / "vllm.log"
+    if not log.exists():
+        return {}
+    text = log.read_text(errors="replace")[-2_000_000:]
+    fields = {"model_weights_gib": r"Model loading took ([\d.]+) GiB",
+              "available_kv_gib": r"Available KV cache memory: ([\d.]+) GiB",
+              "gpu_kv_tokens": r"GPU KV cache size: ([\d,]+) tokens",
+              "max_full_context_concurrency": r"Maximum concurrency for [\d,]+ tokens per request: ([\d.]+)x"}
+    result = {}
+    for key, pattern in fields.items():
+        matches = re.findall(pattern, text)
+        if matches:
+            result[key] = float(matches[-1].replace(",", ""))
+    return result
+
+
+def serve(config: dict, root: Path) -> None:
+    env = runtime_environment(config, root)
+    if config.get("task") == "pii":
+        command = [str(interpreter(config)), str(root / "pii_service.py"), "supervise"]
+        os.execve(command[0], command, env)
     command = [str(Path(config["venv_dir"]) / "bin" / "vllm"), "serve", config["model"],
                "--revision", config["revision"], "--served-model-name", config["name"],
                "--host", "127.0.0.1", "--port", str(config["port"]),
@@ -105,6 +203,7 @@ def serve(config: dict, root: Path) -> None:
                "--max-num-seqs", str(config["concurrency"]),
                "--tensor-parallel-size", str(config["gpu_count"]),
                "--gpu-memory-utilization", str(config["gpu_memory_utilization"])]
+    command.extend(["--kv-cache-dtype", config.get("kv_cache_dtype", "auto")])
     with (root / "vllm.log").open("a", encoding="utf-8") as logfile:
         os.dup2(logfile.fileno(), 1)
         os.dup2(logfile.fileno(), 2)
@@ -113,7 +212,7 @@ def serve(config: dict, root: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=["install", "preflight", "start", "serve", "status", "stop"])
+    parser.add_argument("operation", choices=["install", "preflight", "initialize", "start", "serve", "status", "stop", "verify"])
     args = parser.parse_args()
     root = Path(__file__).resolve().parent
     try:
@@ -130,12 +229,21 @@ def main() -> int:
             result = preflight(config, root)
             (root / "preflight.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
             print(json.dumps(result, indent=2))
-        elif args.operation == "start":
+        elif args.operation in ("start", "initialize"):
+            if args.operation == "initialize" and not shutil.which("tmux"):
+                if os.getuid() != 0 or not shutil.which("apt-get"):
+                    raise ValueError("Serving image must provide tmux or permit initialization package installation")
+                with (root / "system-installation.log").open("a") as log:
+                    subprocess.run(["apt-get", "update"], check=True, stdout=log, stderr=log, timeout=300)
+                    subprocess.run(["apt-get", "install", "-y", "--no-install-recommends", "tmux", "libnuma1", "build-essential"],
+                                   check=True, stdout=log, stderr=log, timeout=300,
+                                   env={**os.environ, "DEBIAN_FRONTEND": "noninteractive"})
             result = preflight(config, root)
             load_runtime_secrets(config)  # Validate credentials before creating a session.
             if subprocess.run(["tmux", "has-session", "-t", "=" + config["session"]], capture_output=True).returncode == 0:
                 raise ValueError("Deployment session already exists; inspect it before replacement")
-            command = shlex.join([sys.executable, str(root / "remote.py"), "serve"])
+            command = shlex.join([str(interpreter(config)) if config.get("venv_dir") else sys.executable,
+                                  str(root / "remote.py"), "serve"])
             subprocess.run(["tmux", "new-session", "-d", "-s", config["session"], "-c", str(root), command], check=True, timeout=30)
             write_state(root, "launched", session=config["session"], preflight=result,
                         note="nginx and UCloud job remain running; endpoint checks are still required")
@@ -144,10 +252,27 @@ def main() -> int:
         elif args.operation == "status":
             result = subprocess.run(["tmux", "has-session", "-t", "=" + config["session"]], capture_output=True, timeout=15)
             print(json.dumps({"session": config["session"], "running": result.returncode == 0,
+                              "profile": profiling_evidence(root),
+                              "cache": json.loads((root / "cache-evidence.json").read_text()) if (root / "cache-evidence.json").exists() else None,
                               "note": "Session presence is not model readiness or public verification."}))
         elif args.operation == "stop":
             subprocess.run(["tmux", "kill-session", "-t", "=" + config["session"]], check=True, timeout=15)
+            wait_for_port_release(config["port"])
+            if config.get("task") == "pii":
+                wait_for_port_release(config["port"] + 1)
             write_state(root, "stopped", note="Only the exact deployment session stopped; UCloud allocation remains running.")
+        elif args.operation == "verify":
+            from endpoint_probe.checks import check_endpoint
+            if config.get("task") == "pii":
+                from endpoint_probe.pii_checks import check_pii_endpoint as check_endpoint
+            token = load_runtime_secrets(config)["VLLM_API_KEY"]
+            results = {}
+            for name, port in (("loopback", config["port"]), ("nginx", config.get("nginx_port", 8080))):
+                result = check_endpoint(f"http://127.0.0.1:{port}/v1", config["name"], token)
+                (root / ("checks-" + name + ".json")).write_text(json.dumps(result, indent=2))
+                results[name] = result["passed"]
+            print(json.dumps({"passed": all(results.values()), "checks": results}))
+            return 0 if all(results.values()) else 1
         return 0
     except (ValueError, OSError, KeyError, json.JSONDecodeError, subprocess.SubprocessError) as exc:
         # No raw response, command output, environment, or secret values in errors.

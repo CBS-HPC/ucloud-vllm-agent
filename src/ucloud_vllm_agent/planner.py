@@ -42,8 +42,7 @@ def prepare(request: dict, metadata: dict, machines: list[dict], output_root: Pa
     if selected and not selected.get("verified"):
         blockers.append("verify_machine_capacity_and_product_in_project")
     blockers.extend(["review_model_license_and_runtime_compatibility",
-                     "inspect_template_nginx_upstream_mounts_and_secret_file",
-                     "hosting_job_lifecycle_integration_pending"])
+                     "inspect_template_nginx_upstream_mounts_and_secret_file"])
     plan = {"schema": "ucloud.vllm.deployment_plan.v1", "run_id": run_id,
             "state": "prepared", "request": request,
             "template_job_id": os.getenv("UCLOUD_TEMPLATE_JOB_ID") or None,
@@ -58,9 +57,11 @@ def prepare(request: dict, metadata: dict, machines: list[dict], output_root: Pa
     if selected:
         remote_dir = request["work_folder"].rstrip("/") + "/deployments/" + request["name"] + "/" + run_id
         runtime = {"schema": "ucloud.vllm.runtime.v1", "name": request["name"],
+                   "task": request["task"],
                    "remote_dir": remote_dir, "session": "vllm-" + request["name"] + "-" + run_id[-8:],
                    "model": request["model"], "revision": revision,
                    "dtype": request["dtype"], "context_length": request["context_length"],
+                   "kv_cache_dtype": request["kv_cache_dtype"],
                    "concurrency": request["concurrency"], "port": request["vllm_port"],
                    "gpu_memory_utilization": request["gpu_memory_utilization"],
                    "gpu_count": selected["gpu_count"],

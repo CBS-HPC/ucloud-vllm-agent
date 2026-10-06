@@ -1,0 +1,30 @@
+{
+  "schema": "ucloud.vllm.hosting_profile.v1",
+  "request": {
+    "name": "pii-tracer",
+    "model": "perplexity-ai/PII-Tracer-vLLM",
+    "revision": "9f34cd1f5010a1de5a7b464eaf3c3a39db01b15a",
+    "context_length": 4096,
+    "concurrency": 2,
+    "dtype": "bfloat16",
+    "gpu_memory_utilization": 0.85,
+    "vllm_version": "0.31.0",
+    "vllm_port": 8000,
+    "task": "pii"
+  },
+  "machine": {
+    "name": "B200 MIG 1g.23gb",
+    "gpu_count": 1,
+    "vram_gib_per_gpu": 20.5,
+    "ram_gib": 30,
+    "mig": true,
+    "verified": true,
+    "product": {
+      "id": "gpu-nvidia-b200-1-mig.1g",
+      "category": "gpu-nvidia-b200",
+      "provider": "ucloud"
+    }
+  },
+  "hours": 1,
+  "venv_dir": "/work/vllm/.venv"
+}

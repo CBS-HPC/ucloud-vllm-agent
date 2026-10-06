@@ -17,16 +17,14 @@ def integration_status() -> dict:
     return {
         "installed_ucloud_workflow": installed,
         "gpu_product_selection_enabled": installed == "0.1.6",
-        "gpu_submission_enabled": False,
-        "reason": "GPU product API is supported in v0.1.6; automated hosting provisioning/recovery is still pending.",
+        "gpu_submission_enabled": installed == "0.1.6",
+        "reason": "Template-based CPU preparation, nginx initialization and journaled hosting lifecycle require the reviewed v0.1.6 package.",
     }
 
 
 def require_hosting_adapter() -> None:
-    # Intentionally fail before client construction, template lookup or submission.
-    # Product selection is released. Do not confuse that with a complete
-    # hosting lifecycle including provisioning, state and recovery.
-    raise ReleasePendingError(integration_status()["reason"])
+    if integration_status()["installed_ucloud_workflow"] != "0.1.6":
+        raise ReleasePendingError("Install the reviewed ucloud-workflow v0.1.6 package")
 
 
 def preview_job_specification(template: dict, *, hours: int, product: dict | None = None) -> dict:

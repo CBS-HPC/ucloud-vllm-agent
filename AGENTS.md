@@ -6,6 +6,11 @@ with model hosting as the workload. Codex/Claude is the conversational agent;
 the Python CLI provides deterministic planning, artifacts and verification.
 Read skills/vllm-hosting/SKILL.md for model setup and WORKFLOW_CONTRACT.md for
 the execution contract. Respond in the operator's language; repository text is English.
+Use config/hosting.qwen-small.json and docs/deterministic-hosting.md as the tested
+configuration baseline. Prefer prepare-profile/preview-profile for model/machine
+changes. The default startup path is nginx initScript after CPU preparation;
+interactive SHELL is for diagnostics/recovery. Read docs/automated-lifecycle.md for deploy/recover/status/restart/release/rollback/renew.
+Do not equate a preview with submission; live CLI deployment/replacement passed on 2026-10-06.
 
 ## Ownership
 - The operator configures the URL and nginx in a known-good UCloud template.
@@ -14,7 +19,7 @@ the execution contract. Respond in the operator's language; repository text is E
 - ucloud-api owns generic job/product selection, credentials and SSH transport.
   Consume a released package. Do not edit dependency repositories or duplicate
   their submission logic here. The product adapter uses released v0.1.6;
-  automatic hosting provisioning/recovery remains pending.
+  hosting provisioning/recovery is implemented and unit-tested.
 - This project owns HF inspection, sizing, model configuration, deployment
   evidence and the vLLM serving lifecycle. Never copy Moody's data-specific logic.
 
@@ -44,7 +49,8 @@ code without reviewing the pinned revision and obtaining the operator's decision
   completion of endpoint checks. Record allocation expiry and renewal responsibility.
 - Stop only the exact owned session/job when the operator requests that action.
   No broad process-name/port kills, shared cache clearing or implicit replacement.
-- Test expected model, actual inference, SSE, authentication rejection and the
+- Test the actual task: chat includes SSE; PII uses scoring, masking and offsets.
+  Read docs/pii-tracer.md for the task=pii profile. Test authentication rejection and the
   actual external HTTPS endpoint before calling the service publicly verified.
 
 ## Authorization and secrets
@@ -54,8 +60,9 @@ without repeated confirmations. Planning alone does not authorize allocating GPU
 time. Ask only for missing decisions or actions outside the requested scope.
 Never print tokens, private keys, environment dumps or raw credentialed responses.
 Do not read .env contents into model context. Local settings may be read by code;
-remote HF access comes from /work/vllm/.env; the operator provisions the serving
-key separately in /work/vllm/secrets/vllm.env. Do not modify either implicitly.
+remote HF_TOKEN and VLLM_API_KEY both come from /work/vllm/.env (mode 0600).
+Keep the operator's local project .env. Do not create duplicate credential files
+or rewrite their contents unless explicitly requested.
 Do not transfer local .env, use credentials as CLI arguments or commit run artifacts.
 
 ## State and maintenance
@@ -63,5 +70,10 @@ Prepared bundles live in deployments/<name>/<run-id>/, ignored by Git. A plan
 is not a launch; a session is not readiness; an endpoint check is not a durable
 allocation. Report the actual status, artifact path, recommendation and blockers.
 Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. v0.1.6 is
-pinned and product previews are tested. Complete hosting provisioning/recovery
-and validate one live template-based deployment before removing the lifecycle gate.
+pinned and product previews are tested. Live deployment/replacement/recovery/restart were validated on the baseline;
+see docs/live-validation.md for scope and remaining limits.
+Preparation expiry recovery, explicit rollback and renewal-by-replacement are
+offline regression-tested; they require separate live validation. Never renew or
+rollback automatically after an operator stops a job. Both commands can allocate
+GPU time and involve downtime; use them only when requested.
+Require UCLOUD_PROJECT to match both templates before allocating any jobs.

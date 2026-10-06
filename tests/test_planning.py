@@ -68,13 +68,13 @@ def test_context_exceeding_model_is_blocked(workload, metadata):
     assert "context_exceeds_model_config" in result["blockers"]
 
 
-def test_prepare_keeps_revision_and_records_release_gate(tmp_path, monkeypatch, workload, metadata):
+def test_prepare_keeps_revision_and_records_configuration_blockers(tmp_path, monkeypatch, workload, metadata):
     monkeypatch.delenv("UCLOUD_TEMPLATE_JOB_ID", raising=False)
     root = prepare(workload, metadata, [machine()], tmp_path)
     plan = json.loads((root / "plan.json").read_text())
     runtime = json.loads((root / "runtime.json").read_text())
     assert plan["job_id"] is None
-    assert "hosting_job_lifecycle_integration_pending" in plan["blockers"]
+    assert "configure_UCLOUD_TEMPLATE_JOB_ID" in plan["blockers"]
     assert runtime["revision"] == "a" * 40
     assert runtime["concurrency"] == workload["concurrency"]
     assert (root / "remote.py").exists()

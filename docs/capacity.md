@@ -3,9 +3,10 @@
 For supported conventional dense decoder models:
 
 ```
-weights = total parameters * runtime dtype bytes
+weights = total parameters * runtime dtype bytes (dense)
+        OR pinned checkpoint file bytes (supported quantization)
 tokens = total context length * concurrent sequences
-KV = 2 * layers * KV heads * head dimension * tokens * dtype bytes
+KV = 2 * layers * KV heads * head dimension * tokens * KV dtype bytes
 per-device requirement = weights / TP * (1 + weight allowance)
                        + KV / min(TP, KV heads)
                        + per-device runtime reserve
@@ -23,18 +24,23 @@ graphs, weight replication, tokenizer/process RAM, allocator fragmentation and
 actual request mix can change demand. No prefix-cache sharing discount is assumed.
 
 RAM is provisionally 1.5 times runtime weight bytes plus 8 GiB; disk is twice
-runtime weight bytes plus 10 GiB. These are allowances, not measured checkpoint
-sizes. Recalculate for dtype conversions, extra model revisions, tokenizer files,
+checkpoint bytes (when known, otherwise runtime weights) plus 10 GiB.
+These are allowances, not a free-space measurement. Recalculate for dtype conversions, extra model revisions, tokenizer files,
 download cache behavior and the chosen loader. Compare to actual container RAM,
 mounted storage and checkpoint file sizes before launching.
 
-The default candidate list is illustrative and uses conservative VRAM allowances.
-It has no authoritative product/category/provider identifiers, prices or live
-availability. Prefer the least total allocated VRAM among fitting candidates;
-this is not a fastest/cheapest-machine claim. Replace it with project-verified
-capacities and the product identifiers supported by the released v0.1.6 API.
+The bundled default candidate list remains illustrative. `catalog` reads active
+project wallets and actual UCloud products; `size` uses that catalog by default.
+The initial automatic mapping covers B200 full GPU and 1g.23gb MIG. CUDA-visible
+VRAM must still be checked during startup. Fit is per-device, never pooled.
+Reports give the minimum fitting allocation and a recommendation preferring
+10% extra headroom inside the utilization budget, plus memory margins. Selection
+minimizes allocated VRAM, not price or latency. Accounting rates retain API units.
+See [comparison and evidence](sizing-research.md).
 
-Models with unknown architecture, quantization, MoE, MLA, hybrid or multimodal
+AWQ 4-bit, GPTQ 4/8-bit and FP8 checkpoints require pinned file sizes; explicit
+FP8 KV halves the KV estimate without assuming that weight quantization changes KV.
+Models with unknown architecture/quantization, MoE, MLA, recurrent hybrid or multimodal
 layout require specific analysis. Model parameter count is total resident weights,
 not the number of activated parameters per token. Do not estimate MoE weights
 from active parameter count. This first release deliberately returns review cases

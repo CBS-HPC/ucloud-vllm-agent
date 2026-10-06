@@ -38,7 +38,7 @@ def validate_request(request: dict) -> dict:
         "name", "model", "revision", "context_length", "concurrency", "dtype",
         "gpu_memory_utilization", "runtime_reserve_gib", "weight_overhead_fraction",
         "vllm_version", "vllm_port", "work_folder", "public_base_url", "secret_file",
-        "hf_env_file", "nginx_config",
+        "hf_env_file", "nginx_config", "kv_cache_dtype", "task",
     }
     if set(request) - allowed:
         raise ValueError("Unknown request fields: " + ", ".join(sorted(set(request) - allowed)))
@@ -49,12 +49,13 @@ def validate_request(request: dict) -> dict:
     work_folder = request.get("work_folder") or os.getenv("UCLOUD_WORK_FOLDER") or "/work/vllm"
     result = {
         "revision": "main", "context_length": 4096, "concurrency": 1,
-        "dtype": "bfloat16", "gpu_memory_utilization": 0.85,
+        "dtype": "bfloat16", "kv_cache_dtype": "auto", "task": "chat", "gpu_memory_utilization": 0.85,
         "runtime_reserve_gib": 3.0, "weight_overhead_fraction": 0.1,
         "vllm_version": None, "vllm_port": 8000,
         "work_folder": work_folder,
         "public_base_url": os.getenv("UCLOUD_PUBLIC_BASE_URL") or None,
-        "secret_file": os.getenv("UCLOUD_VLLM_SECRET_FILE") or work_folder.rstrip("/") + "/secrets/vllm.env",
+        "secret_file": (os.getenv("UCLOUD_VLLM_SECRET_FILE") or request.get("hf_env_file")
+                        or os.getenv("UCLOUD_HF_ENV_FILE") or work_folder.rstrip("/") + "/.env"),
         "hf_env_file": os.getenv("UCLOUD_HF_ENV_FILE") or work_folder.rstrip("/") + "/.env",
         "nginx_config": os.getenv("UCLOUD_NGINX_CONFIG") or work_folder.rstrip("/") + "/nginx.conf",
         **request,
@@ -65,6 +66,10 @@ def validate_request(request: dict) -> dict:
         raise ValueError("vllm_port must be <= 65535")
     if result["dtype"] not in ("bfloat16", "float16", "float32"):
         raise ValueError("dtype must be bfloat16, float16 or float32")
+    if result["task"] not in ("chat", "pii"):
+        raise ValueError("task must be chat or pii")
+    if result["kv_cache_dtype"] not in ("auto", "fp8", "fp8_e4m3", "fp8_e5m2"):
+        raise ValueError("Unsupported KV cache dtype")
     for key in ("gpu_memory_utilization", "runtime_reserve_gib", "weight_overhead_fraction"):
         value = result[key]
         if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -87,8 +92,6 @@ def validate_request(request: dict) -> dict:
         raise ValueError("vllm_version must be an exact release version")
     if result["public_base_url"]:
         result["public_base_url"] = normalize_public_url(result["public_base_url"])
-    if result["secret_file"] == result["hf_env_file"]:
-        raise ValueError("Use separate files for the template HF token and vLLM serving key")
     if not isinstance(result["revision"], str) or not result["revision"]:
         raise ValueError("revision must be a non-empty HF revision")
     return result

@@ -1,0 +1,29 @@
+{
+  "schema": "ucloud.vllm.hosting_profile.v1",
+  "request": {
+    "name": "qwen-small",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+    "context_length": 4096,
+    "concurrency": 1,
+    "dtype": "bfloat16",
+    "gpu_memory_utilization": 0.85,
+    "vllm_version": "0.31.0",
+    "vllm_port": 8000
+  },
+  "machine": {
+    "name": "B200 MIG 1g.23gb",
+    "gpu_count": 1,
+    "vram_gib_per_gpu": 20.5,
+    "ram_gib": 30,
+    "mig": true,
+    "verified": true,
+    "product": {
+      "id": "gpu-nvidia-b200-1-mig.1g",
+      "category": "gpu-nvidia-b200",
+      "provider": "ucloud"
+    }
+  },
+  "hours": 1,
+  "venv_dir": "/work/vllm/.venv"
+}

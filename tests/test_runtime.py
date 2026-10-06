@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import json
 import subprocess
+import pytest
 from pathlib import Path
 
 from ucloud_vllm_agent import remote
 
 
-def test_stop_targets_only_the_owned_unique_session(tmp_path, monkeypatch):
-    config = {"session": "vllm-model-12345678"}
+@pytest.mark.parametrize('task, ports', [('chat', [8000]), ('pii', [8000, 8001])])
+def test_stop_targets_only_the_owned_unique_session(tmp_path, monkeypatch, task, ports):
+    config = {"session": "vllm-model-12345678", "port": 8000, "task": task}
+    waited = []
+    monkeypatch.setattr(remote, "wait_for_port_release", waited.append)
     monkeypatch.setattr(remote, "read_runtime", lambda root: config)
     monkeypatch.setattr(remote, "__file__", str(tmp_path / "remote.py"))
     monkeypatch.setattr("sys.argv", ["remote.py", "stop"])
@@ -20,6 +24,7 @@ def test_stop_targets_only_the_owned_unique_session(tmp_path, monkeypatch):
 
     monkeypatch.setattr(remote.subprocess, "run", run)
     assert remote.main() == 0
+    assert waited == ports
     assert calls == [["tmux", "kill-session", "-t", "=vllm-model-12345678"]]
     state = json.loads((tmp_path / "state.json").read_text())
     assert state["state"] == "stopped"
@@ -44,3 +49,14 @@ def test_start_detaches_and_does_not_stop_after_return(tmp_path, monkeypatch):
     assert calls[1][:3] == ["tmux", "new-session", "-d"]
     assert len(calls) == 2
     assert "private" not in (tmp_path / "state.json").read_text()
+
+
+def test_compilation_experiments_do_not_change_model_cache_or_production_cache():
+    config = {'cache_dir': '/work/vllm/cache/huggingface'}
+    assert remote.kernel_cache_base(config).as_posix() == '/work/vllm/cache/kernels'
+    experiment = {**config, 'kernel_cache_group': 'validation-123'}
+    assert remote.kernel_cache_base(experiment).as_posix() == '/work/vllm/cache/kernels/experiments/validation-123'
+    assert experiment['cache_dir'] == config['cache_dir']
+    for bad in ('../shared', '/work/vllm', '', 3):
+        with pytest.raises(ValueError, match='experiment group'):
+            remote.kernel_cache_base({**config, 'kernel_cache_group': bad})

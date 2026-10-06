@@ -24,13 +24,20 @@ Require explicit UCLOUD_TEMPLATE_JOB_ID and verify project/provider/product,
 application, persistent mounts, nginx upstream, public-link mapping and expiry.
 Product previews use the released v0.1.6 API, preserving template resources.
 Token preflight selects UCLOUD_TOKEN_ID explicitly and checks allocation coverage.
-Automatic hosting provisioning/recovery remains pending: deploy exits with code 2
-before any network call. Do not modify the dependency in this project.
+Automated hosting provisioning/recovery is implemented and unit-tested; live CLI deployment/replacement passed on 2026-10-06. Require matching template/project ownership before
+submission. See docs/automated-lifecycle.md. Do not modify the dependency here.
 
 ## Runtime
+The default startup path is the nginx application's initScript parameter,
+pointing to the uploaded init_vllm.sh after CPU preparation. The active symlink
+selects the reviewed runtime bundle. Interactive SHELL is reserved for bounded
+diagnostics/recovery inside the serving job. Register a WEB session once the job
+is running, validate its returned public hostname and then check model readiness.
+
 For an existing authorized job, transfer only the reviewed bundle to remote_dir.
-Read HF_TOKEN from /work/vllm/.env and VLLM_API_KEY from its separate restricted
-serving-key file. Do not overwrite the template environment file. Provision a dedicated
+Read both HF_TOKEN and VLLM_API_KEY from /work/vllm/.env (mode 0600).
+Keep the local project .env; never upload it or create another remote key file.
+Do not overwrite the template environment contents. Provision a dedicated
 versioned vLLM environment after reviewing GPU/driver compatibility. No CUDA
 driver or nginx installation is part of remote.py.
 
@@ -43,6 +50,9 @@ detached; output is written to vllm.log. Existing owned sessions are not replace
 Use check on loopback, then the template proxy, then the actual external HTTPS
 base URL. It tests expected served model, real chat, complete SSE and unauthenticated
 rejection on listing/chat routes. Preserve the results in checks.json.
+Use the deterministic Python check command; both absent and incorrect serving
+keys must be rejected. Inference must return the expected served model and a
+completed response; SSE requires content, a finish reason and the DONE marker.
 For non-chat capabilities use their actual API requests; chat checks are not proof
 of embedding or multimodal functionality. Record streaming behavior through the
 real proxy as well as the check's event timings.
@@ -59,9 +69,18 @@ URL, allocation expiry, renewal responsibility and exact owned session before
 reporting a durable deployment. Success and local process exit never terminate
 a hosting job. Stop/replacement requests apply only to their named deployment.
 
-## Upcoming job adapter
-Before enabling submission, implement tested state persistence immediately after
+## Job adapter
+The adapter implements tested state persistence immediately after
 job creation, bounded SSH provisioning, status/recovery, and explicit stop/release.
 An unknown submit outcome must block duplicate submission. Provisioning failure
 must preserve job/state for inspection without silently destroying a serving job.
 Reuse upstream submission/transport; implement hosting-specific lifecycle here.
+
+Ended preparation jobs can be replaced during explicit recovery before activation;
+archive exact ownership evidence and remove stale results before the new attempt.
+Unknown submission outcomes always block another allocation. Retired deployments
+cannot be revived by recover. Replacement marks its predecessor retired only
+after the successor passes verification. Explicit rollback restores the reviewed
+predecessor in a new allocation; explicit renewal replaces the same pinned profile
+with a new duration. Both preserve caches, require downtime, and resume their
+journalled bundle on retry. An operator stopping a job never triggers either action.

@@ -18,8 +18,8 @@ Inspect plan blockers before allocating resources or launching runtime. Unknown
 architectures and quantization are review cases, not permission to guess memory.
 Research their actual layout or propose a supported alternative when appropriate.
 
-Product previews use released ucloud-api v0.1.6; automatic hosting provisioning
-and recovery are still pending. Read
+Product selection and automated lifecycle use released ucloud-api v0.1.6.
+Live CLI deployment/replacement passed on 2026-10-06; read docs/automated-lifecycle.md and
 [the integration boundary](../../docs/ucloud-access.md) before remote work.
 Keep existing authorization, but do not equate a prepare request with permission
 to consume allocation. Run a reviewed bundle in an identified authorized job only.

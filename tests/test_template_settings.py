@@ -18,7 +18,7 @@ def test_work_folder_drives_template_paths_and_hostname_normalization(monkeypatc
     request = validate_request({"name": "example", "model": "test/model"})
     assert request["hf_env_file"] == "/work/vllm/.env"
     assert request["nginx_config"] == "/work/vllm/nginx.conf"
-    assert request["secret_file"] == "/work/vllm/secrets/vllm.env"
+    assert request["secret_file"] == "/work/vllm/.env"
     assert request["public_base_url"] == "https://inference.example.org/v1"
 
 
@@ -63,3 +63,15 @@ def test_plan_records_paths_but_not_local_credentials(tmp_path, monkeypatch):
     runtime = json.loads((root / "runtime.json").read_text())
     assert runtime["hf_env_file"].endswith("/.env")
     assert runtime["nginx_config"].endswith("/nginx.conf")
+
+
+def test_shared_workspace_env_supplies_both_keys_without_modification(tmp_path, monkeypatch):
+    monkeypatch.setenv('VLLM_API_KEY', 'ignored-inherited-key')
+    monkeypatch.setenv('HF_TOKEN', 'ignored-inherited-hf')
+    source = tmp_path / '.env'
+    source.write_text('HF_TOKEN=workspace-hf\nVLLM_API_KEY=workspace-serving\nOTHER=ignored\n')
+    before = source.read_bytes()
+    env = load_runtime_secrets({'hf_env_file': str(source), 'secret_file': str(source), 'cache_dir': '/cache'})
+    assert env['HF_TOKEN'] == 'workspace-hf'
+    assert env['VLLM_API_KEY'] == 'workspace-serving'
+    assert source.read_bytes() == before
