@@ -1,22 +1,9 @@
 # UCloud vLLM agent
 
-Also supports [LUMI AITTA managed inference](docs/lumi-aitta.md): discover models,
-inspect status/workers, explicitly preload offline models and verify chat/SSE.
-The optional integration consumes the separate private `CBS-HPC/lumi-aitta-api`
-package at v0.1.0. AITTA manages resources; custom hosting and sizing stay on UCloud.
-
-```powershell
-python -m pip install -e ".[aitta]"
-vllm-agent aitta models
-vllm-agent aitta status
-vllm-agent aitta workers --model "vendor/model-from-the-live-list"
-vllm-agent aitta preload --model "vendor/model-from-the-live-list"
-vllm-agent aitta check --model "vendor/model-from-the-live-list"
-```
-
-Set a separate `AITTA_API_KEY` in your existing local `.env`. Preload/inference
-may start a model; use them only for an explicitly requested model. Local contract
-tests pass; authenticated AITTA live validation remains pending.
+The UCloud inference provider for [CBS Model Agent](https://github.com/CBS-HPC/model-agent).
+This repository owns UCloud model sizing, hosting and lifecycle. Cross-provider
+selection and LUMI AITTA integration live in the wrapper project. This CLI remains
+usable independently; it has no LUMI dependency or credential requirement.
 
 A Git workspace and Python CLI for asking Codex or Claude to set up Hugging Face
 models on UCloud. It follows the operator's **moody_agent** workflow with model

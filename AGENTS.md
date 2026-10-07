@@ -13,15 +13,11 @@ interactive SHELL is for diagnostics/recovery. Read docs/automated-lifecycle.md 
 Do not equate a preview with submission; live CLI deployment/replacement passed on 2026-10-06.
 
 ## Ownership
-- LUMI AITTA is an additional managed platform; read docs/lumi-aitta.md.
-  Consume released lumi-aitta-api v0.1.0 for generic transport/discovery/preload.
-  Do not duplicate its control API or edit that dependency during hosting work.
-  `aitta models/status/workers` is read-only; `aitta preload/check` can load models
-  and requires an explicit model-use request. AITTA owns Slurm/machine selection;
-  UCloud templates, sizing and lifecycle do not apply to its workers.
-  Use separate local AITTA_API_KEY, never upload it or fall back to VLLM_API_KEY.
-  Keep AITTA discovery separate from validated catalog history. Authenticated
-  live AITTA validation is pending; chat tests do not establish embedding support.
+- This is the UCloud inference provider agent. Cross-provider selection and LUMI
+  AITTA integration belong to CBS Model Agent: https://github.com/CBS-HPC/model-agent.
+  Keep this package free of LUMI API dependencies, commands and credentials.
+  The wrapper delegates to this CLI in an explicit UCloud workspace; this project
+  retains its profiles, notebooks, sizing, deployment journals and lifecycle.
 - The operator configures the URL and nginx in a known-good UCloud template.
 - UCLOUD_TEMPLATE_JOB_ID is mandatory for submission. Never fall back to the
   latest job. Inspect and preserve template mounts, application and networking.

@@ -1,16 +1,10 @@
 # Template-based hosting workflow
 
-## Additional managed platform: LUMI AITTA
-
-Read docs/lumi-aitta.md. Consume the separate lumi-aitta-api v0.1.0 release for
-generic control operations; this agent owns model choice and task checks.
-Use `aitta models/status/workers` for discovery. For an explicitly requested
-model, preload requests loading and check verifies chat/SSE and absent/wrong key
-rejection. Both may use shared capacity. Do not retry or preload all offline
-models automatically. AITTA owns scheduling/workers; UCloud invariants below
-apply to UCloud only. Keep AITTA_API_KEY local and separate; never upload it.
-Managed-service evidence must not invent revision pins or machine selections.
-Authenticated live AITTA validation remains pending.
+This contract applies to the UCloud provider only. CBS Model Agent delegates
+UCloud operations to this CLI using an explicit workspace. The provider retains
+its own profiles, local settings, deployment journals and verification evidence.
+LUMI AITTA and cross-provider selection belong to the wrapper; they must not add
+dependencies, credentials or control logic to this UCloud package.
 
 ## Intake and ownership
 Model setup follows moody_agent's request/configuration/case/UCloud pattern.

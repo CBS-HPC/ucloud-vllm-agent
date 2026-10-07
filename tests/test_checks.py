@@ -10,14 +10,6 @@ from ucloud_vllm_agent.checks import check_endpoint
 from ucloud_vllm_agent.config import validate_base_url
 
 
-def test_managed_service_checks_without_models_route(api):
-    url, handler = api
-    result = check_endpoint(url, "test-model", "testing-key", include_models=False, timeout=300)
-    assert result["passed"]
-    assert [item["name"] for item in result["checks"]] == [
-        "chat_inference", "streaming_inference", "chat_requires_authentication", "chat_rejects_invalid_key"]
-
-
 @pytest.fixture
 def api():
     class Handler(BaseHTTPRequestHandler):
