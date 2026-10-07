@@ -13,11 +13,13 @@ interactive SHELL is for diagnostics/recovery. Read docs/automated-lifecycle.md 
 Do not equate a preview with submission; live CLI deployment/replacement passed on 2026-10-06.
 
 ## Ownership
-- This is the UCloud inference provider agent. Cross-provider selection and LUMI
+- This is the UCloud vLLM self-hosting provider agent. Cross-provider selection and LUMI
   AITTA integration belong to CBS Model Agent: https://github.com/CBS-HPC/model-agent.
   Keep this package free of LUMI API dependencies, commands and credentials.
   The wrapper delegates to this CLI in an explicit UCloud workspace; this project
   retains its profiles, notebooks, sizing, deployment journals and lifecycle.
+  The future UCloud AI fixed platform is a separate wrapper provider (`ucloud-ai`),
+  not this vLLM provider (`ucloud-vllm`). Do not mix their credentials or controls.
 - The operator configures the URL and nginx in a known-good UCloud template.
 - UCLOUD_TEMPLATE_JOB_ID is mandatory for submission. Never fall back to the
   latest job. Inspect and preserve template mounts, application and networking.

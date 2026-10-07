@@ -1,9 +1,11 @@
 # UCloud vLLM agent
 
-The UCloud inference provider for [CBS Model Agent](https://github.com/CBS-HPC/model-agent).
+The **UCloud vLLM** self-hosting provider (`ucloud-vllm`) for
+[CBS Model Agent](https://github.com/CBS-HPC/model-agent).
 This repository owns UCloud model sizing, hosting and lifecycle. Cross-provider
 selection and LUMI AITTA integration live in the wrapper project. This CLI remains
 usable independently; it has no LUMI dependency or credential requirement.
+The future UCloud AI fixed inference platform is a separate provider (`ucloud-ai`).
 
 A Git workspace and Python CLI for asking Codex or Claude to set up Hugging Face
 models on UCloud. It follows the operator's **moody_agent** workflow with model
