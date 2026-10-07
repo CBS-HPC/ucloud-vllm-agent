@@ -1,5 +1,10 @@
 # Remaining work
 
+- [x] Separate lumi-aitta-api package integration for managed discovery/status/workers,
+  explicit offline-model preload and chat/SSE/auth checks with a local project token.
+- [ ] Authenticated AITTA live validation with an operator-selected model/token.
+- [ ] AITTA embedding-specific verification when a workload requires it.
+
 - [x] Consume released ucloud-api v0.1.6 for GPU/MIG products and submission.
 - [x] Deterministic profile, pinned HF revision, nginx initScript and endpoint tests.
 - [x] Compare llm-checker, llmfit, GPUStack, Accelerate and Can I Use LLM.

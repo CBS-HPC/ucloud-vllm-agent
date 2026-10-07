@@ -5,6 +5,12 @@ description: Prepare, size, launch and verify Hugging Face model hosting in this
 
 # Template-based model hosting
 
+For the additional managed LUMI AITTA path, read [AITTA integration](../../docs/lumi-aitta.md).
+Use the released separate API package for discovery/preload. AITTA owns machines
+and workers; do not use UCloud profiles or sizing for it. Preload/inference can
+load a model and require an explicit model-use request. Keep its local token
+separate and never report a preload request as verified readiness.
+
 Read [the workflow contract](../../WORKFLOW_CONTRACT.md) before running a deployment.
 Use the CLI for model metadata, estimates and preparation; see
 [capacity assumptions](../../docs/capacity.md) when comparing machine choices.

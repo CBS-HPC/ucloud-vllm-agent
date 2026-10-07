@@ -19,7 +19,8 @@ class VerificationFailure(ValueError):
     """A stable, non-secret failure code suitable for verification reports."""
 
 
-def check_endpoint(base_url: str, model: str, token: str | None = None) -> dict:
+def check_endpoint(base_url: str, model: str, token: str | None = None, *,
+                   include_models: bool = True, timeout: int = 30) -> dict:
     base_url = validate_base_url(base_url)
     token = token or os.getenv("VLLM_API_KEY")
     if not token:
@@ -35,7 +36,7 @@ def check_endpoint(base_url: str, model: str, token: str | None = None) -> dict:
         if payload is not None:
             body = json.dumps(payload).encode()
             headers["Content-Type"] = "application/json"
-        return opener.open(Request(base_url + route, data=body, headers=headers), timeout=30)
+        return opener.open(Request(base_url + route, data=body, headers=headers), timeout=timeout)
 
     def record(name, function):
         try:
@@ -84,7 +85,7 @@ def check_endpoint(base_url: str, model: str, token: str | None = None) -> dict:
             if "text/event-stream" not in response.headers.get("Content-Type", ""):
                 raise ValueError("Streaming response is not SSE")
             for _ in range(1000):
-                if time.monotonic() - start > 90:
+                if time.monotonic() - start > max(90, timeout):
                     raise ValueError("Streaming deadline exceeded")
                 line = response.readline(65537)
                 if len(line) > 65536:
@@ -127,17 +128,20 @@ def check_endpoint(base_url: str, model: str, token: str | None = None) -> dict:
             raise
         raise VerificationFailure("invalid_key_accepted" if api_key is not None else "anonymous_request_accepted")
 
-    record("expected_model", models)
+    if include_models:
+        record("expected_model", models)
     record("chat_inference", chat)
     record("streaming_inference", stream)
-    record("models_require_authentication", lambda: reject("/models"))
+    if include_models:
+        record("models_require_authentication", lambda: reject("/models"))
     record("chat_requires_authentication", lambda: reject("/chat/completions", payload))
     # Randomness makes accidental equality with any real configured key negligible;
     # the assertion is always the same: an invalid credential must be rejected.
     invalid_key = "connectivity-invalid-" + secrets.token_hex(32)
     while invalid_key == token:
         invalid_key = "connectivity-invalid-" + secrets.token_hex(32)
-    record("models_reject_invalid_key", lambda: reject("/models", api_key=invalid_key))
+    if include_models:
+        record("models_reject_invalid_key", lambda: reject("/models", api_key=invalid_key))
     record("chat_rejects_invalid_key", lambda: reject("/chat/completions", payload, api_key=invalid_key))
     passed = all(item["passed"] for item in checks)
     return {"base_url": base_url, "model": model, "passed": passed, "checks": checks,

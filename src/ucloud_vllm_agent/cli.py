@@ -22,6 +22,18 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Plan and verify vLLM hosting from an operator-owned UCloud template")
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
+    command = commands.add_parser("aitta", help="Use LUMI's managed inference service")
+    aitta_commands = command.add_subparsers(dest="aitta_command", required=True)
+    aitta_commands.add_parser("models", help="Read the live AITTA model catalog")
+    aitta_commands.add_parser("status", help="Read service availability")
+    for action in ("workers", "preload"):
+        aitta_action = aitta_commands.add_parser(action, help=("Inspect workers" if action == "workers" else
+                                                             "Explicitly request loading an offline model"))
+        aitta_action.add_argument("--model", required=True)
+    aitta_check = aitta_commands.add_parser("check", help="Send synthetic chat/SSE requests; may load a model")
+    aitta_check.add_argument("--model", required=True)
+    aitta_check.add_argument("--timeout", type=int, default=300)
+    aitta_check.add_argument("--output", type=Path, default=Path("artifacts/aitta-checks.json"))
     for name in ("estimate", "prepare"):
         command = commands.add_parser(name)
         command.add_argument("--request", type=Path, required=True)
@@ -75,7 +87,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     load_env()
     try:
-        if args.command == "models":
+        if args.command == "aitta":
+            from . import aitta
+            if args.aitta_command == "models":
+                result = aitta.list_models()
+            elif args.aitta_command == "status":
+                result = aitta.service_status()
+            elif args.aitta_command in ("workers", "preload"):
+                result = getattr(aitta, args.aitta_command)(args.model)
+            else:
+                result = aitta.check_model(args.model, timeout=args.timeout)
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                write_json(args.output, result)
+            print(json.dumps(result, indent=2))
+            return 0 if result.get("passed", True) else 1
+        elif args.command == "models":
             from .model_catalog import list_models
             print(json.dumps(list_models(args.type, args.status), indent=2))
         elif args.command in ("prepare-profile", "preview-profile"):

@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
+aitta = ["lumi-aitta-api @ git+https://github.com/CBS-HPC/lumi-aitta-api.git@v0.1.0"]
 ucloud = ["ucloud-workflow @ git+https://github.com/CBS-HPC/ucloud-api.git@v0.1.6", "websocket-client==1.9.2"]
 dev = ["pytest>=8"]
 
