@@ -7,9 +7,12 @@ import pytest
 
 
 @pytest.mark.parametrize('task', ['chat', 'pii'])
-def test_benchmark_checks_task_and_never_records_synthetic_text_or_key(tmp_path, monkeypatch, task):
+@pytest.mark.parametrize('zero_elapsed', [False, True])
+def test_benchmark_checks_task_and_never_records_synthetic_text_or_key(tmp_path, monkeypatch, task, zero_elapsed):
     spec = importlib.util.spec_from_file_location('benchmark_endpoint', Path(__file__).parents[1] / 'scripts/benchmark_endpoint.py')
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    if zero_elapsed:
+        monkeypatch.setattr(module.time, 'monotonic', lambda: 1.0)
     monkeypatch.setattr(module, 'load_env', lambda: None)
     monkeypatch.setenv('VLLM_API_KEY', 'private-test-key')
     profile = {'request': {'name': 'test', 'task': task, 'concurrency': 2, 'public_base_url': 'https://test.example/v1'}}
@@ -43,3 +46,6 @@ def test_benchmark_checks_task_and_never_records_synthetic_text_or_key(tmp_path,
     assert report['passed'] and report['workers'] == 2 and report['task'] == task
     assert all(row['input_tokens'] == 10 for row in report['results'])
     assert 'private-test-key' not in output.read_text() and text not in output.read_text()
+    if zero_elapsed:
+        assert report['timing_valid'] is False
+        assert all(report[name] is None for name in ('requests_per_second', 'input_tokens_per_second', 'completion_tokens_per_second'))

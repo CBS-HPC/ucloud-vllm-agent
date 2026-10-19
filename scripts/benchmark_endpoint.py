@@ -75,15 +75,20 @@ def main() -> int:
     with ThreadPoolExecutor(max_workers=workers) as pool:
         results = list(pool.map(infer, range(count)))
     elapsed = time.monotonic() - started
+    # A coarse clock can report zero for a fast/mock workload (Windows 3.11).
+    # Missing timing evidence must not become fabricated throughput or a crash.
+    def rate(total, digits):
+        return round(total / elapsed, digits) if elapsed > 0 else None
     latencies = [r['seconds'] for r in results if r['passed']]
     report = {'passed': all(r['passed'] for r in results), 'model': request['name'], 'task': request['task'],
               'workers': workers, 'requests': count, 'wall_seconds': round(elapsed, 3),
               'median_request_seconds': statistics.median(latencies) if latencies else None,
               'p95_request_seconds': sorted(latencies)[math.ceil(len(latencies) * 0.95) - 1] if latencies else None,
               'successful_requests': sum(r['passed'] for r in results),
-              'requests_per_second': round(sum(r['passed'] for r in results) / elapsed, 3),
-              'input_tokens_per_second': round(sum(r.get('input_tokens', 0) for r in results) / elapsed, 2),
-              'completion_tokens_per_second': round(sum(r.get('completion_tokens', 0) for r in results) / elapsed, 2),
+              'timing_valid': elapsed > 0,
+              'requests_per_second': rate(sum(r['passed'] for r in results), 3),
+              'input_tokens_per_second': rate(sum(r.get('input_tokens', 0) for r in results), 2),
+              'completion_tokens_per_second': rate(sum(r.get('completion_tokens', 0) for r in results), 2),
               'results': results, 'note': 'Synthetic HTTP workload; latency includes network and proxy. Model quality is not measured.'}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2), encoding='utf-8')

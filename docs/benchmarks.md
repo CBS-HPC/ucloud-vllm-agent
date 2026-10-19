@@ -1,5 +1,12 @@
 # Reproducible hosting benchmarks
 
+Timing invariant: throughput requires a positive measured wall duration. If the
+clock reports zero elapsed time, the report sets timing_valid=false and rate
+fields to null; inference checks may still pass. Do not interpret that sample as
+a performance measurement or substitute an invented epsilon denominator.
+Windows/Python 3.11 CI exposed division by zero on 2026-10-19; chat/PII benchmark
+regressions now explicitly exercise a frozen clock.
+
 Run benchmarks only in an authorized owned allocation. Results are synthetic
 workload measurements, not general throughput guarantees or PII accuracy scores.
 Never clear shared model or compilation caches to manufacture a cold start.
