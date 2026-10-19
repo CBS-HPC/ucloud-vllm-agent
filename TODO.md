@@ -1,5 +1,7 @@
 # Remaining work
 
+Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
+
 ## Researcher onboarding roadmap
 
 Updated 2026-10-19 after the adoption audit. The next milestone is a researcher
@@ -98,7 +100,7 @@ GPU. Any setup step requiring a real job needs scoped allocation authorization.
   remains a separate acceptance step below.
 - [ ] Have a colleague follow the guide using a different project/workspace and
   record all undocumented prerequisites. Validate one small model through release.
-- [ ] Publish a provider release with these changes, then update CBS Model Agent's
+- [x] Publish a provider release with these changes, then update CBS Model Agent's
   pinned provider dependency and onboarding links in its own reviewed change.
 - [x] Publish a short operations guide: costs, allocation expiry, renewal downtime,
   stop versus release, failures retaining allocations and support responsibilities.
@@ -109,9 +111,14 @@ nginx, SSH, template-job or GPU-selection prerequisites.
 
 ### Continuation checkpoint (2026-10-19)
 
-Independent local onboarding work is implemented; provider v0.1.3 and wrapper
-v0.1.1 are the intended release pair. Verify release/CI status before assuming
-publication is complete. No live jobs/resources were created during this work.
+Independent local onboarding work is published: provider v0.1.3 (v0.1.3) and
+wrapper v0.1.1 (v0.1.1), each with wheel/source/checksums and passing Windows/Linux
+CI on Python 3.11/3.13. Locally, 110 provider tests passed with one platform skip;
+17 wrapper tests passed. A fresh venv installed the real released dependencies
+and a new provider checkout, then passed offline discovery, missing-settings
+doctor, template export and synthetic profile preparation. Generic nginx syntax
+passed against Ubuntu's nginx package, not the actual UCloud serving image.
+No live jobs/resources were created during this work.
 The latest upstream release checked was ucloud-api v0.1.6; Link/key provisioning
 and application-spec bootstrap are still unimplemented. A future continuation
 should first inspect new released API capabilities, then tackle sections 2–3.
