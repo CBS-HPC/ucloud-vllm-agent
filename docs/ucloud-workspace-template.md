@@ -21,6 +21,12 @@ submit jobs or change an existing nginx server.
 
 ## First-time UCloud setup
 
+These are the current manual setup steps. The [onboarding roadmap](../TODO.md#researcher-onboarding-roadmap)
+plans optional Link provisioning and, if released upstream, SSH public-key
+registration. Template creation and shared-folder setup have separate capability
+checks; Link support alone does not automate them. No resource-setup command is
+implemented yet, and reserving resources must not silently allocate a GPU.
+
 1. Obtain a UCloud project with the required CPU/GPU allocation and permissions,
    register your SSH public key, and reserve your own public URL. The operator
    owns these resources. Never reuse another researcher's project/token/job IDs.

@@ -1,5 +1,102 @@
 # Remaining work
 
+## Researcher onboarding roadmap
+
+Updated 2026-10-19 after the adoption audit. The next milestone is a researcher
+onboarding release: a colleague can install this provider, connect their own
+project, integrate it with a coding harness, deploy a small model and release
+its allocation without access to the original operator's setup.
+
+### 1. Finish local setup and the harness contract
+
+- [x] Package remote nginx/environment/startup/README templates and CPU/GPU job
+  recipes; export locally without credentials, uploads or overwrites.
+- [ ] Provide one clean-machine installation path: required private-repository
+  access, Git, supported local Python/OS, OpenSSH, environment activation and
+  provider workspace creation. Explain source checkout versus installed package.
+- [ ] Make doctor distinguish installed/configured/ready, report actionable
+  missing requirements and fail when deployment prerequisites are absent.
+  Include the preparation template, SSH identity and supported runtime baseline.
+- [ ] Add a read-only readiness check for token lifetime, both templates' project
+  ownership, shared storage, public-link mapping and application compatibility.
+  Clearly distinguish local checks from checks requiring a setup job.
+- [ ] Document subprocess CLI invocation as the initial harness integration path:
+  cwd, environment, commands, allocation boundaries, timeouts and recovery records.
+  Send progress to stderr; define stable JSON results/errors and exit codes.
+- [ ] Fix/test environment isolation before supporting repeated in-process calls
+  across workspaces. The audit reproduced workspace B retaining A's settings.
+- [ ] Add a copyable harness instruction snippet and one end-to-end synthetic
+  example from request to preview, explicit deployment, verification and release.
+
+### 2. Consume the forthcoming ucloud-api resource-management release
+
+Dependency gate: the operator is developing UCloud Link management in ucloud-api;
+SSH public-key management is a possible addition, not a confirmed capability.
+The installed dependency remains v0.1.6 until a new release is reviewed and pinned.
+Do not implement generic resource APIs here or require unreleased dependency code.
+
+- [ ] Review the released Link API: create/reserve, list/retrieve, ownership/scope,
+  current job bindings, conflicts and deletion behavior. Confirm authorization
+  requirements and whether attachment is represented through job specifications.
+- [ ] If released, review SSH public-key discovery/registration/removal and its
+  actual user/account scope. Reuse a matching registered public-key fingerprint;
+  local private-key possession and working SSH still require separate checks.
+- [ ] Pin the reviewed release and add provider contract tests. Public-key
+  registration must remain optional: existing registered keys stay supported.
+- [ ] Preserve the current explicit-ID/manual setup path for projects that
+  already have working links, SSH registration and CPU/nginx templates.
+
+### 3. Add explicit first-time resource setup
+
+This is a planned workflow, not an available command. Resource setup is separate
+from model deployment; reserving a link or registering a key must not allocate a
+GPU. Any setup step requiring a real job needs scoped allocation authorization.
+
+- [ ] Gather the researcher's project, desired hostname, local public key, shared
+  folder and existing resource/template choices; show a plan before mutations.
+- [ ] Discover/reuse existing resources or create the requested Link through the
+  released API. Block occupied/foreign resources; never silently replace a route.
+- [ ] Optionally register only a selected public key. Keep private keys local;
+  never duplicate them, upload the local .env or place secrets in command arguments.
+- [ ] Journal setup intent and returned resource IDs, scope, public-key fingerprint
+  and whether each resource was created or reused. Reconcile uncertain outcomes;
+  retries must not create duplicate links or registrations.
+- [ ] Guide or automate shared-folder setup and reviewed template uploads using
+  released file/transport capabilities. Preserve existing nginx and secret files.
+  Credential provisioning remains explicit and separate from template export.
+- [ ] Establish how CPU/nginx templates can be created using released application
+  and job-building capabilities; assess this separately from Link/key support.
+  If template creation requires actual compute jobs, report their cost/duration
+  and obtain workload-scoped authorization; do not imply a cost-free metadata step.
+- [ ] Produce the explicit template/resource IDs needed by deployment. Both
+  template IDs and matching project ownership remain mandatory; no latest-job fallback.
+- [ ] Provide a non-secret setup report and instructions for updating local
+  settings; never silently rewrite the operator's .env.
+- [ ] Add explicit exact-resource cleanup: verify current scope/bindings, protect
+  reused resources and active jobs, and delete only recorded created resources
+  when requested. Job release must not implicitly delete links or SSH keys.
+
+### 4. Validate and publish the onboarding release
+
+- [ ] Validate generic nginx syntax in the supported serving image and public
+  chat/PII/auth/SSE behavior in an authorized small deployment.
+- [ ] Test interrupted setup/reconciliation, duplicate prevention, foreign/occupied
+  links, existing-key reuse, absent optional key support and preserved credentials.
+- [ ] Run clean-install/onboarding checks on Windows and Linux, including wheel
+  asset export and the documented harness invocation.
+- [ ] Have a colleague follow the guide using a different project/workspace and
+  record all undocumented prerequisites. Validate one small model through release.
+- [ ] Publish a provider release with these changes, then update CBS Model Agent's
+  pinned provider dependency and onboarding links in its own reviewed change.
+- [ ] Publish a short operations guide: costs, allocation expiry, renewal downtime,
+  stop versus release, failures retaining allocations and support responsibilities.
+
+UCloud AI remains a separate future managed provider in CBS Model Agent. It must
+have its own access/authentication/model-use guide, without inheriting self-hosted
+nginx, SSH, template-job or GPU-selection prerequisites.
+
+## Existing implementation and further workload development
+
 - [x] Packaged remote workspace templates: nginx.conf, remote .env.example,
   shared initialization source, generic README and CPU/GPU setup recipes.
   Offline export refuses overwrites; source/code inventory and setup guide included.

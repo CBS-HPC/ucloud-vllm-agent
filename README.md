@@ -91,6 +91,11 @@ manual hosting passed all three endpoint paths. Ownership mismatches block deplo
 
 ## Setup on Windows
 
+The next planned milestone is [researcher onboarding](TODO.md#researcher-onboarding-roadmap),
+including optional resource setup using a future released ucloud-api Link API
+and, if available, SSH public-key management. These capabilities are not integrated
+yet; the current manual setup and explicit template IDs remain required.
+
 For a new researcher/project, start with the [UCloud workspace and job templates](docs/ucloud-workspace-template.md).
 They include the remote nginx.conf, credential-free .env.example, initialization
 script, generic workspace README and CPU/GPU template recipes. Export them locally

@@ -5,6 +5,13 @@ persistent environments and isolated case artifacts. Here the workload is an
 ongoing HTTP service and must not inherit automatic batch-job termination.
 
 ## Released product adapter
+
+Planned resource setup is tracked in [the onboarding roadmap](../TODO.md#researcher-onboarding-roadmap).
+Link creation/management is being developed upstream; SSH public-key management
+is under consideration. Neither is consumed by this provider yet. Review and pin
+a released API before enabling those operations here. Resource setup must record
+created versus reused resources and remain separate from GPU deployment.
+
 The optional dependency is pinned to v0.1.6. preview_job_specification calls the
 released build_job_specification with a complete product reference or preserves
 the template product. It never generates a CPU product from a GPU name. The
