@@ -1,0 +1,7 @@
+include AGENTS.md WORKFLOW_CONTRACT.md TODO.md .env.example
+recursive-include docs *.md *.json
+recursive-include config *.json
+exclude config/local.*
+include skills/vllm-hosting/SKILL.md
+include scripts/init_project.ps1 scripts/smoke_wheel.py
+recursive-include notebooks *.ipynb

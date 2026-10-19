@@ -18,8 +18,18 @@ from .ucloud_access import (ReleasePendingError, inspect_template, integration_s
                            require_hosting_adapter, token_status, preview_job)
 
 
+def report_error(code: str, message: str) -> None:
+    print(json.dumps({"schema": "ucloud.vllm.error.v1", "error": {"code": code, "message": message}}), file=sys.stderr)
+
+
+class JSONArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        report_error("invalid_arguments", "Invalid command arguments; use --help.")
+        raise SystemExit(2)
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Plan and verify vLLM hosting from an operator-owned UCloud template")
+    parser = JSONArgumentParser(description="Plan and verify vLLM hosting from an operator-owned UCloud template")
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("estimate", "prepare"):
@@ -29,7 +39,9 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--machines", type=Path, help="Project-verified machine candidate JSON")
         if name == "prepare":
             command.add_argument("--output", type=Path, default=Path("deployments"))
-    commands.add_parser("doctor")
+    command = commands.add_parser("doctor", help="Check local requirements; --online adds read-only API preflight")
+    command.add_argument("--online", action="store_true")
+    command.add_argument("--profile", type=Path, help="Hosting profile required for API preflight")
     command = commands.add_parser("workspace-template", help="Export remote workspace templates locally; no credentials or uploads")
     command.add_argument("--output", type=Path, required=True, help="New directory; existing targets are never overwritten")
     command = commands.add_parser("models", help="List previously validated model types and untested candidates offline")
@@ -81,10 +93,10 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(export_workspace(args.output), indent=2))
             return 0
         except OSError:
-            print("Template export failed: use a new writable directory; existing files are never overwritten", file=sys.stderr)
+            report_error("template_export_failed", "Use a new writable directory; existing files are never overwritten.")
             return 1
-    load_env()
     try:
+        load_env()
         if args.command == "models":
             from .model_catalog import list_models
             print(json.dumps(list_models(args.type, args.status), indent=2))
@@ -151,11 +163,10 @@ def main(argv: list[str] | None = None) -> int:
             if args.command == "size":
                 return 0 if result.get("recommendation") else 1
         elif args.command == "doctor":
-            result = {"agent_version": __version__, "ucloud_integration": integration_status(),
-                      "configured": {key: bool(os.getenv(key)) for key in (
-                          "UCLOUD_PROJECT", "UCLOUD_TOKEN", "UCLOUD_TOKEN_ID", "UCLOUD_TEMPLATE_JOB_ID",
-                          "UCLOUD_PUBLIC_BASE_URL", "VLLM_API_KEY")}}
+            from .diagnostics import diagnose
+            result = diagnose(online=args.online, profile=args.profile)
             print(json.dumps(result, indent=2))
+            return 0 if result["passed"] else 1
         elif args.command == "inspect-template":
             print(json.dumps(inspect_template(), indent=2))
         elif args.command == "token-status":
@@ -197,10 +208,10 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"state": "prepared", "path": str(root), "job_submitted": False}, indent=2))
         return 0
     except ReleasePendingError as exc:
-        print("Deployment blocked: " + str(exc), file=sys.stderr)
+        report_error("deployment_blocked", "Deployment blocked: " + str(exc))
         return 2
     except (ValueError, OSError, KeyError, TypeError, RuntimeError, ImportError) as exc:
         # Do not print upstream response bodies, credentials or a stack trace.
         reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
-        print("Operation failed: " + reason, file=sys.stderr)
+        report_error("operation_failed", reason)
         return 1

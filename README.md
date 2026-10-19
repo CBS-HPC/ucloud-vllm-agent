@@ -91,6 +91,11 @@ manual hosting passed all three endpoint paths. Ownership mismatches block deplo
 
 ## Setup on Windows
 
+**New researcher:** follow [installation and first deployment](docs/researcher-onboarding.md).
+For other coding-agent harnesses, use the [subprocess CLI contract and instruction
+snippet](docs/harness-integration.md). Day-to-day costs, expiry and recovery are in
+[operations](docs/researcher-operations.md).
+
 The next planned milestone is [researcher onboarding](TODO.md#researcher-onboarding-roadmap),
 including optional resource setup using a future released ucloud-api Link API
 and, if available, SSH public-key management. These capabilities are not integrated
@@ -116,6 +121,11 @@ vllm-agent doctor
 The core planning CLI uses only the standard library. Optional UCloud integration
 is pinned to ucloud-workflow v0.1.6; install it with `pip install -e '.[ucloud]'`
 inside this environment. Product previews use the released builder directly.
+
+`doctor` exits nonzero for missing local prerequisites; it never allocates a job.
+After configuring a reviewed profile, `doctor --online --profile FILE` adds
+read-only template/project/link/token checks. Neither mode verifies remote
+credentials, nginx syntax or model readiness; inspect the report's limits.
 
 The template workspace is `/work/vllm`: nginx loads `/work/vllm/nginx.conf`.
 Generated runtime configuration reads both HF_TOKEN and VLLM_API_KEY from

@@ -37,6 +37,12 @@ no machine recommendation rather than a plausible but ungrounded dense estimate.
 Built-in candidate capacity is illustrative until verified against the project.
 
 ## Template and release preflight
+doctor checks local configuration/tools/identity without network calls and fails
+for missing requirements. doctor --online --profile FILE adds read-only API
+checks; it creates no jobs or sessions and does not inspect remote secrets.
+Its preflight_passed result is permission-free evidence of checked prerequisites,
+not authorization, available capacity or verified runtime/endpoint readiness.
+
 Require explicit UCLOUD_TEMPLATE_JOB_ID and verify project/provider/product,
 application, persistent mounts, nginx upstream, public-link mapping and expiry.
 Product previews use the released v0.1.6 API, preserving template resources.
@@ -64,6 +70,11 @@ mount and container RAM allocation separately. A named tmux session runs vLLM
 detached; output is written to vllm.log. Existing owned sessions are not replaced.
 
 ## Verify and report
+Operational success output is one JSON value on stdout; progress goes to stderr.
+Errors have a sanitized schema/code/message record on stderr. Help/version are
+text exceptions. Read docs/harness-integration.md for exit codes and timeout
+semantics; an interrupted local command never implies remote cancellation.
+
 Use check on loopback, then the template proxy, then the actual external HTTPS
 base URL. It tests expected served model, real chat, complete SSE and unauthenticated
 rejection on listing/chat routes. Preserve the results in checks.json.

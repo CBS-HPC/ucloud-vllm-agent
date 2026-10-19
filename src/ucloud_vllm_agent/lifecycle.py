@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import shlex
+import sys
 import time
 from pathlib import Path, PurePosixPath
 
@@ -157,7 +158,7 @@ def _prepare_remote(client, settings, journal: Journal, preparation_template: di
     spec = build_job_specification(preparation_template, hours=1, ssh_enabled=True,
                                    name="vllm-prepare-" + journal.root.name[-8:] + "-" + str(attempt))
     job_id = journal.submitted("preparation", client, spec)
-    print("Waiting for CPU preparation job " + job_id, flush=True)
+    print("Waiting for CPU preparation job " + job_id, file=sys.stderr, flush=True)
     job = wait_job(client, job_id, ssh=True)
     transport = PreparationSSH(settings, job, journal.root)
     remote = runtime["remote_dir"]
@@ -370,7 +371,7 @@ def deploy(client, profile: dict | None, *, output: Path = Path("deployments"), 
                 previous.update("replacement_pending", replacement_candidate=str(journal.root), endpoint_verified=False)
             spec["name"] += "-" + journal.root.name[-8:]
             journal.submitted("hosting", client, spec)
-        print("Waiting for GPU hosting job " + journal.data["hosting_job_id"], flush=True)
+        print("Waiting for GPU hosting job " + journal.data["hosting_job_id"], file=sys.stderr, flush=True)
         wait_job(client, journal.data["hosting_job_id"])
         result = verify_host(client, journal, runtime)
         if previous:

@@ -5,6 +5,12 @@ For first-time project setup, read docs/ucloud-workspace-template.md. Export the
 packaged starter files with workspace-template; never copy live secrets or the
 original operator's job IDs/URL. Generated runtime code comes from tracked modules.
 
+Use docs/researcher-onboarding.md for clean installation, docs/harness-integration.md
+for subprocess integration, and docs/researcher-operations.md for costs/recovery.
+doctor is local; --online adds read-only API checks. Neither proves live readiness.
+Keep stdout parseable JSON and progress/errors on stderr. Never silently retry a
+deployment after a harness timeout or bypass an unresolved journal.
+
 Use the same request-to-case-to-UCloud pattern as the operator's moody_agent,
 with model hosting as the workload. Codex/Claude is the conversational agent;
 the Python CLI provides deterministic planning, artifacts and verification.

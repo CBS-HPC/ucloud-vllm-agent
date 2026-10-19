@@ -11,21 +11,22 @@ its allocation without access to the original operator's setup.
 
 - [x] Package remote nginx/environment/startup/README templates and CPU/GPU job
   recipes; export locally without credentials, uploads or overwrites.
-- [ ] Provide one clean-machine installation path: required private-repository
+- [x] Provide one clean-machine installation path: required private-repository
   access, Git, supported local Python/OS, OpenSSH, environment activation and
   provider workspace creation. Explain source checkout versus installed package.
-- [ ] Make doctor distinguish installed/configured/ready, report actionable
+- [x] Make doctor distinguish installed/configured/ready, report actionable
   missing requirements and fail when deployment prerequisites are absent.
   Include the preparation template, SSH identity and supported runtime baseline.
-- [ ] Add a read-only readiness check for token lifetime, both templates' project
+- [x] Add a read-only readiness check for token lifetime, both templates' project
   ownership, shared storage, public-link mapping and application compatibility.
   Clearly distinguish local checks from checks requiring a setup job.
-- [ ] Document subprocess CLI invocation as the initial harness integration path:
+- [x] Document subprocess CLI invocation as the initial harness integration path:
   cwd, environment, commands, allocation boundaries, timeouts and recovery records.
   Send progress to stderr; define stable JSON results/errors and exit codes.
-- [ ] Fix/test environment isolation before supporting repeated in-process calls
-  across workspaces. The audit reproduced workspace B retaining A's settings.
-- [ ] Add a copyable harness instruction snippet and one end-to-end synthetic
+- [x] Fix/test wrapper workspace isolation through a separate child per invocation.
+  Repeated direct provider main() embedding remains unsupported. The audit's
+  A-to-B settings leak is covered by a regression using two real subprocesses.
+- [x] Add a copyable harness instruction snippet and one end-to-end synthetic
   example from request to preview, explicit deployment, verification and release.
 
 ### 2. Consume the forthcoming ucloud-api resource-management release
@@ -64,12 +65,22 @@ GPU. Any setup step requiring a real job needs scoped allocation authorization.
 - [ ] Guide or automate shared-folder setup and reviewed template uploads using
   released file/transport capabilities. Preserve existing nginx and secret files.
   Credential provisioning remains explicit and separate from template export.
-- [ ] Establish how CPU/nginx templates can be created using released application
-  and job-building capabilities; assess this separately from Link/key support.
-  If template creation requires actual compute jobs, report their cost/duration
-  and obtain workload-scoped authorization; do not imply a cost-free metadata step.
-- [ ] Produce the explicit template/resource IDs needed by deployment. Both
-  template IDs and matching project ownership remain mandatory; no latest-job fallback.
+- [ ] Support two explicit setup modes: reuse known template job IDs, or bootstrap
+  from reviewed application specifications when the researcher has no prior jobs.
+  UCloud can submit a complete job specification without cloning a historical job;
+  this agent currently implements only the template-ID path.
+- [ ] For bootstrap mode, discover/validate the application version and parameter
+  schema, exact products, project, mounts and link; build complete CPU and serving
+  specifications through released ucloud-api capabilities. Request generic schema/
+  builder improvements upstream where needed; do not invent missing parameters.
+- [ ] Start a bounded CPU setup job from that specification when authorized,
+  upload/prepare the reviewed files and journal its ID. Defer the GPU serving job
+  until the model deployment is requested; do not allocate a dummy GPU merely to
+  manufacture a template job ID. Report CPU/GPU cost and allocation lifetime.
+- [ ] Persist the reviewed application-spec provenance and all created job/resource
+  IDs. Permit recovery from those exact records with the same ownership and
+  duplicate-prevention rules as template mode. Current template mode keeps both
+  explicit IDs mandatory; bootstrap must never become a latest-job fallback.
 - [ ] Provide a non-secret setup report and instructions for updating local
   settings; never silently rewrite the operator's .env.
 - [ ] Add explicit exact-resource cleanup: verify current scope/bindings, protect
@@ -82,18 +93,32 @@ GPU. Any setup step requiring a real job needs scoped allocation authorization.
   chat/PII/auth/SSE behavior in an authorized small deployment.
 - [ ] Test interrupted setup/reconciliation, duplicate prevention, foreign/occupied
   links, existing-key reuse, absent optional key support and preserved credentials.
-- [ ] Run clean-install/onboarding checks on Windows and Linux, including wheel
-  asset export and the documented harness invocation.
+- [x] Add Windows/Linux CI matrices and isolated wheel asset-export checks.
+  Test results must be checked for each release; colleague-led live onboarding
+  remains a separate acceptance step below.
 - [ ] Have a colleague follow the guide using a different project/workspace and
   record all undocumented prerequisites. Validate one small model through release.
 - [ ] Publish a provider release with these changes, then update CBS Model Agent's
   pinned provider dependency and onboarding links in its own reviewed change.
-- [ ] Publish a short operations guide: costs, allocation expiry, renewal downtime,
+- [x] Publish a short operations guide: costs, allocation expiry, renewal downtime,
   stop versus release, failures retaining allocations and support responsibilities.
 
 UCloud AI remains a separate future managed provider in CBS Model Agent. It must
 have its own access/authentication/model-use guide, without inheriting self-hosted
 nginx, SSH, template-job or GPU-selection prerequisites.
+
+### Continuation checkpoint (2026-10-19)
+
+Independent local onboarding work is implemented; provider v0.1.3 and wrapper
+v0.1.1 are the intended release pair. Verify release/CI status before assuming
+publication is complete. No live jobs/resources were created during this work.
+The latest upstream release checked was ucloud-api v0.1.6; Link/key provisioning
+and application-spec bootstrap are still unimplemented. A future continuation
+should first inspect new released API capabilities, then tackle sections 2–3.
+Do not repeatedly re-run completed offline tests or allocate jobs merely to make
+an unattended continuation appear active. Live UCloud validation and a colleague's
+independent project need an identified, authorized target/workload. Keep those
+items pending until that evidence is available.
 
 ## Existing implementation and further workload development
 
