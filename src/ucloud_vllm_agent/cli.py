@@ -30,6 +30,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "prepare":
             command.add_argument("--output", type=Path, default=Path("deployments"))
     commands.add_parser("doctor")
+    command = commands.add_parser("workspace-template", help="Export remote workspace templates locally; no credentials or uploads")
+    command.add_argument("--output", type=Path, required=True, help="New directory; existing targets are never overwritten")
     command = commands.add_parser("models", help="List previously validated model types and untested candidates offline")
     command.add_argument("--type", choices=("chat", "anonymisation", "classification"))
     command.add_argument("--status", choices=("validated", "candidate"))
@@ -73,6 +75,14 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--task", choices=["chat", "pii"], default="chat")
     command.add_argument("--output", type=Path, default=Path("artifacts/checks.json"))
     args = parser.parse_args(argv)
+    if args.command == "workspace-template":
+        from .workspace import export_workspace
+        try:
+            print(json.dumps(export_workspace(args.output), indent=2))
+            return 0
+        except OSError:
+            print("Template export failed: use a new writable directory; existing files are never overwritten", file=sys.stderr)
+            return 1
     load_env()
     try:
         if args.command == "models":

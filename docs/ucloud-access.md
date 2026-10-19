@@ -44,8 +44,9 @@ system packages installed in the preparation container do not update the serving
 Live hosting on 2026-10-06 confirmed that the nginx initialization script can
 launch the prepared runtime. For the pinned CUDA 13 environment, expose
 `.venv/bin` (including `ninja`) and the installed `nvidia/cu13/bin` (`nvcc`) on
-PATH, and set CUDA_HOME to the installed CUDA toolkit. `scripts/init_vllm.sh`
-validates those paths before launch; it does not modify drivers or nginx.
+PATH, and set CUDA_HOME to the installed CUDA toolkit. The packaged
+`data/ucloud-workspace/init_vllm.sh` invokes `remote.py initialize`, which validates
+those paths before launch; it does not modify drivers or nginx.
 Compiler, CRT and NVVM packages are pinned to 13.0.88 to match torch cu130.
 FlashInfer links against a deployment-local libcudart.so alias to the installed
 libcudart.so.13; package and system library directories are unchanged.

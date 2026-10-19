@@ -24,7 +24,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-ucloud_vllm_agent = ["data/*.json"]
+ucloud_vllm_agent = ["data/*.json", "data/ucloud-workspace/*", "data/ucloud-workspace/.env.example"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

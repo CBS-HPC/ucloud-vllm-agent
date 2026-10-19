@@ -1,0 +1,24 @@
+{
+  "schema": "ucloud.vllm.template_recipes.v1",
+  "purpose": "Operator setup checklist, NOT a UCloud API submission payload",
+  "project": "YOUR_PROJECT_UUID",
+  "shared_ucloud_files_folder": "SELECT_ONE_PERSISTENT_FOLDER_FOR_BOTH_JOBS",
+  "mount_target": "/work/vllm",
+  "preparation": {
+    "record_job_id_as": "UCLOUD_PREPARATION_TEMPLATE_JOB_ID",
+    "application": {"name": "coder-python", "version": "1.89.1"},
+    "product": "SELECT_A_CPU_PRODUCT_FROM_YOUR_PROJECT",
+    "ssh_enabled": true,
+    "requirements": ["Python 3.12 with venv/pip", "findmnt", "writable persistent /work/vllm mount", "registered SSH public key"]
+  },
+  "serving": {
+    "record_job_id_as": "UCLOUD_TEMPLATE_JOB_ID",
+    "application": {"name": "nginx", "version": "1.31.2"},
+    "product": "SELECT_A_VERIFIED_GPU_PRODUCT_FROM_YOUR_PROJECT",
+    "ssh_enabled": false,
+    "configuration_file": "SELECT_SHARED_FOLDER/nginx.conf_IN_UCLOUD_FILES",
+    "initialization_script": "SELECT_SHARED_FOLDER/init_vllm.sh_IN_UCLOUD_FILES",
+    "public_url": "RESERVE_YOUR_OWN_UCLOUD_PUBLIC_URL",
+    "requirements": ["Python 3.12-compatible shared environment", "tmux", "CUDA-compatible serving image", "HTTP port 8080", "vLLM loopback port 8000"]
+  }
+}

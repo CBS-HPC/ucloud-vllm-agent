@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 from copy import deepcopy
+from importlib.resources import files
 from pathlib import Path, PurePosixPath
 
 from .capacity import estimate_capacity
@@ -10,13 +11,7 @@ from .config import load_json, positive_int, validate_request
 from .planner import prepare, write_json
 from .ucloud_access import integration_status
 
-INIT_SCRIPT = '''#!/usr/bin/env bash
-set -euo pipefail
-deployment="$(readlink -f /work/vllm/active)"
-case "$deployment" in /work/vllm/deployments/*) ;; *) exit 1 ;; esac
-exec >> "$deployment/initialization.log" 2>&1
-exec /work/vllm/.venv/bin/python "$deployment/remote.py" initialize
-'''
+INIT_SCRIPT = files("ucloud_vllm_agent").joinpath("data/ucloud-workspace/init_vllm.sh").read_text(encoding="utf-8")
 
 
 def validate_profile(profile: dict) -> dict:

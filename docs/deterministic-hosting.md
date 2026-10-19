@@ -1,5 +1,8 @@
 # Deterministic hosting configuration
 
+First-time project setup uses the [packaged workspace/job templates](ucloud-workspace-template.md).
+Their initialization script is also the source used in generated deployment bundles.
+
 Use `config/hosting.qwen-small.json` as the starting profile. It records the
 configuration verified on UCloud on 2026-10-06. Credentials, project, template
 IDs and public hostname remain in local `.env`; credentials never enter profiles

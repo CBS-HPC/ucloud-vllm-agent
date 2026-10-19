@@ -1,6 +1,10 @@
 # UCloud vLLM hosting agent
 
 ## Mission and reference
+For first-time project setup, read docs/ucloud-workspace-template.md. Export the
+packaged starter files with workspace-template; never copy live secrets or the
+original operator's job IDs/URL. Generated runtime code comes from tracked modules.
+
 Use the same request-to-case-to-UCloud pattern as the operator's moody_agent,
 with model hosting as the workload. Codex/Claude is the conversational agent;
 the Python CLI provides deterministic planning, artifacts and verification.

@@ -7,6 +7,12 @@ LUMI AITTA and cross-provider selection belong to the wrapper; they must not add
 dependencies, credentials or control logic to this UCloud package.
 
 ## Intake and ownership
+For a new project, use docs/ucloud-workspace-template.md and the packaged
+credential-free workspace/job recipes. workspace-template exports locally only;
+it never uploads files, creates secrets or authorizes resource allocation.
+Generated runtime bundles use tracked source modules; do not fork their code
+into separately maintained templates. Existing remote configuration is preserved.
+
 Model setup follows moody_agent's request/configuration/case/UCloud pattern.
 The operator owns UCLOUD_TEMPLATE_JOB_ID, the mounted workspace, URL and nginx.
 The hosting agent owns model inspection, capacity planning, vLLM and evidence.

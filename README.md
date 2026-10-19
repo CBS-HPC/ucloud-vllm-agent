@@ -91,6 +91,12 @@ manual hosting passed all three endpoint paths. Ownership mismatches block deplo
 
 ## Setup on Windows
 
+For a new researcher/project, start with the [UCloud workspace and job templates](docs/ucloud-workspace-template.md).
+They include the remote nginx.conf, credential-free .env.example, initialization
+script, generic workspace README and CPU/GPU template recipes. Export them locally
+with `vllm-agent workspace-template --output artifacts/ucloud-workspace`.
+The existing root `.env.example` is for local credentials/settings, not remote upload.
+
 Keep the venv outside this OneDrive-backed repository, as in moody_agent:
 
 ```powershell

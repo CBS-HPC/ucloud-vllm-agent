@@ -1,5 +1,11 @@
 # Remaining work
 
+- [x] Packaged remote workspace templates: nginx.conf, remote .env.example,
+  shared initialization source, generic README and CPU/GPU setup recipes.
+  Offline export refuses overwrites; source/code inventory and setup guide included.
+- [ ] Validate the new generic nginx configuration in the supported UCloud image
+  and through public chat/PII/auth/SSE checks before recommending live adoption.
+
 - [x] Separate UCloud hosting from cross-provider orchestration. CBS Model Agent
   owns the LUMI integration; this provider keeps its deterministic UCloud workflow.
 
