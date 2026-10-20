@@ -118,12 +118,16 @@ nginx, SSH, template-job or GPU-selection prerequisites.
 
 New work consumes reviewed ucloud-api v0.1.7: independent Link/key plan/apply/
 status/reconciliation/cleanup and opt-in catalog --live. No cloud jobs/resources
-were created for implementation/testing. Provider release v0.1.4 and wrapper
-v0.1.2 are the next publication pair; inspect current GitHub state before repeating
-publication and pin the wrapper only after the provider release exists.
+were created for implementation/testing. Provider v0.1.4 (v0.1.4) and wrapper
+v0.1.2 (v0.1.2) are published with wheels/source/checksums and passing Windows/Linux
+CI on Python 3.11/3.13. The wrapper pin was updated after provider publication.
+Do not repeat publication or completed validation; inspect GitHub state first.
 Local validation: 128 tests passed, one platform skip; wheel/source builds and
 offline installed-layout template export passed. Source packaging includes the new
 setup guide/example and excludes local credentials and operational journals.
+The fresh external venv installed the actual 0.1.2/0.1.4/0.1.7 release chain and
+passed delegation, missing-settings doctor, CLI help, packaged asset export and
+mocked read-only resource planning. Seventeen wrapper tests passed locally.
 
 Bootstrap is still unimplemented. v0.1.7's application-aware resource helper
 obtains resolved application metadata from a prior job, while its low-level builder
@@ -162,7 +166,7 @@ items pending until that evidence is available.
 - [x] Separate UCloud hosting from cross-provider orchestration. CBS Model Agent
   owns the LUMI integration; this provider keeps its deterministic UCloud workflow.
 
-- [x] Consume released ucloud-api v0.1.6 for GPU/MIG products and submission.
+- [x] Consume released ucloud-api v0.1.7 for GPU/MIG products, submission and separate resource setup.
 - [x] Deterministic profile, pinned HF revision, nginx initScript and endpoint tests.
 - [x] Compare llm-checker, llmfit, GPUStack, Accelerate and Can I Use LLM.
   Decision and sources: docs/sizing-research.md. No required external sizing tool.
