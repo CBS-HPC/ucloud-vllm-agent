@@ -260,17 +260,14 @@ def verify_host(client, journal: Journal, runtime: dict, timeout: float = 900) -
 
 def deploy(client, profile: dict | None, *, output: Path = Path("deployments"), root: Path | None = None,
            replace: Path | None = None, reviewed: bool = False, auto_size: bool = False,
-           rollback: bool = False, renew_hours: int | None = None) -> dict:
+           rollback: bool = False, renew_hours: int | None = None, bootstrap: Path | None = None) -> dict:
     settings = client.settings
     if not reviewed:
         raise ValueError("Deployment requires --reviewed after model/license/runtime review")
-    if not settings.template_job_id or not os.getenv("UCLOUD_PREPARATION_TEMPLATE_JOB_ID"):
-        raise ValueError("Both explicit serving and preparation template IDs are required")
     if not os.getenv("VLLM_API_KEY"):
         raise ValueError("Local VLLM_API_KEY is required for remote-key matching and endpoint verification")
     from ucloud_workflow.jobs import template_job_specification
     with operation_lock(CONTROL_ROOT / "lifecycle.lock"):
-        _validate_template_ownership(client)
         pointer = load(CONTROL_ROOT / "current.json")
         previous = adopt_legacy(replace.resolve(), client) if replace else None
         if renew_hours is not None:
@@ -305,6 +302,30 @@ def deploy(client, profile: dict | None, *, output: Path = Path("deployments"), 
         if previous and any(previous.data.get(k + "_submission") in ("pending", "unknown")
                             for k in ("preparation", "hosting")):
             raise ValueError("Replacement submission outcome is unknown; reconcile it before replacement or rollback")
+        # A recovery/replacement inherits its recorded source. An explicit file
+        # cannot redirect an existing deployment to different storage or a Link.
+        from .bootstrap import read_bootstrap, validate_bootstrap
+        if root and previous is None:
+            replacement = Journal(root).data.get("replacement")
+            if replacement:
+                previous = adopt_legacy(Path(replacement), client)
+        blueprint = read_bootstrap(bootstrap) if bootstrap else None
+        recorded = [j for j in (Journal(root) if root else None, previous,
+                                source if rollback else None) if j and j.data]
+        for record in recorded:
+            if record.data.get("source_mode", "template") == "bootstrap":
+                saved = read_bootstrap(record.root / "bootstrap.json")
+                if saved["digest"] != record.data.get("bootstrap_digest"):
+                    raise ValueError("Recorded bootstrap snapshot changed")
+                if blueprint and blueprint["digest"] != saved["digest"]:
+                    raise ValueError("Replacement/recovery must preserve its bootstrap source")
+                blueprint = saved
+        if blueprint and any(j.data.get("source_mode", "template") != "bootstrap" for j in recorded):
+            raise ValueError("Cannot replace or recover across template and bootstrap sources")
+        if blueprint is None:
+            if not settings.template_job_id or not os.getenv("UCLOUD_PREPARATION_TEMPLATE_JOB_ID"):
+                raise ValueError("Both explicit serving and preparation template IDs are required; bootstrap must be selected explicitly")
+            _validate_template_ownership(client)
         if root is None and pointer.get("deployment"):
             active = Journal(Path(pointer["deployment"]))
             if not active.data.get("hosting_job_id") and active.data.get("state") != "released":
@@ -337,11 +358,15 @@ def deploy(client, profile: dict | None, *, output: Path = Path("deployments"), 
             raise ValueError("This deployment was retired; use a new deployment instead of recover")
         if previous is None and journal.data.get("replacement"):
             previous = adopt_legacy(Path(journal.data["replacement"]), client)
+        if blueprint:
+            save(root / "bootstrap.json", blueprint)
         save(CONTROL_ROOT / "current.json", {"deployment": str(root.resolve())})
         journal.update(public_base_url=profile["request"]["public_base_url"],
                        reviewed=True,
-                       serving_template_id=settings.template_job_id,
-                       preparation_template_id=os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"],
+                       source_mode="bootstrap" if blueprint else "template",
+                       bootstrap_digest=blueprint["digest"] if blueprint else None,
+                       serving_template_id=None if blueprint else settings.template_job_id,
+                       preparation_template_id=None if blueprint else os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"],
                        replacement=str(previous.root) if previous else journal.data.get("replacement"))
         if rollback:
             journal.update(rollback_of=str(previous.root), restored_from=str(source.root))
@@ -349,8 +374,11 @@ def deploy(client, profile: dict | None, *, output: Path = Path("deployments"), 
             journal.update(renewal_of=str(previous.root))
         if not token_status(max(profile["hours"], 1))["supports_allocation"]:
             raise ValueError("Configured token does not cover the requested allocation")
-        template = template_job_specification(client, template_job_id=settings.template_job_id)
-        prep = template_job_specification(client, template_job_id=os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"])
+        if blueprint:
+            prep, template = validate_bootstrap(client, blueprint, profile=profile)
+        else:
+            template = template_job_specification(client, template_job_id=settings.template_job_id)
+            prep = template_job_specification(client, template_job_id=os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"])
         spec = hosting_job_specification(template, profile)
         _template_contract(client, template, prep, profile["request"]["public_base_url"])
         allowed = {journal.data.get("hosting_job_id"), previous.data.get("hosting_job_id") if previous else None} - {None}

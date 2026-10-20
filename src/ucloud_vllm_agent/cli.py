@@ -30,7 +30,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = JSONArgumentParser(description="Plan and verify vLLM hosting from an operator-owned UCloud template")
+    parser = JSONArgumentParser(description="Plan and verify vLLM hosting through explicit UCloud templates or reviewed bootstrap specifications")
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("estimate", "prepare"):
@@ -43,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     command = commands.add_parser("doctor", help="Check local requirements; --online adds read-only API preflight")
     command.add_argument("--online", action="store_true")
     command.add_argument("--profile", type=Path, help="Hosting profile required for API preflight")
+    command.add_argument("--bootstrap", type=Path, help="Finalized bootstrap.json; omit for template-ID mode")
     command = commands.add_parser("workspace-template", help="Export remote workspace templates locally; no credentials or uploads")
     command.add_argument("--output", type=Path, required=True, help="New directory; existing targets are never overwritten")
     command = commands.add_parser("setup-plan", help="Read-only Link/key discovery; write a credential-free plan")
@@ -58,6 +59,20 @@ def main(argv: list[str] | None = None) -> int:
         if name == "setup-cleanup":
             command.add_argument("--kind", choices=("link", "ssh_key"), required=True)
             command.add_argument("--yes", action="store_true", help="Delete the exact recorded created resource; SSH keys are account-scoped")
+    command = commands.add_parser("bootstrap-plan", help="Read-only application/storage discovery; no prior job IDs")
+    command.add_argument("--request", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True, help="New credential-free plan file")
+    for name in ("bootstrap-apply", "bootstrap-credentials", "bootstrap-finish", "bootstrap-status", "bootstrap-release", "bootstrap-reconcile"):
+        command = commands.add_parser(name)
+        command.add_argument("--state", type=Path, required=True)
+        if name == "bootstrap-apply":
+            command.add_argument("--plan", type=Path, required=True)
+        if name in ("bootstrap-apply", "bootstrap-credentials", "bootstrap-finish", "bootstrap-release"):
+            command.add_argument("--yes", action="store_true", help="Apply the previewed action")
+        if name == "bootstrap-credentials":
+            command.add_argument("--include-hf-token", action="store_true", help="Provision the selected local HF_TOKEN in addition to VLLM_API_KEY")
+        if name == "bootstrap-reconcile":
+            command.add_argument("--job-id", required=True, help="Exact CPU job matching the unknown submission")
     command = commands.add_parser("models", help="List previously validated model types and untested candidates offline")
     command.add_argument("--type", choices=("chat", "anonymisation", "classification"))
     command.add_argument("--status", choices=("validated", "candidate"))
@@ -67,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "prepare-profile":
             command.add_argument("--metadata", type=Path, help="Saved model metadata for offline planning")
             command.add_argument("--output", type=Path, default=Path("deployments"))
+        else:
+            command.add_argument("--bootstrap", type=Path, help="Finalized bootstrap.json instead of a serving template")
     commands.add_parser("inspect-template")
     command = commands.add_parser("deploy", help="Prepare and host from explicit CPU/nginx templates")
     command.add_argument("--profile", type=Path)
@@ -74,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--output", type=Path, default=Path("deployments"))
     command.add_argument("--reviewed", action="store_true", help="Model license and pinned runtime compatibility have been reviewed")
     command.add_argument("--auto-size", action="store_true", help="Choose from the live project B200 GPU/MIG catalog")
+    command.add_argument("--bootstrap", type=Path, help="Finalized bootstrap.json; recorded for recovery/renewal/rollback")
     for name in ("status", "restart", "stop", "release", "recover", "rollback", "renew"):
         command = commands.add_parser(name)
         command.add_argument("--deployment", type=Path, required=True)
@@ -112,7 +130,32 @@ def main(argv: list[str] | None = None) -> int:
             return 1
     try:
         load_env()
-        if args.command.startswith("setup-"):
+        if args.command.startswith("bootstrap-"):
+            require_hosting_adapter()
+            from ucloud_workflow.client import UCloudClient
+            from ucloud_workflow.settings import Settings
+            from . import bootstrap
+            with UCloudClient(Settings.from_env()) as client:
+                if args.command == "bootstrap-plan":
+                    result = bootstrap.plan_bootstrap(client, load_json(args.request))
+                    args.output.parent.mkdir(parents=True, exist_ok=True)
+                    with args.output.open("x", encoding="utf-8") as stream:
+                        stream.write(json.dumps(result, indent=2) + "\n")
+                elif args.command == "bootstrap-apply":
+                    result = bootstrap.apply_bootstrap(client, load_json(args.plan), args.state, yes=args.yes)
+                elif args.command == "bootstrap-credentials":
+                    result = bootstrap.provision_bootstrap_credentials(client, args.state, yes=args.yes, include_hf_token=args.include_hf_token)
+                elif args.command == "bootstrap-finish":
+                    result = bootstrap.finish_bootstrap(client, args.state, yes=args.yes)
+                elif args.command == "bootstrap-release":
+                    result = bootstrap.release_bootstrap(client, args.state, yes=args.yes)
+                elif args.command == "bootstrap-reconcile":
+                    result = bootstrap.reconcile_bootstrap(client, args.state, args.job_id)
+                else:
+                    result = bootstrap.status_bootstrap(client, args.state)
+            print(json.dumps(result, indent=2))
+            return 0
+        elif args.command.startswith("setup-"):
             require_hosting_adapter()
             from ucloud_workflow.client import UCloudClient
             from ucloud_workflow.settings import Settings
@@ -147,13 +190,18 @@ def main(argv: list[str] | None = None) -> int:
                 from ucloud_workflow.client import UCloudClient
                 from ucloud_workflow.settings import Settings
                 from ucloud_workflow.jobs import template_job_specification
-                if not os.getenv("UCLOUD_TEMPLATE_JOB_ID"):
+                if not args.bootstrap and not os.getenv("UCLOUD_TEMPLATE_JOB_ID"):
                     raise ValueError("UCLOUD_TEMPLATE_JOB_ID is required; no latest-job fallback")
                 settings = Settings.from_env()
                 with UCloudClient(settings) as client:
-                    template = template_job_specification(client, template_job_id=settings.template_job_id)
+                    if args.bootstrap:
+                        from .bootstrap import read_bootstrap, validate_bootstrap
+                        _, template = validate_bootstrap(client, read_bootstrap(args.bootstrap), profile=profile)
+                    else:
+                        template = template_job_specification(client, template_job_id=settings.template_job_id)
                 spec = hosting_job_specification(template, profile)
-                print(json.dumps({"template_job_id": settings.template_job_id, "job_submitted": False,
+                print(json.dumps({"source_mode": "bootstrap" if args.bootstrap else "template",
+                                  "template_job_id": None if args.bootstrap else settings.template_job_id, "job_submitted": False,
                                   "product": spec["product"], "allocation": spec["timeAllocation"],
                                   "application": spec["application"], "ssh_enabled": spec["sshEnabled"],
                                   "startup": "nginx_init_script", "web_route_registration_required": True}, indent=2))
@@ -172,7 +220,8 @@ def main(argv: list[str] | None = None) -> int:
                 with UCloudClient(Settings.from_env()) as client:
                     if args.command == "deploy":
                         result = lifecycle.deploy(client, load_json(args.profile), output=args.output,
-                                                  replace=args.replace, reviewed=args.reviewed, auto_size=args.auto_size)
+                                                  replace=args.replace, reviewed=args.reviewed, auto_size=args.auto_size,
+                                                  bootstrap=args.bootstrap)
                     elif args.command == "recover":
                         if args.submission_job_id:
                             result = lifecycle.reconcile(client, args.deployment.resolve(), args.submission_job_id, args.kind)
@@ -200,7 +249,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0 if result.get("recommendation") else 1
         elif args.command == "doctor":
             from .diagnostics import diagnose
-            result = diagnose(online=args.online, profile=args.profile)
+            result = diagnose(online=args.online, profile=args.profile, bootstrap=args.bootstrap)
             print(json.dumps(result, indent=2))
             return 0 if result["passed"] else 1
         elif args.command == "inspect-template":

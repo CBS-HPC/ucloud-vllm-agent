@@ -11,10 +11,12 @@ A Git workspace and Python CLI for asking Codex or Claude to set up Hugging Face
 models on UCloud. It follows the operator's **moody_agent** workflow with model
 hosting as the workload:
 
-**Request -> model inspection -> resource estimate -> deployment bundle -> job from UCLOUD_TEMPLATE_JOB_ID -> vLLM -> verification through the template's nginx/URL.**
+**Request -> model inspection -> resource estimate -> deployment bundle -> explicit template or finalized bootstrap specification -> vLLM -> HTTPS verification.**
 
-The operator sets up the URL and nginx in the template. The agent owns model
-selection/configuration and serving. A successful hosting job stays running.
+For an existing setup, the operator supplies template IDs and its nginx/URL.
+For a new project, [bootstrap](docs/bootstrap.md) prepares a fresh persistent folder
+and packaged nginx configuration through a bounded CPU job without prior job IDs.
+The agent owns model selection/configuration and serving. A successful hosting job stays running.
 
 The default execution path is CPU preparation followed by nginx's Initialization
 script; UCloud interactive SHELL is the diagnostics/recovery path. Start with
@@ -102,9 +104,11 @@ snippet](docs/harness-integration.md). Day-to-day costs, expiry and recovery are
 
 For first-time resource reservation, use [Link and optional public-key setup](docs/resource-setup.md).
 The remaining [onboarding roadmap](TODO.md#researcher-onboarding-roadmap) covers
-shared-folder/uploads, no-prior-job application-spec bootstrap and independent
-live acceptance. Deployment still requires both explicit template IDs; resource
-setup does not configure or validate an inference endpoint.
+isolated live validation and independent researcher acceptance. The
+[bootstrap guide](docs/bootstrap.md) covers first-time shared folders/uploads and
+explicit credential provisioning. Template mode requires both explicit IDs;
+bootstrap mode requires its finalized artifact. Resource setup alone does not
+configure or validate an inference endpoint.
 
 For a new researcher/project, start with the [UCloud workspace and job templates](docs/ucloud-workspace-template.md).
 They include the remote nginx.conf, credential-free .env.example, initialization

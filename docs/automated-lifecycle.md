@@ -5,6 +5,11 @@ pinned model caching, active-bundle selection, GPU submission through nginx,
 WEB route registration and three-path inference checks. Full CLI deployment and replacement passed on 2026-10-06; recovery and restart
 reuse the recorded allocation. See live-validation.md for evidence and limits.
 
+For no-prior-job mode, finish [bootstrap](bootstrap.md) first, then add
+`--bootstrap run/bootstrap/first/bootstrap.json` to deploy/preview-profile/doctor.
+Recovery, replacement, renewal and rollback inherit the stored snapshot and reject
+a changed source. The template instructions below apply when bootstrap is omitted.
+
 ```powershell
 vllm-agent catalog --output artifacts/machines.json
 vllm-agent size --profile config/hosting.qwen-small.json

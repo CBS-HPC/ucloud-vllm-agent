@@ -64,7 +64,7 @@ cbs-model providers
 | UCloud project and CPU/GPU allocation | Researcher/project administrator; check permissions and accounting limits. |
 | UCloud API token and matching token ID | Researcher's local provider `.env`; never upload it. |
 | SSH identity | Private key stays on your computer; register its public key on UCloud. Set an absolute UCLOUD_SSH_IDENTITY_FILE path if needed. |
-| Shared persistent folder, CPU and nginx job IDs, reserved URL | Follow [workspace/job setup](ucloud-workspace-template.md). Both jobs must belong to your project. |
+| Persistent storage and reserved URL | Choose [bootstrap without prior jobs](bootstrap.md) or [existing template-ID setup](ucloud-workspace-template.md); all resources must belong to your project. |
 | HF_TOKEN | Optional for public models; use authorized access for gated models. Local metadata and remote downloads may each need it. |
 | VLLM_API_KEY | Strong serving credential, matching locally and in the remote `/work/vllm/.env`. It is separate from the UCloud API token. |
 | Runtime and hardware | nginx 1.31.2, compatible Python 3.12 images, vLLM 0.31.0; current automatic machine mapping is B200 only. |
@@ -86,8 +86,10 @@ settings/tools/identity are missing and reports remedies without printing values
 Exit 0 means local requirements passed, not authenticated or remote readiness.
 Optional [Link and public-key setup](resource-setup.md) now uses released ucloud-api
 v0.1.7, with separate preview/apply/recovery/cleanup and no job allocation. Shared
-folders, credentials and templates still need the setup guide. Bootstrap without
-prior job IDs is planned; deployment requires both explicit template IDs.
+folders and credentials use the separate [bootstrap guide](bootstrap.md) when no
+prior jobs exist. Template mode still requires both explicit template IDs.
+The published v0.1.4 install above has no bootstrap commands; follow the guide's
+isolated editable-checkout instructions until the new release is published.
 
 ## First model: preview before allocating
 

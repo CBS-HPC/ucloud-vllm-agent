@@ -1,0 +1,25 @@
+{
+  "schema": "ucloud.vllm.bootstrap_applications.v1",
+  "reviewed_at": "2026-10-20",
+  "api_source_commit": "3d08e18c539d364c127b898a147e40151c9708d8",
+  "applications": [
+    {
+      "application": {"name": "coder-python", "version": "1.89.1"},
+      "application_type": "WEB", "backend": "DOCKER",
+      "allow_additional_mounts": true, "allow_public_link": true, "ssh_mode": "OPTIONAL",
+      "parameters": [
+        {"name": "initialization", "type": "input_file", "optional": true, "has_default": false},
+        {"name": "m_var", "type": "input_directory", "optional": true, "has_default": false}
+      ]
+    },
+    {
+      "application": {"name": "nginx", "version": "1.31.2"},
+      "application_type": "WEB", "backend": "DOCKER",
+      "allow_additional_mounts": true, "allow_public_link": true, "ssh_mode": null,
+      "parameters": [
+        {"name": "configFile", "type": "input_file", "optional": true, "has_default": false},
+        {"name": "initScript", "type": "input_file", "optional": true, "has_default": false}
+      ]
+    }
+  ]
+}

@@ -92,6 +92,12 @@ deployment path and surface operator decisions, not invent a restart policy.
 > receipts and created/reused ownership. Do not infer ownership from a matching
 > hostname/key or bypass unknown outcomes. Cleanup requires an exact requested
 > created resource; account keys may be used by other projects/jobs.
+> If the user has no template jobs, use docs/bootstrap.md and an explicit
+> bootstrap-plan. Apply can allocate a bounded CPU job; credential provisioning is
+> a separate selected-value stdin operation. Finish releases the owned CPU and
+> emits bootstrap.json. Pass --bootstrap explicitly to first deploy/doctor/preview;
+> recovery and replacements use the recorded snapshot. Never create dummy GPU
+> template jobs or infer folder ownership from existence after an unknown write.
 
 ## Operation boundaries
 
@@ -102,6 +108,10 @@ deployment path and surface operator decisions, not invent a restart policy.
 | catalog --live, setup-plan | Read-only API discovery/queue snapshot and local evidence. No reservation or job allocation. |
 | setup-apply, setup-cleanup | Preview by default. --yes creates/reuses or deletes the selected persistent resource; no jobs. Requires resource-specific authorization. |
 | setup-status, setup-reconcile | Saved state / remote reads plus receipt reconciliation; no resource writes. Unresolved reconciliation returns exit 2. |
+| bootstrap-plan, bootstrap-status | Read-only API discovery/status plus local plan output; no allocation. |
+| bootstrap-apply | Preview by default; --yes creates fresh folders/uploads and a bounded CPU job, with no GPU. |
+| bootstrap-credentials, bootstrap-finish, bootstrap-release | Preview by default; --yes respectively creates the fixed remote .env exclusively, verifies it and releases the owned CPU, or releases that CPU preserving storage. |
+| bootstrap-reconcile | Remote reads and exact CPU submission reconciliation in the local journal; no allocation. |
 | prepare/prepare-profile | Model metadata plus local bundle writes; no upload/allocation. |
 | deploy, replace, rollback, renew, recover | Can create CPU/GPU jobs, upload/activate files or resume mutations. Require workload authorization. |
 | restart, stop, release | Mutate the exact recorded runtime/job; stop leaves allocation charged. |

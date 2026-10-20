@@ -2,6 +2,29 @@
 
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
+## Isolated bootstrap continuation (2026-10-20)
+
+Work is on branch `bootstrap-onboarding` in onboarding-sandbox-20261020, not the
+original checkouts. Application-spec bootstrap, fresh namespaced folders/uploads,
+separate exclusive credential provisioning, CPU finish/release/reconciliation,
+and lifecycle/doctor/preview integration are implemented with contract tests.
+Read docs/bootstrap.md and SPEC.md. Do not switch modes when IDs are merely missing.
+Provider v0.1.4 and wrapper v0.1.2 remain the published pair; the wrapper must only
+consume a new provider after a reviewed release is actually published.
+
+Live target is the operator-selected **isolated validation project** project. A blank
+local sandbox .env exists for the operator's new token/token ID/project UUID,
+local identity path and serving key. Do not read its contents into model context,
+copy secrets from the original project or touch its deployed folder. Start with
+read-only scope/product/drive/Link discovery, then record the exact trial plan.
+Small Qwen is the proposed synthetic workload; use fresh storage/hostname and
+bounded CPU/MIG jobs. No cloud jobs/resources have been created by this work.
+
+Remaining: final build/installed-layout/CI checks, publication, isolated live
+generic-nginx/auth/chat/SSE validation and colleague-led acceptance. An operator
+sandbox trial does not complete the colleague gate. A lost folder acknowledgement
+still needs provider/audit confirmation; automatic adoption/deletion is unsupported.
+
 ## Researcher onboarding roadmap
 
 Updated 2026-10-19 after the adoption audit. The next milestone is a researcher
@@ -52,13 +75,14 @@ management contracts remain upstream; no dependency repository was modified.
 ### 3. Add explicit first-time resource setup
 
 Link/optional-key setup is available through setup-plan/apply/status/reconcile/cleanup;
-see docs/resource-setup.md. Shared-folder/uploads and no-prior-job bootstrap remain
-manual/planned. Resource setup is separate from deployment and creates no jobs.
+see docs/resource-setup.md. Shared-folder/uploads and no-prior-job bootstrap use
+the separate docs/bootstrap.md workflow on this branch. Resource setup is separate
+from deployment and creates no jobs.
 Any setup step requiring a real job needs scoped allocation authorization.
 
 - [x] Gather the researcher's project, desired hostname, selected public key and
   existing Link choice; export a read-only plan before explicit apply.
-- [ ] Extend setup intake to shared folder/application/template choices for bootstrap.
+- [x] Extend setup intake to shared folder/application/template choices for bootstrap.
 - [x] Discover/reuse existing resources or create the requested Link through the
   released API. Block occupied/foreign resources; never silently replace a route.
 - [x] Optionally register only a selected public key. Keep private keys local;
@@ -66,22 +90,22 @@ Any setup step requiring a real job needs scoped allocation authorization.
 - [x] Journal setup intent and returned resource IDs, scope, public-key fingerprint
   and whether each resource was created or reused. Reconcile uncertain outcomes;
   retries must not create duplicate links or registrations.
-- [ ] Guide or automate shared-folder setup and reviewed template uploads using
+- [x] Guide or automate shared-folder setup and reviewed template uploads using
   released file/transport capabilities. Preserve existing nginx and secret files.
   Credential provisioning remains explicit and separate from template export.
-- [ ] Support two explicit setup modes: reuse known template job IDs, or bootstrap
+- [x] Support two explicit setup modes: reuse known template job IDs, or bootstrap
   from reviewed application specifications when the researcher has no prior jobs.
   UCloud can submit a complete job specification without cloning a historical job;
-  this agent currently implements only the template-ID path.
-- [ ] For bootstrap mode, discover/validate the application version and parameter
+  the branch now implements explicit bootstrap without a prior GPU job.
+- [x] For bootstrap mode, discover/validate the application version and parameter
   schema, exact products, project, mounts and link; build complete CPU and serving
   specifications through released ucloud-api capabilities. Request generic schema/
   builder improvements upstream where needed; do not invent missing parameters.
-- [ ] Start a bounded CPU setup job from that specification when authorized,
+- [x] Implement a bounded CPU setup job from that specification when authorized,
   upload/prepare the reviewed files and journal its ID. Defer the GPU serving job
   until the model deployment is requested; do not allocate a dummy GPU merely to
   manufacture a template job ID. Report CPU/GPU cost and allocation lifetime.
-- [ ] Persist the reviewed application-spec provenance and all created job/resource
+- [x] Persist the reviewed application-spec provenance and all created job/resource
   IDs. Permit recovery from those exact records with the same ownership and
   duplicate-prevention rules as template mode. Current template mode keeps both
   explicit IDs mandatory; bootstrap must never become a latest-job fallback.
@@ -114,7 +138,7 @@ UCloud AI remains a separate future managed provider in CBS Model Agent. It must
 have its own access/authentication/model-use guide, without inheriting self-hosted
 nginx, SSH, template-job or GPU-selection prerequisites.
 
-### Continuation checkpoint (2026-10-20)
+### Previous published checkpoint (2026-10-20)
 
 New work consumes reviewed ucloud-api v0.1.7: independent Link/key plan/apply/
 status/reconciliation/cleanup and opt-in catalog --live. No cloud jobs/resources

@@ -1,4 +1,4 @@
-include AGENTS.md WORKFLOW_CONTRACT.md TODO.md .env.example
+include AGENTS.md WORKFLOW_CONTRACT.md TODO.md SPEC.md .env.example
 recursive-include docs *.md *.json
 recursive-include config *.json
 exclude config/local.*

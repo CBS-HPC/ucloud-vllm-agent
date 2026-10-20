@@ -13,7 +13,7 @@ REQUIRED = ("UCLOUD_PROJECT", "UCLOUD_TOKEN", "UCLOUD_TOKEN_ID", "UCLOUD_TEMPLAT
             "UCLOUD_PREPARATION_TEMPLATE_JOB_ID", "UCLOUD_PUBLIC_BASE_URL", "VLLM_API_KEY")
 
 
-def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
+def diagnose(*, online: bool = False, profile: Path | None = None, bootstrap: Path | None = None) -> dict:
     checks = []
     def check(name, passed, remedy):
         checks.append({"check": name, "passed": bool(passed), "remedy": None if passed else remedy})
@@ -21,7 +21,8 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
     integration = integration_status()
     check("ucloud_dependency", integration["installed_ucloud_workflow"] == REVIEWED_UCLOUD_VERSION,
           "Install this provider's [ucloud] extra with the reviewed ucloud-workflow v" + REVIEWED_UCLOUD_VERSION + " dependency.")
-    configured = {key: bool(os.getenv(key, "").strip()) for key in REQUIRED}
+    required = [key for key in REQUIRED if not bootstrap or key not in ("UCLOUD_TEMPLATE_JOB_ID", "UCLOUD_PREPARATION_TEMPLATE_JOB_ID")]
+    configured = {key: bool(os.getenv(key, "").strip()) for key in required}
     for key, present in configured.items():
         check(key, present, "Set " + key + " in this provider workspace's local .env or caller environment.")
     for executable in ("git", "ssh", "scp"):
@@ -37,6 +38,15 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
         except ValueError:
             pass
     check("public_url_format", url_valid, "Use your reserved HTTPS hostname or /v1 URL without credentials, query or fragment.")
+    if bootstrap:
+        try:
+            from .bootstrap import read_bootstrap
+            data = read_bootstrap(bootstrap)
+            valid = (data["scope"]["project"] == os.getenv("UCLOUD_PROJECT")
+                     and data["request"]["public_base_url"] == normalize_public_url(os.getenv("UCLOUD_PUBLIC_BASE_URL", "")))
+        except (ValueError, OSError, KeyError, TypeError):
+            valid = False
+        check("bootstrap_source", valid, "Select the finalized bootstrap.json for this workspace's project and public URL.")
     identity = os.getenv("UCLOUD_SSH_IDENTITY_FILE")
     if identity:
         keys = [Path(identity)]
@@ -62,16 +72,20 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
             # Never return an exception body, request headers, application
             # parameters or credential-file contents in the diagnostics report.
             try:
-                _online_preflight(profile)
+                if bootstrap:
+                    _online_preflight(profile, bootstrap=bootstrap)
+                else:
+                    _online_preflight(profile)
                 check("api_preflight", True, "")
             except Exception:
                 check("api_preflight", False,
-                      "Verify profile, token coverage, both templates' project/application/mounts and the unoccupied public link. "
-                      "Use token-status, inspect-template and preview-profile for sanitized details.")
+                      "Verify profile, token coverage, selected source's project/application/mounts and the unoccupied public link. "
+                      "Use token-status and preview-profile for sanitized details.")
     elif online:
         remote = "blocked_by_local_requirements"
     passed = all(item["passed"] for item in checks)
     return {"schema": "ucloud.vllm.diagnostics.v1", "agent_version": __version__,
+            "source_mode": "bootstrap" if bootstrap else "template",
             "state": "preflight_passed" if passed and online else "configured" if passed else "blocked",
             "passed": passed, "configured": configured, "local_checks_passed": local_passed,
             "ucloud_integration": integration, "api_preflight": remote, "checks": checks,
@@ -82,7 +96,7 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
                        "Resource availability and token coverage can change after preflight."]}
 
 
-def _online_preflight(profile_path: Path) -> None:
+def _online_preflight(profile_path: Path, *, bootstrap: Path | None = None) -> None:
     from ucloud_workflow.client import UCloudClient
     from ucloud_workflow.jobs import template_job_specification
     from ucloud_workflow.settings import Settings
@@ -91,9 +105,13 @@ def _online_preflight(profile_path: Path) -> None:
     profile = validate_profile(load_json(profile_path))
     settings = Settings.from_env()
     with UCloudClient(settings) as client:
-        _validate_template_ownership(client)
-        serving = template_job_specification(client, template_job_id=settings.template_job_id)
-        preparation = template_job_specification(client, template_job_id=os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"])
+        if bootstrap:
+            from .bootstrap import read_bootstrap, validate_bootstrap
+            preparation, serving = validate_bootstrap(client, read_bootstrap(bootstrap), profile=profile)
+        else:
+            _validate_template_ownership(client)
+            serving = template_job_specification(client, template_job_id=settings.template_job_id)
+            preparation = template_job_specification(client, template_job_id=os.environ["UCLOUD_PREPARATION_TEMPLATE_JOB_ID"])
         hosting_job_specification(serving, profile)
         if preparation.get("application") != {"name": "coder-python", "version": "1.89.1"}:
             raise ValueError("Preparation application needs baseline compatibility review")

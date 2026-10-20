@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ucloud-vllm-agent"
-version = "0.1.4"
-description = "Template-based UCloud model hosting workspace and deployment planner"
+version = "0.1.5"
+description = "UCloud model hosting through explicit templates or reviewed bootstrap specifications"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []

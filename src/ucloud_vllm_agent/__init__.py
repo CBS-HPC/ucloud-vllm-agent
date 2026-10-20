@@ -1,3 +1,3 @@
-"""Planning and runtime helpers for template-based UCloud model hosting."""
+"""Planning and runtime helpers for UCloud model hosting."""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"

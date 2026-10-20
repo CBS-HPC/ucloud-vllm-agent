@@ -1,0 +1,10 @@
+{
+  "schema": "ucloud.vllm.bootstrap_request.v1",
+  "project": "YOUR_PROJECT_UUID",
+  "storage_parent": "/YOUR_DRIVE_ID",
+  "namespace": "my-inference",
+  "cpu_product": {"id": "SELECT_CPU_ID", "category": "cpu-SELECT_CATEGORY", "provider": "SELECT_PROVIDER"},
+  "link_id": "YOUR_RESERVED_LINK_ID",
+  "public_base_url": "https://YOUR_RESERVED_HOSTNAME/v1",
+  "ssh_public_key": "ABSOLUTE_PATH_TO_YOUR_PUBLIC_KEY.pub"
+}

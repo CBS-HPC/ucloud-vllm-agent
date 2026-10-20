@@ -21,11 +21,15 @@ submit jobs or change an existing nginx server.
 
 ## First-time UCloud setup
 
+If you have no prior job IDs, use the separate [bootstrap workflow](bootstrap.md).
+It automates new namespaced folders and these packaged uploads through a bounded
+CPU job. The manual steps below describe the existing template-ID mode only;
+do not allocate a GPU just to obtain an ID for bootstrap.
+
 These steps combine optional [Link/public-key resource setup](resource-setup.md)
 with manual shared-folder, credentials and template setup. Resource setup uses
 released ucloud-api v0.1.7 and starts no jobs. Template creation and shared-folder
-setup remain separate; Link support alone does not automate them. See the
-[onboarding roadmap](../TODO.md#researcher-onboarding-roadmap) for bootstrap limits.
+setup remain separate; Link support alone does not automate them.
 
 1. Obtain a UCloud project with the required CPU/GPU allocation and permissions,
    register your SSH public key, and reserve your own public URL. The operator

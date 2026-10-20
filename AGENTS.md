@@ -30,9 +30,12 @@ Do not equate a preview with submission; live CLI deployment/replacement passed 
   retains its profiles, notebooks, sizing, deployment journals and lifecycle.
   The future UCloud AI fixed platform is a separate wrapper provider (`ucloud-ai`),
   not this vLLM provider (`ucloud-vllm`). Do not mix their credentials or controls.
-- The operator configures the URL and nginx in a known-good UCloud template.
-- UCLOUD_TEMPLATE_JOB_ID is mandatory for submission. Never fall back to the
-  latest job. Inspect and preserve template mounts, application and networking.
+- Select one explicit source: both known CPU/nginx template IDs, or finalized
+  bootstrap.json from docs/bootstrap.md. Missing IDs never select bootstrap or a
+  latest job. Inspect and preserve the selected mounts, application and networking.
+- Bootstrap creates a fresh namespaced vllm folder on a selected project-owned
+  drive, uploads packaged assets through one bounded CPU job, and defers GPU use
+  until deployment. Keep Link/key setup, bootstrap and model deployment separate.
 - ucloud-api owns generic job/product selection, credentials and SSH transport.
   Consume a released package. Do not edit dependency repositories or duplicate
   their submission logic here. The adapter uses released v0.1.7;
@@ -93,7 +96,7 @@ Ended-preparation recovery, explicit rollback and renewal-by-replacement passed
 live validation on 2026-10-06; see docs/live-validation.md for fault injection and limits. Never renew or
 rollback automatically after an operator stops a job. Both commands can allocate
 GPU time and involve downtime; use them only when requested.
-Require UCLOUD_PROJECT to match both templates before allocating any jobs.
+Require UCLOUD_PROJECT to match the selected bootstrap scope or both templates before allocating jobs.
 
 ## First-time resources
 Read docs/resource-setup.md before setup-plan/apply/reconcile/cleanup. This is
@@ -107,7 +110,13 @@ scoped, not project-scoped; removing a created key needs an explicit operator re
 for that exact key and consideration of other jobs/projects. Job release does not
 delete setup resources. The upstream run_with_job_resources helper terminates its
 job on callback completion and must not wrap a persistent inference service.
-Template-ID deployment remains mandatory; no-prior-job bootstrap is unimplemented.
+Read docs/bootstrap.md for bootstrap-plan/apply/credentials/finish/status/release/
+reconcile and --bootstrap on doctor/preview-profile/deploy. Preserve the source
+snapshot during recovery/replacement/renewal/rollback. Unknown folder/job/credential
+outcomes block retries. Bootstrap credentials is explicit, stdin-only exclusive
+creation of /work/vllm/.env; never upload the local environment file. Folder
+existence does not prove ownership; no automatic folder adoption/deletion exists.
+Live isolated bootstrap validation and colleague-led acceptance remain pending.
 catalog --live is an observational queue snapshot, not a reservation or sizing change.
 ## Model catalog and documentation
 Consult `vllm-agent models` and docs/model-catalog.md before selecting a known

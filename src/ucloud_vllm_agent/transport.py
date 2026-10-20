@@ -28,11 +28,11 @@ class PreparationSSH:
                             (root / "known_hosts").resolve().as_posix() + '"')
         self.config.write_text(text)
 
-    def run(self, arguments: list[str], timeout: float = 60) -> str:
+    def run(self, arguments: list[str], timeout: float = 60, *, input: str | None = None) -> str:
         from ucloud_workflow.transfer import ssh_command
         try:
             result = subprocess.run(ssh_command(self.alias, shlex.join(arguments), config_path=self.config),
-                                    capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
+                                    capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout, input=input)
             if result.returncode:
                 raise RuntimeError("Preparation command failed; inspect the deployment's remote evidence")
             return result.stdout

@@ -15,8 +15,10 @@ for pinned revisions, parameter counts, tested machine capacities, profiles and
 notebooks. Historical validation is not current uptime or authorization to deploy.
 Keep candidates separate; CLAES needs a reviewed serving path before classification
 can be hosted. Use `catalog`/`size` for current UCloud product selection and sizing.
-Use UCLOUD_TEMPLATE_JOB_ID explicitly. The operator already owns template URL and
-nginx; verify its vLLM upstream port instead of creating another proxy.
+Select both explicit template IDs or the finalized source from
+[bootstrap](../../docs/bootstrap.md). Missing IDs never imply a latest-job fallback.
+Keep existing template nginx/URL. Bootstrap instead creates a fresh namespace and
+uses the packaged proxy configuration through a bounded CPU upload job.
 
 For an ordinary request create a local request JSON and run estimate/prepare.
 Inspect plan blockers before allocating resources or launching runtime. Unknown
@@ -26,7 +28,7 @@ Research their actual layout or propose a supported alternative when appropriate
 Product selection and automated lifecycle use released ucloud-api v0.1.7.
 For first-time Link and optional account-key reservation, use the separate
 [resource setup workflow](../../docs/resource-setup.md). It does not start jobs,
-configure nginx or replace the mandatory template IDs. Preserve uncertain outcomes
+configure nginx or complete bootstrap. Preserve uncertain outcomes
 and reused resources; never wrap persistent hosting in upstream auto-cleanup helpers.
 Live CLI deployment/replacement passed on 2026-10-06; read docs/automated-lifecycle.md and
 [the integration boundary](../../docs/ucloud-access.md) before remote work.

@@ -1,4 +1,4 @@
-# Template-based hosting workflow
+# UCloud hosting workflow
 
 This contract applies to the UCloud provider only. CBS Model Agent delegates
 UCloud operations to this CLI using an explicit workspace. The provider retains
@@ -14,7 +14,8 @@ Generated runtime bundles use tracked source modules; do not fork their code
 into separately maintained templates. Existing remote configuration is preserved.
 
 Model setup follows moody_agent's request/configuration/case/UCloud pattern.
-The operator owns UCLOUD_TEMPLATE_JOB_ID, the mounted workspace, URL and nginx.
+The operator owns the project, mounted workspace and URL. Select explicit template
+IDs or a finalized bootstrap specification as described in docs/bootstrap.md.
 The hosting agent owns model inspection, capacity planning, vLLM and evidence.
 Ask for missing model/capability, context/concurrency or target decisions; do not
 repeat already-granted deployment authorization.
@@ -61,8 +62,13 @@ further mutations; reconcile only confirmed receipts, never matching names alone
 Cleanup requires confirmed creation ownership and current identity/scope/binding
 checks. Protect reused resources/keys; never implicitly clean them up on job release.
 Read docs/resource-setup.md for interrupted operations and account-key limitations.
-The existing template-ID path remains separate from unimplemented application-spec
-bootstrap. No dummy GPU allocation is permitted just to obtain a template ID.
+The template-ID path remains separate from explicit application-spec bootstrap.
+Bootstrap uses a bounded CPU job, new namespaced persistent storage and packaged
+assets; credentials are a separate exclusive stdin-only action. It emits an inert
+bootstrap.json and releases its CPU. Actual deployment selects the profile GPU.
+Preserve its scope/source digest in deployment journals and all lifecycle actions.
+No dummy GPU allocation is permitted just to obtain a template ID. Unknown folder,
+job or credential writes block retries; existence alone is not ownership.
 catalog --live adds read-only queue evidence without changing capacity selection.
 
 ## Runtime

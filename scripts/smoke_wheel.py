@@ -20,4 +20,10 @@ with tempfile.TemporaryDirectory(prefix="vllm-wheel-smoke-") as temporary:
     assert not report["uploaded"] and not report["job_submitted"]
     assert (root / "export/.env.example").is_file() and not (root / "export/.env").exists()
     assert {path.name for path in (root / "export").iterdir()} == set(report["files"])
+    payload = subprocess.run([sys.executable, "-S", "-c",
+        "import json;from ucloud_vllm_agent.bootstrap import _payload_bytes;print(json.dumps(sorted(_payload_bytes())))"],
+        cwd=root, env=env, capture_output=True, text=True, check=True)
+    assert set(json.loads(payload.stdout)) == {"nginx.conf", "init_vllm.sh", "README.md", ".env.example",
+                                              "manifest.json", "remote.py", "remote_bootstrap.py"}
+    assert (root / "package/ucloud_vllm_agent/data/bootstrap_applications.json").is_file()
     print("Wheel templates exported offline without optional dependencies or credentials.")
