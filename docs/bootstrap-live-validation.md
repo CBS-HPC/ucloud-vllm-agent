@@ -60,3 +60,10 @@ Limits: no new-project PII test, sustained benchmark, live fault injection for
 uncertain folder/credential writes, optional key registration/removal, bootstrap
 renewal/rollback, or independent colleague-led trial was performed. Existing
 template-mode validation remains in [live-validation.md](live-validation.md).
+
+Publication follow-up: provider v0.1.5 at v0.1.5 and wrapper v0.1.3 at v0.1.3
+have wheel/source/checksums and passing Windows/Linux CI. A new non-editable venv
+installed those actual Git releases plus ucloud-api v0.1.7, then passed origin/
+version checks, wrapper delegation, local bootstrap doctor, read-only preview,
+the existing owned job/process status and pip check. No jobs were created by that
+installation check. The original local checkouts were left unchanged.

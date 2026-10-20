@@ -30,13 +30,21 @@ local suite passed 147 tests with two platform skips. The observed local excepti
 left pip active; recovery reused CPU bootstrap-preparation-cpu and the
 same installer, then completed serving. Preserve all journals and receipts.
 
-Remaining: publish reviewed provider v0.1.5, then update/publish wrapper v0.1.3
-against that published dependency and validate the installed release chain. The
-currently published pair is still provider v0.1.4/wrapper v0.1.2. Do not change the
-wrapper pin before provider publication. Independent colleague-led acceptance,
-new-workspace PII and optional key-registration/removal tests remain outside this
-operator trial. Lost folder acknowledgements need provider/audit confirmation;
-automatic folder adoption/deletion is unsupported.
+Provider [v0.1.5](https://github.com/CBS-HPC/ucloud-vllm-agent/releases/tag/v0.1.5)
+is published at v0.1.5 with wheel/source/checksums and passing Windows/Linux
+Python 3.11/3.13 CI. Wrapper
+[v0.1.3](https://github.com/CBS-HPC/model-agent/releases/tag/v0.1.3) is published
+at v0.1.3 after that publication, pins provider v0.1.5 and has passing CI/17 tests.
+A fresh non-editable installation of the actual 0.1.3/0.1.5/0.1.7 Git releases
+passed package-origin/version checks, wrapper delegation, local bootstrap doctor,
+read-only preview, existing live-job status and pip check. It allocated no jobs.
+Do not repeat publication/completed checks. Original local checkouts were not pulled.
+
+Remaining external/scoped work: independent colleague-led onboarding in their own
+project, new-workspace PII, optional key registration/removal and live uncertainty
+fault injection when requested. A writable existing drive remains a bootstrap
+prerequisite; creating a new drive is unsupported. Lost folder acknowledgements
+need provider/audit confirmation; automatic folder adoption/deletion is unsupported.
 
 ## Researcher onboarding roadmap
 

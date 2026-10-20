@@ -90,7 +90,7 @@ record live evidence separately (V10).
 | T1 | x | Validate application/storage/product contracts; read-only bootstrap plan | V1,V2,V6,V9,I.request |
 | T2 | x | Journal folder/CPU setup and exclusive remote uploads; finish/release/reconcile | V2,V3,V4,V5,V7,V9,I.remote,I.state |
 | T3 | x | Add explicit bootstrap source to lifecycle, doctor, preview and CLI | V1,V6,V8,I.mode,I.cli |
-| T4 | ~ | Update docs; isolated tests/build/CI and reviewable Git publication | V8,V9,I.cli |
+| T4 | x | Update docs; isolated tests/build/CI and reviewable Git publication | V8,V9,I.cli |
 | T5 | x | Run scoped isolated live trial; retain exact evidence and remaining colleague gate | V6,V7,V10,C5 |
 
 ## §B Regression record
@@ -108,6 +108,9 @@ The isolated trial passed seven checks per loopback/nginx/public path, without
 template IDs. Bootstrap CPU bootstrap-cpu and preparation CPU bootstrap-preparation-cpu were released;
 serving job bootstrap-qwen-gpu has the recorded 2026-10-20 14:04:09 Copenhagen expiry. See
 docs/bootstrap-live-validation.md for evidence and remaining colleague/PII limits.
-T4 release publication and installed-release-chain validation remain pending.
+T4 is complete: provider v0.1.5 (v0.1.5) and wrapper v0.1.3 (v0.1.3) are
+published with artifacts and passing Windows/Linux CI. A fresh non-editable
+0.1.3/0.1.5/0.1.7 installation passed source/version checks, delegation, doctor,
+read-only preview, live owned-job status and pip check without allocating jobs.
 Final local suite: 147 passed and two platform skips after the SSH recovery
 regression and live-evidence/catalog updates. Operational records remain ignored.
