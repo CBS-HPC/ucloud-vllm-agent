@@ -20,7 +20,15 @@ read-only scope/product/drive/Link discovery, then record the exact trial plan.
 Small Qwen is the proposed synthetic workload; use fresh storage/hostname and
 bounded CPU/MIG jobs. No cloud jobs/resources have been created by this work.
 
-Remaining: final build/installed-layout/CI checks, publication, isolated live
+Implementation commit reviewed-change is pushed on bootstrap-onboarding. Windows/Linux
+CI on Python 3.11/3.13 passed: Linux 144 tests passed with one platform skip;
+Windows 143 passed with two platform skips. Source/wheel builds and offline
+installed-layout checks passed, including packaged bootstrap helpers/contracts.
+Ubuntu nginx syntax passed; this is not the actual UCloud serving image.
+The candidate package version is 0.1.5, not yet a published release. Wrapper
+checkpoint reviewed-change is pushed and its CI passed, retaining the published 0.1.4 pin.
+
+Remaining: publication after the isolated trial/review, live
 generic-nginx/auth/chat/SSE validation and colleague-led acceptance. An operator
 sandbox trial does not complete the colleague gate. A lost folder acknowledgement
 still needs provider/audit confirmation; automatic adoption/deletion is unsupported.

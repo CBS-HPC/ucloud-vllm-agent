@@ -94,3 +94,10 @@ record live evidence separately (V10).
 | id | date | cause | fix |
 | --- | --- | --- | --- |
 | B1 | 2026-10-20 | --no-isolation requires a build backend absent from the fresh Python 3.13 venv | Use standard python -m build with its declared isolated backend; no runtime invariant change needed |
+
+Verification checkpoint: implementation reviewed-change passed Windows/Linux CI on
+Python 3.11/3.13, source/wheel builds and offline installed-layout checks. Linux:
+144 passed/1 platform skip; Windows: 143 passed/2 platform skips. Generic nginx
+syntax passed on Ubuntu, not yet in the UCloud image. T4 publication follows the
+isolated trial/review. T5 awaits the operator's new sandbox credentials and exact
+project/drive/product/Link discovery. No cloud resources/jobs have been created.
