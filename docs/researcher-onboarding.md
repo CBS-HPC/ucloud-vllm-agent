@@ -1,7 +1,7 @@
 # Researcher onboarding: UCloud vLLM
 
 Follow this guide to host a model in your own UCloud project. It targets the
-published pair **CBS Model Agent v0.1.3 / UCloud vLLM agent v0.1.5**, consuming
+published pair **CBS Model Agent v0.1.4 / UCloud vLLM agent v0.1.6**, consuming
 ucloud-api v0.1.7. Documentation reviewed against that pair on 2026-10-20.
 This maintained guide includes clarifications after the immutable release tags;
 use the [online guide](https://github.com/CBS-HPC/ucloud-vllm-agent/blob/main/docs/researcher-onboarding.md)
@@ -17,11 +17,12 @@ You need Windows or Linux, Python 3.11+, Git and OpenSSH (`ssh`, `scp` and
 `ssh-keygen`) on PATH. CI covers Windows/Linux with Python 3.11 and 3.13;
 remote jobs use the separate Python 3.12 runtime baseline.
 
-Obtain command-line read access to private CBS-HPC/model-agent,
-CBS-HPC/ucloud-vllm-agent and CBS-HPC/ucloud-api. Git access must work for pip's
-dependency downloads; browser login alone is insufficient. Never embed a GitHub
-token in a clone URL. The UCloud-only install does not need a LUMI account or
-access to lumi-aitta-api; installing the optional AITTA extra does.
+The CBS-HPC/model-agent, CBS-HPC/ucloud-vllm-agent, CBS-HPC/lumi-aitta-api and
+CBS-HPC/ucloud-api repositories are public. Git and network access to GitHub must
+work for pip's dependency downloads; no GitHub token is required for installation.
+UCloud access still requires your own project allocation and API credentials.
+The UCloud-only install does not need a LUMI account; using AITTA requires an
+active LUMI project and its own AITTA token.
 
 | Your situation | Path | Deployment source |
 | --- | --- | --- |
@@ -42,8 +43,8 @@ and journals. The wrapper installs released provider code; the provider checkout
 supplies profiles, notebooks, agent instructions and local operational records.
 
 ```sh
-git clone --branch v0.1.3 https://github.com/CBS-HPC/model-agent.git model-agent
-git clone --branch v0.1.5 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
+git clone --branch v0.1.4 https://github.com/CBS-HPC/model-agent.git model-agent
+git clone --branch v0.1.6 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
 ```
 
 Cloning a release tag leaves Git in detached HEAD state; this is expected for a
@@ -85,7 +86,7 @@ vllm-agent --version
 cbs-model providers
 ```
 
-Expected versions are 0.1.3 and 0.1.5. `providers` lists capabilities offline;
+Expected versions are 0.1.4 and 0.1.6. `providers` lists capabilities offline;
 an entry marked implemented does not prove its optional dependency is installed.
 
 ## 3. Configure local access

@@ -141,6 +141,6 @@ resolution, not guaranteed bounds. Rollback was tested using an injected stopped
 process, not every possible submission/startup failure. Unknown submission outcomes
 remain blocking and are exercised by regression tests.
 
-The private [GitHub repository](https://github.com/CBS-HPC/ucloud-vllm-agent)
+The public [GitHub repository](https://github.com/CBS-HPC/ucloud-vllm-agent)
 contains the source, notebooks, model catalog and sanitized benchmark evidence.
 Local credentials and detailed runtime journals remain excluded from Git.

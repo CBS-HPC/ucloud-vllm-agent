@@ -8,7 +8,7 @@ usable independently; it has no LUMI dependency or credential requirement.
 The future UCloud AI fixed inference platform is a separate provider (`ucloud-ai`).
 
 **New researcher:** start with [installation and first deployment](docs/researcher-onboarding.md).
-It covers the published wrapper v0.1.3 / provider v0.1.5 pair, required access
+It covers the published wrapper v0.1.4 / provider v0.1.6 pair, required access
 and settings, and the choice between bootstrap and existing templates.
 
 A Git workspace and Python CLI for asking Codex or Claude to set up Hugging Face
@@ -297,7 +297,7 @@ Read AGENTS.md, WORKFLOW_CONTRACT.md and skills/vllm-hosting/SKILL.md for operat
 instructions. docs/capacity.md explains estimates; docs/ucloud-access.md tracks
 the release boundary. docs/references.md records source projects and documentation.
 
-The private repository is [CBS-HPC/ucloud-vllm-agent](https://github.com/CBS-HPC/ucloud-vllm-agent),
+The public repository is [CBS-HPC/ucloud-vllm-agent](https://github.com/CBS-HPC/ucloud-vllm-agent),
 with GitHub CI for Python 3.11 and 3.13. Credentials, deployment bundles and detailed
 runtime records stay outside Git; saved notebooks contain no outputs.
 
@@ -308,7 +308,7 @@ and 45 seconds warm; PII full-context load passed with two clients. These are
 dated results for the recorded workload and hardware.
 Historical operational identities in these guides use role labels and example
 URLs. See the wrapper's [publication checklist](https://github.com/CBS-HPC/model-agent/blob/main/docs/publication.md)
-for the separate history/release cleanup before changing repository visibility.
+for the history/release cleanup record and instructions for older checkouts.
 
 ## License
 

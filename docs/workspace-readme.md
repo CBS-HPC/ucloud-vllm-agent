@@ -139,7 +139,7 @@ conversation-level score; masking uses decoded spans without a sensitivity gate.
 
 ## Validated lifecycle and benchmarks (2026-10-06)
 
-Agent source: https://github.com/CBS-HPC/ucloud-vllm-agent (private).
+Agent source: https://github.com/CBS-HPC/ucloud-vllm-agent (public).
 Ended CPU preparation recovery, Qwen-to-PII replacement, rollback to Qwen,
 and same-profile renewal passed loopback, nginx and public HTTPS checks.
 Repeated rollback/renewal reused their recorded GPU jobs.

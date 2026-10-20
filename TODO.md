@@ -1,5 +1,16 @@
 # Remaining work
 
+## Public publication (2026-10-20)
+
+The operator approved historical cleanup and public publication. All reachable
+provider/wrapper branches and tags were sanitized with private backups retained;
+six source archives and their checksum files were updated for operational details
+or references to rewritten commits. Existing wheel runtime code was preserved.
+New licensed releases are UCloud vLLM v0.1.6, AITTA API v0.1.1 and CBS Model Agent
+v0.1.4. The UCloud API runtime pin remains v0.1.7. See the wrapper's
+docs/publication.md for the scope and migration instructions. Older publication
+checkpoints below are historical. Live colleague/AITTA acceptance remains pending.
+
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
 ## Publication cleanup (2026-10-20)
@@ -11,7 +22,7 @@ validation conclusions are retained. Exact operational identities remain in
 private journals; public labels must never be used for recovery or cleanup.
 See the wrapper's docs/publication.md for the coordinated publication checklist.
 Earlier commits/tags and attached source archives still require separate reviewed
-cleanup. Keep this repository private while that history/release gate remains open.
+cleanup. This gate was subsequently resolved in the public publication record above.
 
 ## Licensing (2026-10-20)
 

@@ -118,6 +118,6 @@ deployment path and surface operator decisions, not invent a restart policy.
 | check | Sends synthetic inference/auth tests to the endpoint; consumes serving capacity. |
 
 Review flags express the caller's assertion; they do not perform license review
-or decide authorization. API credentials, private Git access and model data-use
+or decide authorization. API credentials, Git/network access and model data-use
 approval are separate prerequisites. Release packages should be pinned and updated
 deliberately. See researcher-onboarding.md for install and compatibility limits.

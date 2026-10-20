@@ -143,7 +143,7 @@ Read docs/live-validation.md and docs/benchmark-results.json for measured result
 keep workload, hardware, timing boundaries and remaining limits with each claim.
 README.md is the entry point; WORKFLOW_CONTRACT.md defines execution invariants;
 TODO.md tracks remaining work. Update related docs when changing behavior.
-The GitHub repository is private: https://github.com/CBS-HPC/ucloud-vllm-agent.
+The GitHub repository is public: https://github.com/CBS-HPC/ucloud-vllm-agent.
 Keep credentials, detailed runtime journals, deployment bundles and notebook
 outputs excluded from commits. Documentation maintenance does not authorize
 starting UCloud jobs or silently updating the mounted workspace.
