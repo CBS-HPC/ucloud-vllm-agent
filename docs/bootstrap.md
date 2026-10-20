@@ -130,6 +130,11 @@ only the owned CPU; it preserves all folders, Links and keys. A released unfinis
 bootstrap cannot be resumed. Storage and separately created resources need explicit
 operator management, following their ownership records.
 
+Namespace planning establishes absence by completely listing the verified parent
+using the reviewed Files browse `path` parameter. The live provider reports missing
+retrieve paths with HTTP 400, so neither a 400 nor a 404 is used as absence evidence.
+Denied or incomplete parent listings block planning; creation still uses REJECT.
+
 Offline contract tests are not live platform validation. The isolated operator-led
 trial in "isolated validation project" is pending; colleague-led onboarding and actual
 generic-nginx/public auth/chat/SSE checks remain separate acceptance evidence.

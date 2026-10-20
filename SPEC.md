@@ -66,6 +66,9 @@ Existing template deployments and credentials remain intact.
   endpoint results. An operator-led sandbox run is not colleague-led acceptance.
 - V11: Validate reviewed payload version before any mutation, including resumed
   bootstraps requiring a replacement CPU job.
+- V12: Establish namespace absence only through a complete successful listing of
+  its verified project-owned parent. Provider error status codes do not prove
+  absence; denied/incomplete listings block planning and all mutations.
 
 ## Review gate and verification contract
 GO for isolated implementation. HARDEN: read-only app lookup must replace prior-job
@@ -94,6 +97,7 @@ record live evidence separately (V10).
 | id | date | cause | fix |
 | --- | --- | --- | --- |
 | B1 | 2026-10-20 | --no-isolation requires a build backend absent from the fresh Python 3.13 venv | Use standard python -m build with its declared isolated backend; no runtime invariant change needed |
+| B2 | 2026-10-20 | Live Files provider reports missing child as HTTP 400, while the mock assumed 404 | V12: verify parent and paginate its reviewed GET /api/files/browse path contract; regression covers absence, late-page collision and denied listing |
 
 Verification checkpoint: implementation reviewed-change passed Windows/Linux CI on
 Python 3.11/3.13, source/wheel builds and offline installed-layout checks. Linux:

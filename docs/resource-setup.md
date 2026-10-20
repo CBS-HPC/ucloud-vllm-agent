@@ -4,8 +4,9 @@ This workflow consumes released [ucloud-api v0.1.7](https://github.com/CBS-HPC/u
 It reserves/reuses a Public Link and can register a selected SSH **public** key.
 It does not start CPU/GPU jobs, attach a Link, create shared folders, upload files,
 configure nginx, create secrets or modify `.env`. Those remain separate steps in
-[workspace setup](ucloud-workspace-template.md). Existing template IDs are still
-required for deployment. Reserving a Link is not a working public endpoint.
+[workspace setup](ucloud-workspace-template.md) or explicit [bootstrap](bootstrap.md).
+Template mode requires both existing IDs; bootstrap uses its finalized source
+artifact. Reserving a Link is not a working public endpoint.
 
 ## Plan
 

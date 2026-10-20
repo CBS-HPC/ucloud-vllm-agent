@@ -10,7 +10,8 @@ Planned resource setup is tracked in [the onboarding roadmap](../TODO.md#researc
 Link and optional account SSH public-key setup now use reviewed release v0.1.7;
 see [resource setup and API review](resource-setup.md). Setup records created versus
 reused resources and remains separate from GPU deployment. Shared storage/uploads
-and no-prior-job bootstrap are still manual/planned; template IDs remain mandatory.
+and no-prior-job application specifications use the separate explicit
+[bootstrap workflow](bootstrap.md); template mode retains both mandatory IDs.
 
 The optional dependency is pinned to v0.1.7. preview_job_specification calls the
 released build_job_specification with a complete product reference or preserves

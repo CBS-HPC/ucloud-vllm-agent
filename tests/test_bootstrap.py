@@ -28,6 +28,7 @@ class Client:
         self.calls, self.submissions, self.terminated = [], [], []
         self.jobs = {}
         self.lose_folder = self.lose_job = False
+        self.missing_status = 404
         self.bound, self.foreign, self.gpu_on_cpu, self.changed_app = [], False, False, False
 
     def request(self, method, path, **kwargs):
@@ -36,10 +37,12 @@ class Client:
         if path == "/api/files/retrieve":
             name = params["id"]
             if name not in self.folders:
-                raise UCloudAPIError("synthetic missing", status_code=404)
+                raise UCloudAPIError("synthetic missing", status_code=self.missing_status)
             result = {"id": name, "owner": {"project": "foreign" if self.foreign else PROJECT},
                       "status": {"type": "DIRECTORY"}, "specification": {"collection": "drive", "product": {"provider": "ucloud"}},
                       "permissions": {"myself": ["EDIT"]}}
+        elif path == "/api/files/browse":
+            result = {"items": [{"id": p} for p in self.folders if str(Path(p).as_posix()).rsplit("/", 1)[0] == params["path"]]}
         elif path == "/api/files/folder":
             item, = kwargs["json"]["items"]
             assert item["conflictPolicy"] == "REJECT" and item["id"] not in self.folders
@@ -157,6 +160,36 @@ def test_bootstrap_plan_is_read_only_and_has_no_job_dependency(setup):
     assert all(method == "GET" for method, _, _ in client.calls)
     assert not client.submissions and not root.exists()
     assert "synthetic-serving-key" not in json.dumps(plan)
+
+
+@pytest.mark.parametrize("exists,broken", [(False, False), (True, False), (False, True)])
+def test_v12_folder_absence_uses_complete_parent_listing_not_error_status(setup, monkeypatch, exists, broken):
+    client, value, root = setup
+    client.missing_status = 400  # observed live provider behavior
+    request = client.request
+    pages = []
+    def listing(method, path, **kwargs):
+        if path != "/api/files/browse":
+            return request(method, path, **kwargs)
+        params = kwargs["params"]
+        assert method == "GET" and params["path"] == "/drive" and params["filterHiddenFiles"] == "false"
+        pages.append(params.get("next"))
+        if broken:
+            raise UCloudAPIError("synthetic denial", status_code=403)
+        return SimpleNamespace(json=lambda: {"items": [{"id": "/drive/another-folder"}], "next": "page2"}
+                               if not params.get("next") else {"items": [{"id": "/drive/onboarding-test"}] if exists else []})
+    monkeypatch.setattr(client, "request", listing)
+    if exists:
+        client.folders.add("/drive/onboarding-test")
+        with pytest.raises(ValueError, match="already exists"):
+            b.plan_bootstrap(client, value)
+    elif broken:
+        with pytest.raises(RuntimeError):
+            b.plan_bootstrap(client, value)
+    else:
+        assert b.plan_bootstrap(client, value)["namespace_path"] == "/drive/onboarding-test"
+    assert pages == ([None] if broken else [None, "page2"])
+    assert client.submissions == []
 
 
 @pytest.mark.parametrize("problem", ["foreign", "bound", "gpu_on_cpu", "changed_app"])

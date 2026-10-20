@@ -71,13 +71,19 @@ def application_contract(client, reference: dict) -> dict:
 
 
 def directory(client, path: str, provider: str, *, missing: bool = False) -> dict | None:
-    from ucloud_workflow.client import UCloudAPIError
-    try:
-        item = client.request("GET", "/api/files/retrieve", params={"id": _path(path), "includePermissions": "true"}).json()
-    except UCloudAPIError as error:
-        if missing and error.status_code == 404:
+    path = _path(path)
+    if missing:
+        from ucloud_workflow.resources import browse_all
+        parent = str(PurePosixPath(path).parent)
+        directory(client, parent, provider)
+        # Providers differ on the status code for a missing file. Only a full
+        # successful listing of its verified parent establishes absence.
+        children = browse_all(lambda next_page=None: client.request("GET", "/api/files/browse", params={
+            "path": parent, "itemsPerPage": 250, "filterHiddenFiles": "false",
+            **({"next": next_page} if next_page else {})}).json())
+        if not any(item.get("id") == path for item in children):
             return None
-        raise
+    item = client.request("GET", "/api/files/retrieve", params={"id": path, "includePermissions": "true"}).json()
     if (item.get("id") != path or item.get("owner", {}).get("project") != client.settings.project
             or item.get("status", {}).get("type") != "DIRECTORY"
             or item.get("specification", {}).get("collection") != path.split("/")[1]
