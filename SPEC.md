@@ -16,7 +16,7 @@ Existing template deployments and credentials remain intact.
   No GPU until a model deployment request. No dummy template jobs.
 - C4: Work in onboarding-sandbox-20261020. No copied .env/private keys, no changes
   to the original checkouts or deployed folder. Credentials are supplied separately.
-- C5: Live target: operator-selected "isolated validation project" project; resolve exact
+- C5: Live target: operator-selected isolated validation project; resolve exact
   UUID and review concrete isolated workload/resources before allocation.
 - C6: Retain existing template-ID behavior and persistent hosting lifetime rules.
 
@@ -94,6 +94,10 @@ record live evidence separately (V10).
 | T5 | x | Run scoped isolated live trial; retain exact evidence and remaining colleague gate | V6,V7,V10,C5 |
 
 ## §B Regression record
+Historical job references use publication-safe role labels; exact operational
+identities remain in private journals. Measurements and regression conclusions
+are retained.
+
 | id | date | cause | fix |
 | --- | --- | --- | --- |
 | B1 | 2026-10-20 | --no-isolation requires a build backend absent from the fresh Python 3.13 venv | Use standard python -m build with its declared isolated backend; no runtime invariant change needed |

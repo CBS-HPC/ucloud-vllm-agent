@@ -306,6 +306,9 @@ Further reading: [model catalog](docs/model-catalog.md),
 and [remaining work](TODO.md). Controlled Qwen startup measured 148 seconds cold
 and 45 seconds warm; PII full-context load passed with two clients. These are
 dated results for the recorded workload and hardware.
+Historical operational identities in these guides use role labels and example
+URLs. See the wrapper's [publication checklist](https://github.com/CBS-HPC/model-agent/blob/main/docs/publication.md)
+for the separate history/release cleanup before changing repository visibility.
 
 ## License
 

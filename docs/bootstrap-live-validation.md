@@ -2,7 +2,12 @@
 
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
-An operator-led trial in **isolated validation project** passed the complete first-time
+Publication note: job and Link identifiers below are role labels. Hostnames and
+storage/run paths are examples or placeholders. Measurements, model revisions,
+hardware and validation dates are retained; operational identities belong in the
+operator's private journals, not onboarding instructions.
+
+An operator-led trial in an **isolated validation project** passed the complete first-time
 path without either template job ID. A separate local checkout/venv and a fresh
 namespaced UCloud folder were used; no credentials were copied from the original
 workspace. This is not the outstanding colleague-led onboarding acceptance test.

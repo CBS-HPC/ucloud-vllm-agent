@@ -1,10 +1,13 @@
 # Live CLI validation — 2026-10-06
 
-Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
+Publication note: job identifiers are role labels, the hostname is an example,
+and bundle/cache identifiers are placeholders. Measurements, pinned model
+revisions and hardware settings are retained. Use private operational journals
+for exact job identities; these labels cannot be passed to UCloud commands.
 
 The later [2026-10-20 isolated bootstrap trial](bootstrap-live-validation.md)
 validates the no-prior-job path. The historical template-mode evidence below
-remains unchanged and does not establish current uptime.
+retains its measured results and does not establish current uptime.
 
 The full CPU preparation → upload verification → pinned environment/model cache
 → nginx GPU initialization → WEB registration → three-path verification sequence

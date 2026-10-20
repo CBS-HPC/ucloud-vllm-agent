@@ -147,3 +147,9 @@ The GitHub repository is private: https://github.com/CBS-HPC/ucloud-vllm-agent.
 Keep credentials, detailed runtime journals, deployment bundles and notebook
 outputs excluded from commits. Documentation maintenance does not authorize
 starting UCloud jobs or silently updating the mounted workspace.
+Use role labels for historical job/resource identities and reserved example
+domains for deployment URLs in tracked documentation. Omit operator project
+names, drive IDs and exact run/cache identifiers; retain measured results, model
+revisions and public upstream source links. See the wrapper's docs/publication.md
+for the separate history/release publication gate. Public role labels never
+replace exact IDs in private operational journals or authorize remote actions.

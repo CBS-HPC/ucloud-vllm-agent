@@ -1,7 +1,5 @@
 # First-time setup without prior job IDs
 
-Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
-
 This path is for a new project with an existing writable UCloud drive, CPU/GPU
 allocation, a reserved Public Link and a registered SSH public key. It builds
 complete job specifications from reviewed application definitions. It does not

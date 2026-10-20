@@ -2,14 +2,25 @@
 
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
+## Publication cleanup (2026-10-20)
+
+The operator chose sanitization. Validation guides, benchmark JSON and development
+checkpoints now use consistent role labels, example URLs and storage/run/cache
+placeholders. Numeric measurements, model revisions, hardware settings and
+validation conclusions are retained. Exact operational identities remain in
+private journals; public labels must never be used for recovery or cleanup.
+See the wrapper's docs/publication.md for the coordinated publication checklist.
+Earlier commits/tags and attached source archives still require separate reviewed
+cleanup. Keep this repository private while that history/release gate remains open.
+
 ## Licensing (2026-10-20)
 
 The operator selected MIT for code and CC BY 4.0 for documentation. LICENSE.md
 defines the split, including configuration/code examples and notebook cells;
 LICENSES/ carries the full texts. Package metadata declares the combined SPDX
 expression and includes both texts in new builds. Existing tags/release assets
-and provider dependency pins are unchanged. Repository visibility and publication
-of historical operational details remain separate decisions. Isolated wheel and
+and provider dependency pins are unchanged. Repository visibility and historical
+copy cleanup are tracked above. Isolated wheel and
 source builds were verified to include the scope notice, both full license texts
 and the SPDX metadata.
 
@@ -31,7 +42,7 @@ these documentation-only changes; the published release evidence remains dated.
 
 Work is in onboarding-sandbox-20261020 on bootstrap-onboarding; original checkouts
 and deployed folder remain untouched. No-prior-job bootstrap passed live in the
-operator-selected **isolated validation project** project. Read docs/bootstrap.md,
+operator-selected isolated validation project. Read docs/bootstrap.md,
 docs/bootstrap-live-validation.md and SPEC.md before continuing.
 
 Link bootstrap-link and /<DRIVE_ID>/<NAMESPACE>/vllm were newly created with durable

@@ -1,11 +1,10 @@
 # UCloud vLLM workspace
 
-Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
-
-This document retains the original operator's dated validation history. For a
-new project, export the generic README and starter files described in
-[workspace templates](ucloud-workspace-template.md); do not copy these job IDs
-or the historical endpoint into another researcher's workspace.
+This document retains sanitized, dated validation history. Job names are role
+labels; URLs and run/cache identifiers are examples or placeholders. Measurements
+and pinned model revisions are retained. Consult private journals for exact
+operational identities. For a new project, export the generic README and starter
+files described in [workspace templates](ucloud-workspace-template.md).
 
 This shared folder contains the persistent files used to prepare and host
 Hugging Face models with vLLM behind the operator's nginx server on UCloud.

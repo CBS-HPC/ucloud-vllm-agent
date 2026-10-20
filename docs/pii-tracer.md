@@ -1,7 +1,5 @@
 # PII-Tracer hosting
 
-Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
-
 Profile: `config/hosting.pii-tracer.json`. Pinned model:
 `perplexity-ai/PII-Tracer-vLLM`, revision
 `9f34cd1f5010a1de5a7b464eaf3c3a39db01b15a` (MIT).
@@ -43,6 +41,10 @@ and machine fields are maintained in the [model catalog](model-catalog.md).
 
 ## Live evidence, 2026-10-06
 
+Job names below are publication-safe role labels, and the bundle run ID is a
+placeholder. Measurements and the pinned model revision are unchanged. Consult
+private deployment journals for exact operational identities.
+
 CPU preparation job initial-pii-cpu cached the pinned model and ended. GPU job initial-pii-gpu
 replaced Qwen job replacement-qwen-gpu. Its initial adapter needed a cached-file lookup repair;
 recovery and restart used the same allocation. No second GPU was allocated for
@@ -65,8 +67,8 @@ vllm-agent check --task pii --model pii-tracer --base-url https://YOUR-HOST/v1
 vllm-agent status --deployment deployments/NAME/RUN
 ```
 
-Use your own endpoint and returned deployment path; the historical IDs above are
-evidence, not setup defaults. If you rename request.name, change the notebook's
+Use your own endpoint and returned deployment path; the role labels above are
+historical references, not setup defaults. If you rename request.name, change the notebook's
 model alias and the check's --model too. The PII notebook reads local .env values
 directly; process-only CLI overrides do not configure it.
 
