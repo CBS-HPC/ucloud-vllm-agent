@@ -31,6 +31,8 @@ responsibility; no automatic cron renewal is provided.
 | doctor reports missing requirements | Follow each remedy; local settings belong in the provider workspace, not the wrapper. Use absolute SSH key paths. |
 | Online preflight fails | Check both job IDs/project ownership, token coverage, application versions, shared mount and reserved URL. Inspect-template/preview-profile are read-only. |
 | Public URL occupied | Find the existing deployment and its operator. Explicitly replace only an owned record; do not delete/recreate the link. |
+| First-time Link or public-key setup | Follow resource-setup.md: read-only plan, explicit apply, durable ownership receipts. No jobs are started. |
+| Uncertain resource create/delete | Preserve the setup directory and upstream receipts; use setup-status/reconcile. Do not retry or infer ownership from a matching resource. |
 | CPU preparation fails | Inspect the recorded preparation result and private remote logs locally; verify Python 3.12, mount persistence, .env permissions and matching serving key. |
 | GPU is RUNNING but endpoint fails | Inspect init/runtime evidence and WEB route; RUNNING is not model readiness. Preserve the allocation for diagnosis or explicitly release it. |
 | Different project appears selected | Check inherited UCLOUD_* variables: they override .env. Use a clean subprocess environment for that workspace. |
@@ -49,3 +51,8 @@ state/error code and an approved redacted description of the failure. Do not sen
 notebook outputs containing research data. Generic API/resource issues belong to
 ucloud-api; hosting/task/runtime issues belong to this provider; provider selection
 and harness delegation belong to CBS Model Agent.
+
+Public Links remain allocated independently of model jobs. Release does not delete
+them or account keys. Use the separate exact-resource cleanup workflow only when
+requested; reused resources are protected. Account keys may serve other projects
+or jobs, and their revocation effect on running jobs is not established here.

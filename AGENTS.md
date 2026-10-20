@@ -35,7 +35,7 @@ Do not equate a preview with submission; live CLI deployment/replacement passed 
   latest job. Inspect and preserve template mounts, application and networking.
 - ucloud-api owns generic job/product selection, credentials and SSH transport.
   Consume a released package. Do not edit dependency repositories or duplicate
-  their submission logic here. The product adapter uses released v0.1.6;
+  their submission logic here. The adapter uses released v0.1.7;
   hosting provisioning/recovery is implemented and unit-tested.
 - This project owns HF inspection, sizing, model configuration, deployment
   evidence and the vLLM serving lifecycle. Never copy Moody's data-specific logic.
@@ -86,7 +86,7 @@ Do not transfer local .env, use credentials as CLI arguments or commit run artif
 Prepared bundles live in deployments/<name>/<run-id>/, ignored by Git. A plan
 is not a launch; a session is not readiness; an endpoint check is not a durable
 allocation. Report the actual status, artifact path, recommendation and blockers.
-Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. v0.1.6 is
+Keep README, WORKFLOW_CONTRACT and TODO synchronized with behavior. v0.1.7 is
 pinned and product previews are tested. Live deployment/replacement/recovery/restart were validated on the baseline;
 see docs/live-validation.md for scope and remaining limits.
 Ended-preparation recovery, explicit rollback and renewal-by-replacement passed
@@ -94,6 +94,21 @@ live validation on 2026-10-06; see docs/live-validation.md for fault injection a
 rollback automatically after an operator stops a job. Both commands can allocate
 GPU time and involve downtime; use them only when requested.
 Require UCLOUD_PROJECT to match both templates before allocating any jobs.
+
+## First-time resources
+Read docs/resource-setup.md before setup-plan/apply/reconcile/cleanup. This is
+separate from deployment: setup creates no jobs, credentials, mounts or nginx.
+Apply and cleanup preview unless --yes is supplied. Keep the exact server/project,
+created/reused ownership and upstream receipts in the setup journal. An unknown
+outcome blocks retries and other setups in this workspace; never infer created
+ownership from a matching domain/fingerprint or bypass uncertainty with new state.
+Protect foreign/occupied Links and reused keys. Key registration/removal is account-
+scoped, not project-scoped; removing a created key needs an explicit operator request
+for that exact key and consideration of other jobs/projects. Job release does not
+delete setup resources. The upstream run_with_job_resources helper terminates its
+job on callback completion and must not wrap a persistent inference service.
+Template-ID deployment remains mandatory; no-prior-job bootstrap is unimplemented.
+catalog --live is an observational queue snapshot, not a reservation or sizing change.
 ## Model catalog and documentation
 Consult `vllm-agent models` and docs/model-catalog.md before selecting a known
 model. The packaged source of truth is src/ucloud_vllm_agent/data/model_catalog.json.

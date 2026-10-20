@@ -14,6 +14,7 @@ from .config import load_env, load_json, validate_request
 from .huggingface import inspect_model
 from .hosting import prepare_profile, validate_profile, hosting_job_specification
 from .planner import prepare, write_json
+from .resource_setup import SetupOutcomeUnknownError
 from .ucloud_access import (ReleasePendingError, inspect_template, integration_status,
                            require_hosting_adapter, token_status, preview_job)
 
@@ -44,6 +45,19 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--profile", type=Path, help="Hosting profile required for API preflight")
     command = commands.add_parser("workspace-template", help="Export remote workspace templates locally; no credentials or uploads")
     command.add_argument("--output", type=Path, required=True, help="New directory; existing targets are never overwritten")
+    command = commands.add_parser("setup-plan", help="Read-only Link/key discovery; write a credential-free plan")
+    command.add_argument("--request", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True, help="New plan file")
+    command = commands.add_parser("setup-apply", help="Preview persistent resource setup; --yes applies, without starting jobs")
+    command.add_argument("--plan", type=Path, required=True)
+    command.add_argument("--state", type=Path, required=True, help="Durable setup journal directory")
+    command.add_argument("--yes", action="store_true")
+    for name in ("setup-status", "setup-reconcile", "setup-cleanup"):
+        command = commands.add_parser(name)
+        command.add_argument("--state", type=Path, required=True)
+        if name == "setup-cleanup":
+            command.add_argument("--kind", choices=("link", "ssh_key"), required=True)
+            command.add_argument("--yes", action="store_true", help="Delete the exact recorded created resource; SSH keys are account-scoped")
     command = commands.add_parser("models", help="List previously validated model types and untested candidates offline")
     command.add_argument("--type", choices=("chat", "anonymisation", "classification"))
     command.add_argument("--status", choices=("validated", "candidate"))
@@ -70,6 +84,7 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--kind", choices=("hosting", "preparation"), default="hosting")
     command = commands.add_parser("catalog")
     command.add_argument("--output", type=Path, default=Path("artifacts/machines.json"))
+    command.add_argument("--live", action="store_true", help="Add a read-only queue snapshot; does not change sizing or allocate jobs")
     command = commands.add_parser("size")
     command.add_argument("--profile", type=Path, required=True)
     command.add_argument("--metadata", type=Path)
@@ -97,7 +112,28 @@ def main(argv: list[str] | None = None) -> int:
             return 1
     try:
         load_env()
-        if args.command == "models":
+        if args.command.startswith("setup-"):
+            require_hosting_adapter()
+            from ucloud_workflow.client import UCloudClient
+            from ucloud_workflow.settings import Settings
+            from .resource_setup import apply_setup, cleanup_setup, plan_setup, reconcile_setup, setup_status
+            with UCloudClient(Settings.from_env()) as client:
+                if args.command == "setup-plan":
+                    result = plan_setup(client, load_json(args.request))
+                    args.output.parent.mkdir(parents=True, exist_ok=True)
+                    with args.output.open("x", encoding="utf-8") as stream:
+                        stream.write(json.dumps(result, indent=2) + "\n")
+                elif args.command == "setup-apply":
+                    result = apply_setup(client, load_json(args.plan), args.state, yes=args.yes)
+                elif args.command == "setup-cleanup":
+                    result = cleanup_setup(client, args.state, args.kind, yes=args.yes)
+                elif args.command == "setup-reconcile":
+                    result = reconcile_setup(client, args.state)
+                else:
+                    result = setup_status(client, args.state)
+            print(json.dumps(result, indent=2))
+            return 2 if result.get("state") == "uncertain" else 0
+        elif args.command == "models":
             from .model_catalog import list_models
             print(json.dumps(list_models(args.type, args.status), indent=2))
         elif args.command in ("prepare-profile", "preview-profile"):
@@ -149,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
                     elif args.command in ("status", "restart", "stop", "release", "rollback"):
                         result = getattr(lifecycle, args.command)(client, args.deployment.resolve())
                     elif args.command == "catalog":
-                        result = sync_catalog(client)
+                        result = sync_catalog(client, live=args.live)
                         write_json_target = args.output
                         write_json_target.parent.mkdir(parents=True, exist_ok=True)
                         write_json(write_json_target, result)
@@ -207,6 +243,9 @@ def main(argv: list[str] | None = None) -> int:
             root = prepare(request, metadata, machine_data["machines"], args.output)
             print(json.dumps({"state": "prepared", "path": str(root), "job_submitted": False}, indent=2))
         return 0
+    except SetupOutcomeUnknownError as exc:
+        report_error("resource_outcome_uncertain", str(exc))
+        return 2
     except ReleasePendingError as exc:
         report_error("deployment_blocked", "Deployment blocked: " + str(exc))
         return 2

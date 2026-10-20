@@ -9,7 +9,7 @@ from pathlib import Path, PurePosixPath
 from .capacity import estimate_capacity
 from .config import load_json, positive_int, validate_request
 from .planner import prepare, write_json
-from .ucloud_access import integration_status
+from .ucloud_access import require_hosting_adapter
 
 INIT_SCRIPT = files("ucloud_vllm_agent").joinpath("data/ucloud-workspace/init_vllm.sh").read_text(encoding="utf-8")
 
@@ -83,8 +83,7 @@ def prepare_profile(profile: dict, metadata: dict, output: Path) -> Path:
 def hosting_job_specification(template: dict, profile: dict) -> dict:
     """Build an allocation spec without submitting or changing template resources."""
     profile = validate_profile(profile)
-    if integration_status()["installed_ucloud_workflow"] != "0.1.6":
-        raise ValueError("Install the reviewed ucloud-workflow v0.1.6 release")
+    require_hosting_adapter()
     if template.get("application") != {"name": "nginx", "version": "1.31.2"}:
         raise ValueError("Hosting profile requires verified nginx 1.31.2 template")
     config = template.get("parameters", {}).get("configFile", {})

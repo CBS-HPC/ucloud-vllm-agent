@@ -19,7 +19,7 @@ def configured(tmp_path, monkeypatch):
     key = tmp_path / "key"
     key.write_text("synthetic placeholder; never parsed")
     monkeypatch.setenv("UCLOUD_SSH_IDENTITY_FILE", str(key))
-    monkeypatch.setattr(diagnostics, "integration_status", lambda: {"installed_ucloud_workflow": "0.1.6"})
+    monkeypatch.setattr(diagnostics, "integration_status", lambda: {"installed_ucloud_workflow": "0.1.7"})
     monkeypatch.setattr(diagnostics.shutil, "which", lambda name: "/tools/" + name)
     return tmp_path
 

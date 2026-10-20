@@ -45,10 +45,25 @@ not authorization, available capacity or verified runtime/endpoint readiness.
 
 Require explicit UCLOUD_TEMPLATE_JOB_ID and verify project/provider/product,
 application, persistent mounts, nginx upstream, public-link mapping and expiry.
-Product previews use the released v0.1.6 API, preserving template resources.
+Product previews use the released v0.1.7 API, preserving template resources.
 Token preflight selects UCLOUD_TOKEN_ID explicitly and checks allocation coverage.
 Automated hosting provisioning/recovery is implemented and unit-tested; live CLI deployment/replacement passed on 2026-10-06. Require matching template/project ownership before
 submission. See docs/automated-lifecycle.md. Do not modify the dependency here.
+
+## Separate resource setup
+setup-plan uses read-only released resource discovery and exports a credential-free
+plan. setup-apply/cleanup preview unless --yes is present. They create no jobs,
+mounts, uploads, secrets or nginx configuration. Optional key registration is
+account-scoped. A setup report is not deployment or endpoint readiness.
+Persist intent before mutations and retain exact IDs, server/project, created versus
+reused ownership and upstream creation receipts. Pending/unknown outcomes block
+further mutations; reconcile only confirmed receipts, never matching names alone.
+Cleanup requires confirmed creation ownership and current identity/scope/binding
+checks. Protect reused resources/keys; never implicitly clean them up on job release.
+Read docs/resource-setup.md for interrupted operations and account-key limitations.
+The existing template-ID path remains separate from unimplemented application-spec
+bootstrap. No dummy GPU allocation is permitted just to obtain a template ID.
+catalog --live adds read-only queue evidence without changing capacity selection.
 
 ## Runtime
 The default startup path is the nginx application's initScript parameter,

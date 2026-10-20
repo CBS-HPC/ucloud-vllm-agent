@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version
 
+REVIEWED_UCLOUD_VERSION = "0.1.7"
 
 class ReleasePendingError(RuntimeError):
     pass
@@ -16,21 +17,21 @@ def integration_status() -> dict:
         installed = None
     return {
         "installed_ucloud_workflow": installed,
-        "gpu_product_selection_enabled": installed == "0.1.6",
-        "gpu_submission_enabled": installed == "0.1.6",
-        "reason": "Template-based CPU preparation, nginx initialization and journaled hosting lifecycle require the reviewed v0.1.6 package.",
+        "gpu_product_selection_enabled": installed == REVIEWED_UCLOUD_VERSION,
+        "gpu_submission_enabled": installed == REVIEWED_UCLOUD_VERSION,
+        "resource_setup_enabled": installed == REVIEWED_UCLOUD_VERSION,
+        "reason": "Hosting and separate Link/key setup require the reviewed v" + REVIEWED_UCLOUD_VERSION + " package.",
     }
 
 
 def require_hosting_adapter() -> None:
-    if integration_status()["installed_ucloud_workflow"] != "0.1.6":
-        raise ReleasePendingError("Install the reviewed ucloud-workflow v0.1.6 package")
+    if integration_status()["installed_ucloud_workflow"] != REVIEWED_UCLOUD_VERSION:
+        raise ReleasePendingError("Install the reviewed ucloud-workflow v" + REVIEWED_UCLOUD_VERSION + " package")
 
 
 def preview_job_specification(template: dict, *, hours: int, product: dict | None = None) -> dict:
     """Use the released builder; preserve template product unless explicitly set."""
-    if integration_status()["installed_ucloud_workflow"] != "0.1.6":
-        raise ValueError("Install the reviewed ucloud-workflow v0.1.6 release")
+    require_hosting_adapter()
     if isinstance(hours, bool) or not isinstance(hours, int) or hours <= 0:
         raise ValueError("hours must be a positive integer")
     from ucloud_workflow.jobs import build_job_specification

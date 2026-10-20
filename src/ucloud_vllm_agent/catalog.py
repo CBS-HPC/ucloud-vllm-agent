@@ -39,7 +39,7 @@ def map_products(products: list[dict], categories: set[tuple[str, str]]) -> list
     return machines
 
 
-def sync_catalog(client) -> dict:
+def sync_catalog(client, *, live: bool = False) -> dict:
     wallets, products = [], []
     for endpoint, params, target in [
         ("/api/accounting/v2/browseWallets", {"includeChildren": "false", "itemsPerPage": 250}, wallets),
@@ -58,8 +58,13 @@ def sync_catalog(client) -> dict:
             params = {**params, "next": token}
         else:
             raise ValueError("Catalog exceeds bounded pagination")
-    return {"schema": "ucloud.vllm.machine_candidates.v1", "retrieved_at": datetime.now(timezone.utc).isoformat(),
+    result = {"schema": "ucloud.vllm.machine_candidates.v1", "retrieved_at": datetime.now(timezone.utc).isoformat(),
             "source": "UCloud products/v2 plus active project wallets",
             "hardware_source": "https://docs.cloud.sdu.dk/guide/resources-products.html",
             "note": "B200 baseline only; other families require measured hardware/runtime validation. No monetary pricing inferred.",
             "machines": map_products(products, project_categories(wallets))}
+    if live:
+        from dataclasses import asdict
+        from ucloud_workflow.availability import check_machine_availability
+        result["availability"] = asdict(check_machine_availability(client, products=[m["product"] for m in result["machines"]]))
+    return result

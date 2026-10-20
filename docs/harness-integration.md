@@ -29,7 +29,7 @@ provider errors use a final single-line stderr record:
 {"schema":"ucloud.vllm.error.v1","error":{"code":"operation_failed","message":"sanitized reason"}}
 ```
 
-Codes include invalid_arguments, operation_failed, deployment_blocked and
+Codes include invalid_arguments, operation_failed, deployment_blocked, resource_outcome_uncertain and
 template_export_failed. Wrapper-level failures have schema cbs.model.error.v1.
 Stderr may contain progress before the final error record. Accept unknown fields
 and retain the raw sanitized report for diagnosis; do not parse human progress.
@@ -38,7 +38,7 @@ and retain the raw sanitized report for diagnosis; do not parse human progress.
 | --- | --- |
 | 0 | Command succeeded / requested checks passed. A preview is still not a deployment. |
 | 1 | Operation failed, doctor requirements missing, endpoint checks failed, or no sizing recommendation. A failed check may still emit a report on stdout. |
-| 2 | Invalid arguments or a deployment review/dependency gate. Inspect the error code. |
+| 2 | Invalid arguments, a review/dependency gate or an uncertain resource outcome. Inspect the error/report. |
 
 No global result envelope replaces task-specific outputs. Doctor has schema
 ucloud.vllm.diagnostics.v1: configured means local requirements passed;
@@ -87,6 +87,11 @@ deployment path and surface operator decisions, not invent a restart policy.
 > successfully hosted model running. Stop/release/replace/renew only the requested
 > owned deployment. UCloud AI is a separate planned provider; do not route it
 > through UCloud vLLM job controls.
+> For first-time Link/key setup, use setup-plan and review before setup-apply --yes.
+> Resource setup is separate from deployment and starts no jobs. Preserve upstream
+> receipts and created/reused ownership. Do not infer ownership from a matching
+> hostname/key or bypass unknown outcomes. Cleanup requires an exact requested
+> created resource; account keys may be used by other projects/jobs.
 
 ## Operation boundaries
 
@@ -94,6 +99,9 @@ deployment path and surface operator decisions, not invent a restart policy.
 | --- | --- |
 | providers, models, workspace-template, doctor | Local discovery/configuration/export; no allocation. Export writes only a new local directory. |
 | doctor --online, inspect-template, token-status, preview-profile, size/catalog | Read-only API/metadata requests; catalog may write local evidence. No allocation. |
+| catalog --live, setup-plan | Read-only API discovery/queue snapshot and local evidence. No reservation or job allocation. |
+| setup-apply, setup-cleanup | Preview by default. --yes creates/reuses or deletes the selected persistent resource; no jobs. Requires resource-specific authorization. |
+| setup-status, setup-reconcile | Saved state / remote reads plus receipt reconciliation; no resource writes. Unresolved reconciliation returns exit 2. |
 | prepare/prepare-profile | Model metadata plus local bundle writes; no upload/allocation. |
 | deploy, replace, rollback, renew, recover | Can create CPU/GPU jobs, upload/activate files or resume mutations. Require workload authorization. |
 | restart, stop, release | Mutate the exact recorded runtime/job; stop leaves allocation charged. |

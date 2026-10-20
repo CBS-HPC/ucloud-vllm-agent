@@ -1,0 +1,14 @@
+{
+  "schema": "ucloud.vllm.resource_setup.v1",
+  "project": "00000000-0000-0000-0000-000000000000",
+  "link": {
+    "domain": "YOUR_HOSTNAME_FROM_PROVIDER_PATTERN",
+    "product": {
+      "id": "FROM_UCLOUD_LINKS_PRODUCTS",
+      "category": "FROM_UCLOUD_LINKS_PRODUCTS",
+      "provider": "FROM_UCLOUD_LINKS_PRODUCTS"
+    },
+    "existing_id": null
+  },
+  "ssh_public_key": null
+}

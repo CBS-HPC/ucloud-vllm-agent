@@ -7,7 +7,7 @@ import shutil
 
 from . import __version__
 from .config import load_json, normalize_public_url
-from .ucloud_access import integration_status, token_status
+from .ucloud_access import REVIEWED_UCLOUD_VERSION, integration_status, token_status
 
 REQUIRED = ("UCLOUD_PROJECT", "UCLOUD_TOKEN", "UCLOUD_TOKEN_ID", "UCLOUD_TEMPLATE_JOB_ID",
             "UCLOUD_PREPARATION_TEMPLATE_JOB_ID", "UCLOUD_PUBLIC_BASE_URL", "VLLM_API_KEY")
@@ -19,8 +19,8 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
         checks.append({"check": name, "passed": bool(passed), "remedy": None if passed else remedy})
 
     integration = integration_status()
-    check("ucloud_dependency", integration["installed_ucloud_workflow"] == "0.1.6",
-          "Install this provider's [ucloud] extra with the reviewed ucloud-workflow v0.1.6 dependency.")
+    check("ucloud_dependency", integration["installed_ucloud_workflow"] == REVIEWED_UCLOUD_VERSION,
+          "Install this provider's [ucloud] extra with the reviewed ucloud-workflow v" + REVIEWED_UCLOUD_VERSION + " dependency.")
     configured = {key: bool(os.getenv(key, "").strip()) for key in REQUIRED}
     for key, present in configured.items():
         check(key, present, "Set " + key + " in this provider workspace's local .env or caller environment.")
@@ -44,7 +44,7 @@ def diagnose(*, online: bool = False, profile: Path | None = None) -> dict:
         # Use the dependency's discovery rule; do not read key/config contents.
         from .ucloud_access import require_hosting_adapter
         keys = []
-        if integration["installed_ucloud_workflow"] == "0.1.6":
+        if integration["installed_ucloud_workflow"] == REVIEWED_UCLOUD_VERSION:
             require_hosting_adapter()
             from ucloud_workflow.settings import discover_ssh_identity_files
             config = Path(os.getenv("UCLOUD_SSH_CONFIG_PATH") or Path.home() / ".ssh/config")

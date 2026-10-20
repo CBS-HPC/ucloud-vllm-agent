@@ -21,15 +21,17 @@ submit jobs or change an existing nginx server.
 
 ## First-time UCloud setup
 
-These are the current manual setup steps. The [onboarding roadmap](../TODO.md#researcher-onboarding-roadmap)
-plans optional Link provisioning and, if released upstream, SSH public-key
-registration. Template creation and shared-folder setup have separate capability
-checks; Link support alone does not automate them. No resource-setup command is
-implemented yet, and reserving resources must not silently allocate a GPU.
+These steps combine optional [Link/public-key resource setup](resource-setup.md)
+with manual shared-folder, credentials and template setup. Resource setup uses
+released ucloud-api v0.1.7 and starts no jobs. Template creation and shared-folder
+setup remain separate; Link support alone does not automate them. See the
+[onboarding roadmap](../TODO.md#researcher-onboarding-roadmap) for bootstrap limits.
 
 1. Obtain a UCloud project with the required CPU/GPU allocation and permissions,
    register your SSH public key, and reserve your own public URL. The operator
-   owns these resources. Never reuse another researcher's project/token/job IDs.
+   owns these resources. You can plan/apply your own Link and optional public-key
+   registration using the resource setup guide. Never reuse another researcher's
+   project/token/job IDs.
 2. Create a persistent UCloud Files folder named `vllm`, mounted at `/work/vllm`
    by both templates. Preserve the same Files folder identity across jobs.
    Upload the reviewed nginx.conf, init_vllm.sh and generic README.md there.

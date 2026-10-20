@@ -84,8 +84,12 @@ rather than the chat notebook.
 - Preserve model and compilation caches, and benchmark chat/PII through public HTTPS.
 - Inspect the configured UCloud template, preview GPU/MIG job specifications and
   check the expiry of the exact token identified by UCLOUD_TOKEN_ID.
+- Plan/apply/reconcile separate persistent Link and optional account public-key
+  setup, protecting reused resources and uncertain outcomes. No jobs are started.
+- Add a timestamped queue snapshot with `catalog --live`; availability remains
+  distinct from memory fit, entitlement and a successful allocation.
 
-**The GPU/product adapter uses released ucloud-api v0.1.6.** The automated CPU/GPU
+**The adapter uses released ucloud-api v0.1.7.** The automated CPU/GPU
 lifecycle is implemented and unit-tested; template-based live validation passed on 2026-10-06. Earlier
 manual hosting passed all three endpoint paths. Ownership mismatches block deployment.
 
@@ -96,10 +100,11 @@ For other coding-agent harnesses, use the [subprocess CLI contract and instructi
 snippet](docs/harness-integration.md). Day-to-day costs, expiry and recovery are in
 [operations](docs/researcher-operations.md).
 
-The next planned milestone is [researcher onboarding](TODO.md#researcher-onboarding-roadmap),
-including optional resource setup using a future released ucloud-api Link API
-and, if available, SSH public-key management. These capabilities are not integrated
-yet; the current manual setup and explicit template IDs remain required.
+For first-time resource reservation, use [Link and optional public-key setup](docs/resource-setup.md).
+The remaining [onboarding roadmap](TODO.md#researcher-onboarding-roadmap) covers
+shared-folder/uploads, no-prior-job application-spec bootstrap and independent
+live acceptance. Deployment still requires both explicit template IDs; resource
+setup does not configure or validate an inference endpoint.
 
 For a new researcher/project, start with the [UCloud workspace and job templates](docs/ucloud-workspace-template.md).
 They include the remote nginx.conf, credential-free .env.example, initialization
@@ -119,7 +124,7 @@ vllm-agent doctor
 ```
 
 The core planning CLI uses only the standard library. Optional UCloud integration
-is pinned to ucloud-workflow v0.1.6; install it with `pip install -e '.[ucloud]'`
+is pinned to ucloud-workflow v0.1.7; install it with `pip install -e '.[ucloud]'`
 inside this environment. Product previews use the released builder directly.
 
 `doctor` exits nonzero for missing local prerequisites; it never allocates a job.

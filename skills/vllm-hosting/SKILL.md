@@ -23,7 +23,11 @@ Inspect plan blockers before allocating resources or launching runtime. Unknown
 architectures and quantization are review cases, not permission to guess memory.
 Research their actual layout or propose a supported alternative when appropriate.
 
-Product selection and automated lifecycle use released ucloud-api v0.1.6.
+Product selection and automated lifecycle use released ucloud-api v0.1.7.
+For first-time Link and optional account-key reservation, use the separate
+[resource setup workflow](../../docs/resource-setup.md). It does not start jobs,
+configure nginx or replace the mandatory template IDs. Preserve uncertain outcomes
+and reused resources; never wrap persistent hosting in upstream auto-cleanup helpers.
 Live CLI deployment/replacement passed on 2026-10-06; read docs/automated-lifecycle.md and
 [the integration boundary](../../docs/ucloud-access.md) before remote work.
 Keep existing authorization, but do not equate a prepare request with permission

@@ -31,37 +31,39 @@ its allocation without access to the original operator's setup.
 - [x] Add a copyable harness instruction snippet and one end-to-end synthetic
   example from request to preview, explicit deployment, verification and release.
 
-### 2. Consume the forthcoming ucloud-api resource-management release
+### 2. Consume the released ucloud-api resource-management API
 
-Dependency gate: the operator is developing UCloud Link management in ucloud-api;
-SSH public-key management is a possible addition, not a confirmed capability.
-The installed dependency remains v0.1.6 until a new release is reviewed and pinned.
-Do not implement generic resource APIs here or require unreleased dependency code.
+Reviewed and pinned ucloud-api v0.1.7 on 2026-10-20. It provides Link management,
+account public-key registration and availability snapshots. See docs/resource-setup.md
+for the exact reviewed commit, consumed helpers and limits. Generic payloads and
+management contracts remain upstream; no dependency repository was modified.
 
-- [ ] Review the released Link API: create/reserve, list/retrieve, ownership/scope,
+- [x] Review the released Link API: create/reserve, list/retrieve, ownership/scope,
   current job bindings, conflicts and deletion behavior. Confirm authorization
   requirements and whether attachment is represented through job specifications.
-- [ ] If released, review SSH public-key discovery/registration/removal and its
+- [x] Review released SSH public-key discovery/registration/removal and its
   actual user/account scope. Reuse a matching registered public-key fingerprint;
   local private-key possession and working SSH still require separate checks.
-- [ ] Pin the reviewed release and add provider contract tests. Public-key
+- [x] Pin the reviewed release and add provider contract tests. Public-key
   registration must remain optional: existing registered keys stay supported.
-- [ ] Preserve the current explicit-ID/manual setup path for projects that
+- [x] Preserve the current explicit-ID/manual setup path for projects that
   already have working links, SSH registration and CPU/nginx templates.
 
 ### 3. Add explicit first-time resource setup
 
-This is a planned workflow, not an available command. Resource setup is separate
-from model deployment; reserving a link or registering a key must not allocate a
-GPU. Any setup step requiring a real job needs scoped allocation authorization.
+Link/optional-key setup is available through setup-plan/apply/status/reconcile/cleanup;
+see docs/resource-setup.md. Shared-folder/uploads and no-prior-job bootstrap remain
+manual/planned. Resource setup is separate from deployment and creates no jobs.
+Any setup step requiring a real job needs scoped allocation authorization.
 
-- [ ] Gather the researcher's project, desired hostname, local public key, shared
-  folder and existing resource/template choices; show a plan before mutations.
-- [ ] Discover/reuse existing resources or create the requested Link through the
+- [x] Gather the researcher's project, desired hostname, selected public key and
+  existing Link choice; export a read-only plan before explicit apply.
+- [ ] Extend setup intake to shared folder/application/template choices for bootstrap.
+- [x] Discover/reuse existing resources or create the requested Link through the
   released API. Block occupied/foreign resources; never silently replace a route.
-- [ ] Optionally register only a selected public key. Keep private keys local;
+- [x] Optionally register only a selected public key. Keep private keys local;
   never duplicate them, upload the local .env or place secrets in command arguments.
-- [ ] Journal setup intent and returned resource IDs, scope, public-key fingerprint
+- [x] Journal setup intent and returned resource IDs, scope, public-key fingerprint
   and whether each resource was created or reused. Reconcile uncertain outcomes;
   retries must not create duplicate links or registrations.
 - [ ] Guide or automate shared-folder setup and reviewed template uploads using
@@ -83,9 +85,9 @@ GPU. Any setup step requiring a real job needs scoped allocation authorization.
   IDs. Permit recovery from those exact records with the same ownership and
   duplicate-prevention rules as template mode. Current template mode keeps both
   explicit IDs mandatory; bootstrap must never become a latest-job fallback.
-- [ ] Provide a non-secret setup report and instructions for updating local
+- [x] Provide a non-secret setup report and instructions for updating local
   settings; never silently rewrite the operator's .env.
-- [ ] Add explicit exact-resource cleanup: verify current scope/bindings, protect
+- [x] Add explicit exact-resource cleanup: verify current scope/bindings, protect
   reused resources and active jobs, and delete only recorded created resources
   when requested. Job release must not implicitly delete links or SSH keys.
 
@@ -93,8 +95,11 @@ GPU. Any setup step requiring a real job needs scoped allocation authorization.
 
 - [ ] Validate generic nginx syntax in the supported serving image and public
   chat/PII/auth/SSE behavior in an authorized small deployment.
-- [ ] Test interrupted setup/reconciliation, duplicate prevention, foreign/occupied
-  links, existing-key reuse, absent optional key support and preserved credentials.
+- [x] Contract-test interrupted Link/key setup/receipt reconciliation, duplicate
+  prevention, foreign/occupied Links, existing-key reuse, optional key omission,
+  exact cleanup, lost delete acknowledgements and preserved credentials.
+- [ ] Live-test the new setup commands in an identified authorized project, including
+  key registration/removal if requested. Upstream live tests do not validate this adapter.
 - [x] Add Windows/Linux CI matrices and isolated wheel asset-export checks.
   Test results must be checked for each release; colleague-led live onboarding
   remains a separate acceptance step below.
@@ -109,7 +114,26 @@ UCloud AI remains a separate future managed provider in CBS Model Agent. It must
 have its own access/authentication/model-use guide, without inheriting self-hosted
 nginx, SSH, template-job or GPU-selection prerequisites.
 
-### Continuation checkpoint (2026-10-19)
+### Continuation checkpoint (2026-10-20)
+
+New work consumes reviewed ucloud-api v0.1.7: independent Link/key plan/apply/
+status/reconciliation/cleanup and opt-in catalog --live. No cloud jobs/resources
+were created for implementation/testing. Provider release v0.1.4 and wrapper
+v0.1.2 are the next publication pair; inspect current GitHub state before repeating
+publication and pin the wrapper only after the provider release exists.
+Local validation: 128 tests passed, one platform skip; wheel/source builds and
+offline installed-layout template export passed. Source packaging includes the new
+setup guide/example and excludes local credentials and operational journals.
+
+Bootstrap is still unimplemented. v0.1.7's application-aware resource helper
+obtains resolved application metadata from a prior job, while its low-level builder
+accepts complete specifications. A no-prior-job adapter still needs reviewed CPU/
+nginx application schemas, mount/product/link validation and provenance. Do not
+invent those schemas, treat setup recipes as payloads or create a dummy GPU job.
+Generic discovery/schema improvements, if needed, belong upstream. Shared-folder
+setup, credentials/uploads and colleague-led live acceptance remain pending.
+
+### Previous published checkpoint (2026-10-19)
 
 Independent local onboarding work is published: provider v0.1.3 (v0.1.3) and
 wrapper v0.1.1 (v0.1.1), each with wheel/source/checksums and passing Windows/Linux

@@ -20,8 +20,8 @@ released provider code; its separate source checkout supplies profiles, notebook
 agent instructions and a persistent workspace for your project records.
 
 ```sh
-git clone --branch v0.1.1 https://github.com/CBS-HPC/model-agent.git model-agent
-git clone --branch v0.1.3 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
+git clone --branch v0.1.2 https://github.com/CBS-HPC/model-agent.git model-agent
+git clone --branch v0.1.4 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
 ```
 
 On Windows PowerShell, from the parent directory:
@@ -84,8 +84,10 @@ vllm-agent doctor
 Follow the workspace setup guide before continuing. `doctor` exits 1 when required
 settings/tools/identity are missing and reports remedies without printing values.
 Exit 0 means local requirements passed, not authenticated or remote readiness.
-Link/key provisioning and bootstrap without prior job IDs are still planned;
-the current deployment mode requires both explicit template IDs.
+Optional [Link and public-key setup](resource-setup.md) now uses released ucloud-api
+v0.1.7, with separate preview/apply/recovery/cleanup and no job allocation. Shared
+folders, credentials and templates still need the setup guide. Bootstrap without
+prior job IDs is planned; deployment requires both explicit template IDs.
 
 ## First model: preview before allocating
 

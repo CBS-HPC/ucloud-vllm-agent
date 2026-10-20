@@ -71,3 +71,29 @@ def test_numeric_runtime_evidence_does_not_expose_log_text(tmp_path):
     assert evidence == {'model_weights_gib': 2.98, 'available_kv_gib': 12.,
                         'gpu_kv_tokens': 400000., 'max_full_context_concurrency': 97.65}
     assert 'private-token' not in str(evidence)
+
+
+def test_opt_in_released_availability_keeps_capacity_and_selection_separate():
+    pytest.importorskip("ucloud_workflow")
+    from types import SimpleNamespace
+    from ucloud_vllm_agent.catalog import sync_catalog
+    category = {'name': 'gpu-nvidia-b200', 'provider': 'ucloud', 'productType': 'COMPUTE'}
+    product = {'name': 'gpu-nvidia-b200-1-mig.1g', 'category': category, 'gpu': 1, 'memoryInGigs': 36}
+    reference = {'id': product['name'], 'category': category['name'], 'provider': 'ucloud'}
+    class Client:
+        probes = 0
+        def request(self, method, endpoint, **kwargs):
+            assert method == 'GET'
+            items = [{'paysFor': category, 'maxUsable': 100}] if 'Wallets' in endpoint else [product]
+            return SimpleNamespace(json=lambda: {'items': items})
+        def retrieve_compute_products(self):
+            self.probes += 1
+            return {'productsByProvider': {'ucloud': [{'product': product,
+                    'support': {'product': reference, 'queueStatus': 'FULL'}}]}}
+    client = Client()
+    baseline = sync_catalog(client)
+    assert client.probes == 0 and 'availability' not in baseline
+    current = sync_catalog(client, live=True)
+    assert client.probes == 1 and current['machines'] == baseline['machines']
+    assert current['availability']['machines'][0]['queue_status'] == 'FULL'
+    assert current['availability']['checked_at']

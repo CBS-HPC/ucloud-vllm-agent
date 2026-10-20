@@ -7,17 +7,21 @@ ongoing HTTP service and must not inherit automatic batch-job termination.
 ## Released product adapter
 
 Planned resource setup is tracked in [the onboarding roadmap](../TODO.md#researcher-onboarding-roadmap).
-Link creation/management is being developed upstream; SSH public-key management
-is under consideration. Neither is consumed by this provider yet. Review and pin
-a released API before enabling those operations here. Resource setup must record
-created versus reused resources and remain separate from GPU deployment.
+Link and optional account SSH public-key setup now use reviewed release v0.1.7;
+see [resource setup and API review](resource-setup.md). Setup records created versus
+reused resources and remains separate from GPU deployment. Shared storage/uploads
+and no-prior-job bootstrap are still manual/planned; template IDs remain mandatory.
 
-The optional dependency is pinned to v0.1.6. preview_job_specification calls the
+The optional dependency is pinned to v0.1.7. preview_job_specification calls the
 released build_job_specification with a complete product reference or preserves
 the template product. It never generates a CPU product from a GPU name. The
 adapter preserves template application parameters, mounts and public-link resources.
 CLI preview-job performs read-only lookup through UCLOUD_TEMPLATE_JOB_ID and
 returns a sanitized preview, not raw application parameters or credentials.
+`catalog --live` adds the released availability snapshot for the project's mapped
+products. It does not resize/select a machine, reserve capacity or submit a job.
+Immediate-start submission and automatic resource-run cleanup remain unused: their
+allocation/termination semantics do not replace the persistent hosting lifecycle.
 
 token-status selects UCLOUD_TOKEN_ID from API metadata. Expiry must cover the
 requested hours plus a one-hour margin. The operator must supply the matching
