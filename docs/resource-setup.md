@@ -70,8 +70,10 @@ Keep the plan, `setup.json`, upstream `operations/` receipts and workspace
 `run/resource-setup-current.json` together, outside Git. Back up these non-secret
 ownership records: a lost record is not permission to infer ownership later.
 
-The report suggests a public API URL but writes no settings. Continue the manual
-shared-folder/credential/template steps, then run `doctor` and deployment preview.
+The report suggests a public API URL but writes no settings. Save that URL in the
+local provider settings and use the returned Link ID in your bootstrap request.
+Continue with [bootstrap](bootstrap.md), or the manual shared-folder/credential/
+template steps if using existing job IDs, then run source-specific doctor/preview.
 `resources_ready` does not mean deployment-ready, bound, authenticated or publicly
 verified. `setup-status` reports the saved journal, not fresh resource readiness.
 
@@ -130,16 +132,18 @@ that short-lived-run helper always terminates its job on callback completion.
 The existing hosting lifecycle retains its separate journal and SSH-off nginx
 submission. No IP, license, firewall, runtime attach/detach or automatic machine
 fallback is added here. Upstream's HTTP 449 observation does not validate our
-public inference route; supported-image/public chat/PII/auth/SSE validation remains
-pending with an identified authorized workload.
+public inference route. The [2026-10-20 Qwen trial](bootstrap-live-validation.md)
+validated Link setup, existing-key reuse, actual-image nginx syntax and public
+chat/auth/SSE. New-workspace PII, live key registration/removal and injected
+uncertain resource outcomes remain separate scoped validation tasks.
 
-Bootstrap without prior jobs remains separate. The released low-level builder
-can consume complete specifications, but v0.1.7's application-aware resource
-helpers obtain application metadata through a prior template job. No generic
-application-discovery/parameter-schema client was added in this release. We still
-need reviewed CPU/nginx application schemas and a supported bootstrap adapter
-before claiming automated no-prior-job setup. Never allocate a dummy GPU to
-manufacture a template ID, or treat `job-templates.json` recipes as submit payloads.
+Bootstrap without prior jobs remains separate and is implemented in provider
+v0.1.5. It combines reviewed CPU/nginx application schemas with complete mappings
+through the released low-level builder; reviewed read-only application/Files
+routes use the released generic client. The application-aware resource helpers
+still obtain metadata through prior jobs and are not used to manufacture a
+bootstrap template. See [bootstrap](bootstrap.md) and SPEC.md for provenance.
+Never allocate a dummy GPU or treat `job-templates.json` recipes as submit payloads.
 
 ### Regression record (§B)
 

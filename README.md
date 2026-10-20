@@ -7,6 +7,10 @@ selection and LUMI AITTA integration live in the wrapper project. This CLI remai
 usable independently; it has no LUMI dependency or credential requirement.
 The future UCloud AI fixed inference platform is a separate provider (`ucloud-ai`).
 
+**New researcher:** start with [installation and first deployment](docs/researcher-onboarding.md).
+It covers the published wrapper v0.1.3 / provider v0.1.5 pair, required access
+and settings, and the choice between bootstrap and existing templates.
+
 A Git workspace and Python CLI for asking Codex or Claude to set up Hugging Face
 models on UCloud. It follows the operator's **moody_agent** workflow with model
 hosting as the workload:
@@ -22,8 +26,8 @@ The default execution path is CPU preparation followed by nginx's Initialization
 script; UCloud interactive SHELL is the diagnostics/recovery path. Start with
 [the hosting profile](config/hosting.qwen-small.json) and
 [deterministic workflow](docs/deterministic-hosting.md). `prepare-profile` generates
-runtime and allocation settings; `preview-profile` validates the nginx template
-and builds a read-only job preview. `deploy` implements the full journaled workflow;
+runtime and allocation settings; `preview-profile` validates the selected serving
+source and builds a read-only job preview. `deploy` implements the full journaled workflow;
 see [deployment and recovery](docs/automated-lifecycle.md) for commands and validation limits.
 
 Recovery can replace an ended CPU preparation attempt before activation. Explicit
@@ -44,8 +48,9 @@ revisions, parameter counts, machine capacities, input limits and test evidence.
 
 These selections were tested with bfloat16 and 4096-token context; recorded
 concurrency is 1–2 for Qwen and 2 for PII. They are not universal minimums.
-A validated entry is historical evidence, not a current uptime claim. All jobs
-from the validation session were released; deploying again is an explicit action.
+A validated entry is historical evidence, not a current uptime claim. Jobs from
+the 2026-10-06 session were released; the later bootstrap trial has its own recorded
+expiry. Use deployment status before reporting uptime. Deploying again is explicit.
 
 ```powershell
 vllm-agent models --status validated
@@ -99,7 +104,7 @@ lifecycle is implemented and unit-tested; template-based live validation passed 
 manual hosting passed all three endpoint paths. Ownership mismatches block deployment.
 The [2026-10-20 isolated bootstrap trial](docs/bootstrap-live-validation.md) also
 passed actual-image nginx syntax and all seven checks on loopback, nginx and
-public HTTPS, using fresh storage and no template IDs. Colleague-led acceptance
+public HTTPS, using a fresh folder on an existing drive and no template IDs. Colleague-led acceptance
 remains separate.
 
 ## Setup on Windows
@@ -111,19 +116,22 @@ snippet](docs/harness-integration.md). Day-to-day costs, expiry and recovery are
 
 For first-time resource reservation, use [Link and optional public-key setup](docs/resource-setup.md).
 The remaining [onboarding roadmap](TODO.md#researcher-onboarding-roadmap) covers
-isolated live validation and independent researcher acceptance. The
+additional scoped live tests and independent researcher acceptance. The
 [bootstrap guide](docs/bootstrap.md) covers first-time shared folders/uploads and
 explicit credential provisioning. Template mode requires both explicit IDs;
 bootstrap mode requires its finalized artifact. Resource setup alone does not
 configure or validate an inference endpoint.
 
-For a new researcher/project, start with the [UCloud workspace and job templates](docs/ucloud-workspace-template.md).
+The [UCloud workspace and job templates](docs/ucloud-workspace-template.md)
+describe packaged assets and the alternative manual template-ID setup.
 They include the remote nginx.conf, credential-free .env.example, initialization
 script, generic workspace README and CPU/GPU template recipes. Export them locally
 with `vllm-agent workspace-template --output artifacts/ucloud-workspace`.
 The existing root `.env.example` is for local credentials/settings, not remote upload.
 
-Keep the venv outside this OneDrive-backed repository, as in moody_agent:
+The [onboarding guide](docs/researcher-onboarding.md) is the complete Windows/Linux
+install path. The following shorter example is for **provider-only template mode**
+from this checkout. Keep the venv outside synchronised storage:
 
 ```powershell
 .\scripts\init_project.ps1
@@ -140,7 +148,9 @@ inside this environment. Product previews use the released builder directly.
 
 `doctor` exits nonzero for missing local prerequisites; it never allocates a job.
 After configuring a reviewed profile, `doctor --online --profile FILE` adds
-read-only template/project/link/token checks. Neither mode verifies remote
+read-only source/project/link/token checks. Bootstrap users must add
+`--bootstrap run/bootstrap/first/bootstrap.json` to doctor, preview-profile and
+first deploy; omitting it selects template mode. Neither doctor mode verifies remote
 credentials, nginx syntax or model readiness; inspect the report's limits.
 
 The template workspace is `/work/vllm`: nginx loads `/work/vllm/nginx.conf`.
@@ -208,6 +218,10 @@ decoder KV cache. CLAES classification is a candidate, not an implemented servin
 task. See [capacity assumptions](docs/capacity.md) and [tool comparison](docs/sizing-research.md).
 
 ## Automated hosting and lifecycle
+
+These examples use existing template IDs. For a new workspace, finish
+[bootstrap](docs/bootstrap.md) and pass its finalized `--bootstrap FILE` to deploy.
+Recovery and subsequent lifecycle commands use the recorded source automatically.
 
 ```powershell
 vllm-agent size --profile config/hosting.pii-tracer.json

@@ -7,8 +7,10 @@ LUMI AITTA and cross-provider selection belong to the wrapper; they must not add
 dependencies, credentials or control logic to this UCloud package.
 
 ## Intake and ownership
-For a new project, use docs/ucloud-workspace-template.md and the packaged
-credential-free workspace/job recipes. workspace-template exports locally only;
+For a new project, begin with docs/researcher-onboarding.md and explicitly choose
+bootstrap or existing template IDs. docs/ucloud-workspace-template.md describes the
+packaged credential-free assets and manual template recipes. workspace-template
+exports locally only;
 it never uploads files, creates secrets or authorizes resource allocation.
 Generated runtime bundles use tracked source modules; do not fork their code
 into separately maintained templates. Existing remote configuration is preserved.
@@ -37,18 +39,23 @@ prepare never submits a job. Unsupported memory layouts return needs_review and
 no machine recommendation rather than a plausible but ungrounded dense estimate.
 Built-in candidate capacity is illustrative until verified against the project.
 
-## Template and release preflight
+## Source and release preflight
 doctor checks local configuration/tools/identity without network calls and fails
 for missing requirements. doctor --online --profile FILE adds read-only API
 checks; it creates no jobs or sessions and does not inspect remote secrets.
 Its preflight_passed result is permission-free evidence of checked prerequisites,
 not authorization, available capacity or verified runtime/endpoint readiness.
 
-Require explicit UCLOUD_TEMPLATE_JOB_ID and verify project/provider/product,
-application, persistent mounts, nginx upstream, public-link mapping and expiry.
-Product previews use the released v0.1.7 API, preserving template resources.
+Template mode requires both explicit UCLOUD_TEMPLATE_JOB_ID and
+UCLOUD_PREPARATION_TEMPLATE_JOB_ID. Bootstrap mode requires finalized bootstrap.json
+passed explicitly to doctor/preview-profile/deploy; neither ID is required there.
+Verify the selected source's project/provider/product, application, persistent
+mounts, nginx upstream, public-link mapping and expiry. Product previews use the
+released v0.1.7 API, preserving the selected source's resources.
 Token preflight selects UCLOUD_TOKEN_ID explicitly and checks allocation coverage.
-Automated hosting provisioning/recovery is implemented and unit-tested; live CLI deployment/replacement passed on 2026-10-06. Require matching template/project ownership before
+Automated hosting provisioning/recovery is implemented and unit-tested. Live CLI
+deployment/replacement passed on 2026-10-06; isolated bootstrap passed on 2026-10-20.
+Require matching source/project ownership before
 submission. See docs/automated-lifecycle.md. Do not modify the dependency here.
 
 ## Separate resource setup

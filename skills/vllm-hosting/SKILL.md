@@ -1,11 +1,13 @@
 ---
 name: vllm-hosting
-description: Prepare, size, launch and verify Hugging Face model hosting in this UCloud workspace using an operator-configured template job, URL and nginx.
+description: Prepare, size, launch and verify Hugging Face model hosting on UCloud using existing CPU/nginx templates or an explicit first-time bootstrap source.
 ---
 
-# Template-based model hosting
+# UCloud model hosting
 
 Read [the workflow contract](../../WORKFLOW_CONTRACT.md) before running a deployment.
+Start new researcher setup with [onboarding](../../docs/researcher-onboarding.md)
+and choose the source mode before running doctor or preview commands.
 Use the CLI for model metadata, estimates and preparation; see
 [capacity assumptions](../../docs/capacity.md) when comparing machine choices.
 

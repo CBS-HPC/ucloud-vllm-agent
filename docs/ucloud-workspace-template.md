@@ -77,9 +77,12 @@ the runtime's CUDA libraries and tmux.
 | --- | --- |
 | Local environment template | Root `.env.example`; stays local. |
 | Remote environment template | Packaged `data/ucloud-workspace/.env.example`; real values supplied on UCloud. |
-| nginx proxy | Packaged `data/ucloud-workspace/nginx.conf`; reviewed/uploaded once by operator. |
+| nginx proxy | Packaged `data/ucloud-workspace/nginx.conf`; bootstrap uploads it to the fresh folder, or the operator uploads it in template mode. |
 | Initialization script | Packaged `data/ucloud-workspace/init_vllm.sh`; same source used by prepare-profile and export. Uploaded on activation. |
 | CPU/GPU job requirements | Packaged `data/ucloud-workspace/job-templates.json`; operator setup recipe, no credentials or real IDs. Generic submission stays in ucloud-api. |
+| Bootstrap request | `config/bootstrap.example.json`; copy locally and select the project's drive, namespace, CPU product, Link and public-key path. |
+| Bootstrap application definitions | Packaged `data/bootstrap_applications.json`; pinned reviewed CPU/nginx schemas validated before complete job specifications are built. |
+| Bootstrap upload/credential helpers | `bootstrap.py` and `remote_bootstrap.py`; fresh-folder assets and explicit selected-value credentials, separate from model deployment. |
 | Runtime workspace context | Packaged `data/ucloud-workspace/README.md`; generic template with no original job IDs/URL. |
 | Chat and PII profiles | `config/hosting.qwen-small.json`, `config/hosting.pii-tracer.json`; edit a local copy for the chosen project/workload. |
 | Request and machine examples | `config/request.example.json`, packaged `data/machines.json`; illustrative until verified against your project. |
@@ -105,10 +108,12 @@ Bearer authentication is enforced by the serving application. Proxy buffering
 and caching are disabled for streaming; body size is limited to 16 MiB and proxy
 read/send timeouts are 600 seconds. Review these limits for the workload.
 
-Public HTTPS is provided by UCloud routing, not this internal HTTP server. This
-new generic config has not been validated in a live UCloud job. Before adoption,
-run `nginx -t -c /work/vllm/nginx.conf` inside the selected image and the real
-task/authentication/streaming checks through the public endpoint. Preserve an
+Public HTTPS is provided by UCloud routing. The packaged configuration passed
+`nginx -t` inside nginx 1.31.2 and Qwen chat/auth/SSE through the public route in
+the [2026-10-20 isolated trial](bootstrap-live-validation.md). This is historical
+evidence for that image/configuration; new-workspace PII remains untested.
+For a new or changed deployment, validate the selected configuration/image and
+run the real task/authentication/streaming checks through the public endpoint. Preserve an
 existing working config unless its replacement is explicitly requested.
 
 Sources: [UCloud nginx configuration and port](https://docs.cloud.sdu.dk/Apps/nginx.html),

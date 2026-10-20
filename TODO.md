@@ -2,6 +2,20 @@
 
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
+## Documentation review (2026-10-20)
+
+Reviewed the tracked provider/wrapper guides, agent contracts/skill, environment
+examples and notebook instructions against the published 0.1.5/0.1.3/0.1.7 chain.
+Corrected stale bootstrap/nginx claims and source-mode examples. The canonical
+researcher guide now separates API-only use, bootstrap and template-ID setup,
+required/optional settings, installation, deployment and exact-job release.
+The wrapper's docs/onboarding-plan.md defines the colleague-led pilot and evidence.
+No runtime/dependency/credential changes or live cloud actions are part of this review.
+Offline QA passed: 33 Markdown files, 102 relative links, 108 parsed CLI examples,
+10 JSON files and two output-free notebooks (all 12 code cells unchanged).
+The bundled hosting skill passed its validator. Runtime suites were not rerun for
+these documentation-only changes; the published release evidence remains dated.
+
 ## Isolated bootstrap continuation (2026-10-20)
 
 Work is in onboarding-sandbox-20261020 on bootstrap-onboarding; original checkouts
@@ -48,13 +62,16 @@ need provider/audit confirmation; automatic folder adoption/deletion is unsuppor
 
 ## Researcher onboarding roadmap
 
-Updated 2026-10-19 after the adoption audit. The next milestone is a researcher
-onboarding release: a colleague can install this provider, connect their own
+Updated 2026-10-20 after publication and documentation review. The release pair
+is published; the next milestone is colleague-led acceptance: install this provider, connect their own
 project, integrate it with a coding harness, deploy a small model and release
 its allocation without access to the original operator's setup.
 
 ### 1. Finish local setup and the harness contract
 
+- [ ] Improve first-run discovery/diagnostics for project UUID, matching token
+  metadata ID and drive/CPU selection. Current guides explain manual selection;
+  a guided picker and clearer SSH polling errors are usability follow-ups.
 - [x] Package remote nginx/environment/startup/README templates and CPU/GPU job
   recipes; export locally without credentials, uploads or overwrites.
 - [x] Provide one clean-machine installation path: required private-repository
@@ -97,7 +114,7 @@ management contracts remain upstream; no dependency repository was modified.
 
 Link/optional-key setup is available through setup-plan/apply/status/reconcile/cleanup;
 see docs/resource-setup.md. Shared-folder/uploads and no-prior-job bootstrap use
-the separate docs/bootstrap.md workflow on this branch. Resource setup is separate
+the separate docs/bootstrap.md workflow in published provider v0.1.5. Resource setup is separate
 from deployment and creates no jobs.
 Any setup step requiring a real job needs scoped allocation authorization.
 
@@ -117,7 +134,7 @@ Any setup step requiring a real job needs scoped allocation authorization.
 - [x] Support two explicit setup modes: reuse known template job IDs, or bootstrap
   from reviewed application specifications when the researcher has no prior jobs.
   UCloud can submit a complete job specification without cloning a historical job;
-  the branch now implements explicit bootstrap without a prior GPU job.
+  provider v0.1.5 implements explicit bootstrap without a prior GPU job.
 - [x] For bootstrap mode, discover/validate the application version and parameter
   schema, exact products, project, mounts and link; build complete CPU and serving
   specifications through released ucloud-api capabilities. Request generic schema/
@@ -163,6 +180,9 @@ nginx, SSH, template-job or GPU-selection prerequisites.
 
 ### Previous published checkpoint (2026-10-20)
 
+Historical snapshot before v0.1.5; its pending bootstrap statements are superseded
+by the current continuation above. Keep it as release history, not current tasks.
+
 New work consumes reviewed ucloud-api v0.1.7: independent Link/key plan/apply/
 status/reconciliation/cleanup and opt-in catalog --live. No cloud jobs/resources
 were created for implementation/testing. Provider v0.1.4 (v0.1.4) and wrapper
@@ -185,6 +205,8 @@ Generic discovery/schema improvements, if needed, belong upstream. Shared-folder
 setup, credentials/uploads and colleague-led live acceptance remain pending.
 
 ### Previous published checkpoint (2026-10-19)
+
+Historical snapshot before v0.1.4/v0.1.5; use the current continuation for status.
 
 Independent local onboarding work is published: provider v0.1.3 (v0.1.3) and
 wrapper v0.1.1 (v0.1.1), each with wheel/source/checksums and passing Windows/Linux

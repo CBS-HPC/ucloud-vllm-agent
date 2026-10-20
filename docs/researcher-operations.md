@@ -31,10 +31,14 @@ responsibility; no automatic cron renewal is provided.
 | doctor reports missing requirements | Follow each remedy; local settings belong in the provider workspace, not the wrapper. Use absolute SSH key paths. |
 | Online preflight fails | Check selected bootstrap artifact or both job IDs, project ownership, token coverage, application versions, shared mount and reserved URL. Preview-profile is read-only. |
 | No prior job IDs | Follow bootstrap.md. It creates fresh namespaced folders/uploads through a bounded CPU job; actual GPU deployment remains separate. |
+| Doctor requests IDs during bootstrap | A plain doctor selects template mode. Finish bootstrap, then pass its finalized --bootstrap FILE to doctor/preview/first deploy. |
+| Project/token ID is unclear | UCLOUD_PROJECT must be a UUID. Match non-secret metadata from `ucloud tokens status` to the token actually supplied; ask its owner if ambiguous. |
+| No suitable drive or CPU product | Bootstrap needs an existing writable project-owned drive and an exact supported CPU product. Ask the project administrator; this CLI has no guided picker/new-drive provisioning. |
 | Public URL occupied | Find the existing deployment and its operator. Explicitly replace only an owned record; do not delete/recreate the link. |
 | First-time Link or public-key setup | Follow resource-setup.md: read-only plan, explicit apply, durable ownership receipts. No jobs are started. |
 | Uncertain resource create/delete | Preserve the setup directory and upstream receipts; use setup-status/reconcile. Do not retry or infer ownership from a matching resource. |
 | CPU preparation fails | Inspect the recorded preparation result and private remote logs locally; verify Python 3.12, mount persistence, .env permissions and matching serving key. |
+| Local SSH polling raises RuntimeError | Preserve the deployment path and check the same owned preparation job. The installer may still be running. Explicit recovery can resume it; a fresh deploy can duplicate work. The observed transport cause is still unconfirmed. |
 | GPU is RUNNING but endpoint fails | Inspect init/runtime evidence and WEB route; RUNNING is not model readiness. Preserve the allocation for diagnosis or explicitly release it. |
 | Different project appears selected | Check inherited UCLOUD_* variables: they override .env. Use a clean subprocess environment for that workspace. |
 | Model fits estimate but is slow/fails startup | Recheck supported architecture/runtime, actual per-device VRAM, context/concurrency and workload evidence; memory fit is not throughput validation. |
@@ -52,6 +56,11 @@ state/error code and an approved redacted description of the failure. Do not sen
 notebook outputs containing research data. Generic API/resource issues belong to
 ucloud-api; hosting/task/runtime issues belong to this provider; provider selection
 and harness delegation belong to CBS Model Agent.
+
+The interactive chat notebook reads its local .env values before inherited
+environment values, unlike the deployment CLI. When using trial-only process
+overrides or a renamed served model, explicitly select the notebook's profile
+and endpoint locally. A successful CLI check does not configure Jupyter.
 
 Public Links remain allocated independently of model jobs. Release does not delete
 them or account keys. Use the separate exact-resource cleanup workflow only when

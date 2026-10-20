@@ -1,9 +1,12 @@
 # UCloud vLLM hosting agent
 
 ## Mission and reference
-For first-time project setup, read docs/ucloud-workspace-template.md. Export the
-packaged starter files with workspace-template; never copy live secrets or the
-original operator's job IDs/URL. Generated runtime code comes from tracked modules.
+For first-time project setup, begin with docs/researcher-onboarding.md and choose
+bootstrap or existing template IDs. docs/ucloud-workspace-template.md inventories
+the assets/manual template path. Export the packaged starter files with
+workspace-template only when needed; bootstrap uploads them directly. Never copy
+live secrets or the original operator's job IDs/URL. Generated runtime code comes
+from tracked modules.
 
 Use docs/researcher-onboarding.md for clean installation, docs/harness-integration.md
 for subprocess integration, and docs/researcher-operations.md for costs/recovery.
@@ -55,7 +58,8 @@ Record the model commit and chosen vLLM release. Never enable remote repository
 code without reviewing the pinned revision and obtaining the operator's decision.
 
 ## Template and runtime invariants
-- Reuse template nginx/URL. Validate its upstream port against the model request;
+- Reuse existing template nginx/URL, or the explicitly bootstrapped fresh configuration.
+  Validate its upstream port against the model request;
   do not install/reconfigure/start a second nginx server by default.
 - Model cache, environment and deployment evidence live on a verified mount.
   A /work prefix alone does not establish persistence.

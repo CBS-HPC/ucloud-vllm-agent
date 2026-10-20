@@ -17,15 +17,19 @@ bootstrap commands.
 
 ## Intake and read-only plan
 
-Set UCLOUD_SERVER, UCLOUD_PROJECT (exact project UUID), UCLOUD_TOKEN,
-UCLOUD_TOKEN_ID, UCLOUD_PUBLIC_BASE_URL, UCLOUD_SSH_IDENTITY_FILE and VLLM_API_KEY
-in this workspace's local `.env`. Set HF_TOKEN only if needed. Leave both template
+Set UCLOUD_PROJECT (exact project UUID), UCLOUD_TOKEN, UCLOUD_TOKEN_ID,
+UCLOUD_PUBLIC_BASE_URL and VLLM_API_KEY in this workspace's local `.env`.
+Keep UCLOUD_SERVER's default for cloud.sdu.dk. UCLOUD_SSH_IDENTITY_FILE is optional
+when default key discovery selects the correct local identity; otherwise set an
+absolute path. Set HF_TOKEN only if needed. Leave both template
 IDs blank for bootstrap. Keep the private key in its existing local location;
 select the corresponding `.pub` path in the request. Never paste tokens in chat.
 
 Use [Link and optional public-key setup](resource-setup.md) first if these resources
 do not already exist. That workflow creates no jobs. Choose the exact CPU product
 from the project's advertised products/allocation, not from a guessed machine name.
+Record the Link ID and suggested public URL from its setup report, then manually
+set UCLOUD_PUBLIC_BASE_URL to that URL. No command rewrites local settings.
 
 Copy `config/bootstrap.example.json` to ignored `config/local.bootstrap.json` and
 replace every placeholder. `storage_parent` is a UCloud Files path, e.g.
@@ -33,6 +37,13 @@ replace every placeholder. `storage_parent` is a UCloud Files path, e.g.
 writable, project-owned and on the same provider as compute and the Link.
 Choose a fresh namespace. Bootstrap creates `PARENT/NAMESPACE/vllm`; mounting this
 leaf folder gives the jobs `/work/vllm` without touching any existing vllm folder.
+
+Use an absolute `.pub` path for `ssh_public_key`; it must match the private
+identity used by SSH. Copy the actual reserved Link ID/URL and complete CPU
+product into the request. The current CLI does not provide a guided drive/CPU
+picker: select them from your project's UCloud Files and resource listings, or
+ask its administrator. No new drive is created. If no writable drive exists,
+arrange storage before bootstrap.
 
 ```sh
 vllm-agent bootstrap-plan --request config/local.bootstrap.json --output artifacts/bootstrap-plan.json
@@ -90,6 +101,12 @@ specification, not runtime readiness. No `.env` settings or template IDs are wri
 
 Review a project-specific profile with your new URL, exact GPU/MIG product,
 context, concurrency and hours. For the supported small Qwen baseline:
+
+Copy `config/hosting.qwen-small.json` to `config/local.qwen.json` and review it
+as described in [onboarding step 5](researcher-onboarding.md#5-review-a-small-model-and-preview).
+The baseline reads the URL from local settings. A plain doctor without a
+bootstrap argument expects template IDs; before finish this is not the bootstrap
+readiness check and must not be satisfied with dummy jobs.
 
 ```sh
 vllm-agent doctor --bootstrap run/bootstrap/first/bootstrap.json

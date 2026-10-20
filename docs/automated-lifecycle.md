@@ -17,8 +17,8 @@ vllm-agent deploy --profile config/hosting.qwen-small.json --auto-size --reviewe
 ```
 
 `--reviewed` records model/license/runtime review; it does not enable repository
-code. UCLOUD_PROJECT must be the UUID that owns both explicit templates.
-Both templates mount the same workspace. Preparation needs CPU and SSH;
+code. UCLOUD_PROJECT must match the selected bootstrap source or own both explicit
+templates. Both jobs mount the same workspace. Preparation needs CPU and SSH;
 serving preserves the configured nginx application and public link.
 
 Remote HF_TOKEN and VLLM_API_KEY share `/work/vllm/.env` with mode 0600.
@@ -89,7 +89,7 @@ deployment-specific inputs; caches are never cleared implicitly. Cache loads wer
 a measured restart with verification took 46 seconds. A controlled follow-up
 measured 148.089 seconds cold and 45.176/45.162 seconds warm in the same job
 and cache group; see live-validation.md for the measured scope. See
-[vLLM environment variables](https://docs.vllm.ai/en/stable/configuration/env_vars/)
+[vLLM environment variables](https://docs.vllm.ai/en/v0.31.0/configuration/env_vars/)
 and [FlashInfer workspace configuration](https://github.com/flashinfer-ai/flashinfer/blob/v0.7.0.post1/flashinfer/jit/env.py).
 
 Success leaves hosting running and records expiry; invoking renewal before

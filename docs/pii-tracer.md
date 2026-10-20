@@ -61,9 +61,14 @@ email and sensitivity. Inference and scoring cells were tested against the live
 endpoint; the saved notebook contains no output or credentials.
 
 ```powershell
-vllm-agent check --task pii --model pii-tracer --base-url https://inference.example.org/v1
-vllm-agent status --deployment deployments/pii-tracer/<RUN_ID>
+vllm-agent check --task pii --model pii-tracer --base-url https://YOUR-HOST/v1
+vllm-agent status --deployment deployments/NAME/RUN
 ```
+
+Use your own endpoint and returned deployment path; the historical IDs above are
+evidence, not setup defaults. If you rename request.name, change the notebook's
+model alias and the check's --model too. The PII notebook reads local .env values
+directly; process-only CLI overrides do not configure it.
 
 Model detection quality and thresholds need evaluation on the intended data.
 Chat-only benchmarks/notebooks do not apply to this service. Query status for the

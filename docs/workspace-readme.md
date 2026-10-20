@@ -107,11 +107,11 @@ Source documentation:
 
 The full CLI workflow now prepares the CPU stage, selects the active bundle,
 submits nginx with initScript, registers WEB routing and verifies all three API paths.
-The current dated record is GPU job replacement-qwen-gpu, alias qwen-small, context 4096,
+At this stage the recorded GPU job was replacement-qwen-gpu, alias qwen-small, context 4096,
 concurrency 2, with allocation expiry 2026-10-06 13:02:57 Europe/Copenhagen.
 The earlier job initial-qwen-gpu and temporary CPU jobs initial-qwen-cpu/replacement-qwen-cpu have ended.
 
-Current bundle: deployments/qwen-small/<RUN_ID>/.
+Recorded bundle: deployments/qwen-small/<RUN_ID>/.
 Recovery and two restarts reused the same GPU allocation; all endpoint checks passed.
 Model weights were reused. Compilation caches survived replacement in
 cache/kernels/runtime-cache-a/. Version/driver/GPU changes select a different
@@ -120,7 +120,7 @@ Check the local deployment journal and CLI status before assuming the job is liv
 
 ## PII-Tracer deployment verified on 2026-10-06
 
-PII-Tracer replaced the Qwen service in GPU job initial-pii-gpu. Current bundle:
+PII-Tracer replaced the Qwen service in GPU job initial-pii-gpu. Recorded bundle:
 deployments/pii-tracer/<RUN_ID>/.
 Model: perplexity-ai/PII-Tracer-vLLM at 9f34cd1f5010a1de5a7b464eaf3c3a39db01b15a.
 Served alias: pii-tracer. Context: 4096 tokens. Concurrency: 2.

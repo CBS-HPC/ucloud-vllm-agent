@@ -35,5 +35,7 @@ Reports include minimum/recommended allocations, memory margins, RAM/disk
 allowances and rejection reasons. Memory fit does not predict throughput.
 After launch, numeric vLLM profiling must confirm sufficient KV tokens and
 full-context concurrency, alongside loopback/nginx/public inference checks.
-See [vLLM runtime capacity](https://docs.vllm.ai/en/v0.18.0/serving/parallelism_scaling/).
+See [vLLM runtime capacity](https://docs.vllm.ai/en/v0.31.0/serving/parallelism_scaling/)
+for the selected runtime. The tool comparison above remains a dated comparison
+of the pinned source revisions, not a claim about each project's latest release.
 Concurrent load testing remains necessary for performance targets.

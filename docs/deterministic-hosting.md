@@ -1,7 +1,9 @@
 # Deterministic hosting configuration
 
-First-time project setup uses the [packaged workspace/job templates](ucloud-workspace-template.md).
-Their initialization script is also the source used in generated deployment bundles.
+Begin with [researcher onboarding](researcher-onboarding.md). Choose either
+[bootstrap without prior jobs](bootstrap.md) or the manual
+[template-ID path and asset inventory](ucloud-workspace-template.md).
+Both use the same packaged initialization script in generated deployment bundles.
 
 Use `config/hosting.qwen-small.json` as the starting profile. It records the
 configuration verified on UCloud on 2026-10-06. Credentials, project, template
@@ -42,9 +44,11 @@ python -m ucloud_vllm_agent preview-profile --profile config/hosting.qwen-small.
 and refuses an estimated non-fit before writing a bundle. It generates the pinned
 `runtime.json`, `remote.py`, normalized `hosting-profile.json`, `job-settings.json`
 and existing planning evidence. `--metadata FILE` supports offline preparation.
-`preview-profile` reads the explicit serving template and builds its specification
-with SSH disabled, the exact machine product and the initialization script file
-beside the operator's nginx.conf in UCloud Files. It prints a sanitized preview.
+`preview-profile` reads the explicit serving template, or the finalized source
+selected with `--bootstrap FILE`, and builds its specification with SSH disabled,
+the exact machine product and the initialization script file beside nginx.conf
+in UCloud Files. It prints a sanitized preview. Bootstrap users also pass that
+artifact to doctor and first deploy; prepare-profile does not take --bootstrap.
 Neither command submits a job, uploads files or replaces the running model.
 
 The initialization workflow currently accepts only the live-tested baseline:
@@ -56,12 +60,13 @@ No model repository code is enabled by this profile.
 ## Default execution sequence
 
 1. Prepare the model/profile, inspect its pinned metadata and review the blockers.
-2. Use the explicit CPU preparation template and verify the persistent shared mount.
+2. Use the explicit CPU preparation template, or the finalized bootstrap's CPU
+   specification, and verify the persistent shared mount.
 3. Upload the reviewed bundle and stable initialization script. Preserve the
    mounted workspace README; maintain its context when explicitly needed. Prepare
    the verified environment and cache the pinned model using the remote HF token.
 4. Select the reviewed bundle with `/work/vllm/active`. Confirm both remote keys in the workspace `.env` (mode 0600). Refuse an implicit replacement of another deployment.
-5. Build from the explicit nginx serving template. Preserve mounts, nginx and
+5. Build from the explicit nginx serving template or bootstrap source. Preserve mounts, nginx and
    public-link resources; set only the reviewed product, duration, name and initScript.
 6. Submit once and persist the job ID immediately. An uncertain submit outcome
    requires recovery rather than another allocation.

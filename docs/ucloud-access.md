@@ -6,7 +6,7 @@ ongoing HTTP service and must not inherit automatic batch-job termination.
 
 ## Released product adapter
 
-Planned resource setup is tracked in [the onboarding roadmap](../TODO.md#researcher-onboarding-roadmap).
+Remaining acceptance and extensions are tracked in [the onboarding roadmap](../TODO.md#researcher-onboarding-roadmap).
 Link and optional account SSH public-key setup now use reviewed release v0.1.7;
 see [resource setup and API review](resource-setup.md). Setup records created versus
 reused resources and remains separate from GPU deployment. Shared storage/uploads
@@ -28,11 +28,16 @@ token-status selects UCLOUD_TOKEN_ID from API metadata. Expiry must cover the
 requested hours plus a one-hour margin. The operator must supply the matching
 ID; the agent cannot infer it from the credential. No tokens are created/rotated.
 
-## Operator template contract
+## Operator source contract
+
+- Select both explicit template IDs, or finalized bootstrap.json. Pass the latter
+  with --bootstrap to doctor/preview-profile/first deploy. Template-only commands
+  inspect-template and preview-job still require UCLOUD_TEMPLATE_JOB_ID; they are
+  not the bootstrap preflight path.
 - UCLOUD_SSH_ALIAS=ucloud is the upstream SSH alias setting (also its default).
   UCLOUD_SSH_CONFIG_PATH selects the SSH config file; neither setting enables deployment by itself.
 - UCLOUD_WORK_FOLDER=/work/vllm is the mounted working root.
-- /work/vllm/nginx.conf is configured and loaded by the template.
+- /work/vllm/nginx.conf is configured and loaded by the selected nginx job.
 - /work/vllm/.env supplies both HF_TOKEN and VLLM_API_KEY, with mode 0600.
   Runtime helpers read it without rewriting its contents. The local project .env
   is retained and never uploaded; no duplicate credential file is required.
@@ -42,9 +47,12 @@ ID; the agent cannot infer it from the credential. No tokens are created/rotated
 ## Hosting lifecycle
 Live preparation on 2026-10-06 established that the nginx 1.31.2 application
 rejects SSH-enabled submission (HTTP 400: application does not support SSH).
-Use a separate SSH-capable CPU preparation template, identified by
+Template mode uses a separate SSH-capable CPU preparation template, identified by
 UCLOUD_PREPARATION_TEMPLATE_JOB_ID, with the same writable /work/vllm mount.
-UCLOUD_TEMPLATE_JOB_ID continues to identify the nginx serving template. The CLI consumes both explicit IDs and journals preparation/hosting separately. Preparing files is separate from starting vLLM: the serving
+UCLOUD_TEMPLATE_JOB_ID continues to identify the nginx serving template.
+Bootstrap supplies complete reviewed CPU/nginx specifications instead of these
+IDs; its isolated live trial passed on 2026-10-20. Both modes journal preparation
+and hosting separately. Preparing files is separate from starting vLLM: the serving
 application must expose a verified startup mechanism. UCloud documents an
 [Initialization bash script](https://docs.cloud.sdu.dk/hands-on/init-sh.html)
 for [nginx](https://docs.cloud.sdu.dk/Apps/nginx.html); validate this against the
