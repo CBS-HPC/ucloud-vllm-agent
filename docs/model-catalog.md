@@ -3,6 +3,9 @@
 The catalog records **previously validated models** and **untested candidates**.
 It is not a list of currently running jobs. All jobs from the 2026-10-06 validation
 session were released; use deployment status to inspect current allocations.
+Qwen also passed a [fresh no-prior-job bootstrap trial](bootstrap-live-validation.md)
+on 2026-10-20 with the same pinned model/runtime, 4096 context and concurrency 1.
+Its one-hour allocation and evidence are recorded separately; this is not uptime.
 
 The source of truth is
 [`model_catalog.json`](../src/ucloud_vllm_agent/data/model_catalog.json), included in

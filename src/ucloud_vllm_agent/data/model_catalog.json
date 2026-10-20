@@ -1,6 +1,6 @@
 {
   "schema": "ucloud.vllm.model_catalog.v1",
-  "updated_on": "2026-10-06",
+  "updated_on": "2026-10-20",
   "status_meaning": "validated means previously tested, not currently running; candidate means not deployed or runtime-verified here",
   "models": [
     {
@@ -23,8 +23,8 @@
       "machine_size": {"gpu_count": 1, "vram_gib_per_gpu": 20.5, "ram_gib": 30, "basis": "live-tested hosting profile"},
       "tested_context_tokens": 4096,
       "tested_concurrency": [1, 2],
-      "evidence": ["docs/live-validation.md", "docs/benchmark-results.json"],
-      "notes": "Public authentication, inference, streaming, replacement, rollback, renewal and compilation-cache reuse tested."
+      "evidence": ["docs/live-validation.md", "docs/benchmark-results.json", "docs/bootstrap-live-validation.md"],
+      "notes": "Public authentication, inference, streaming, replacement, rollback, renewal and compilation-cache reuse tested. No-prior-job Qwen bootstrap passed separately on 2026-10-20 at concurrency 1."
     },
     {
       "id": "pii-tracer",

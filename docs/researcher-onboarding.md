@@ -20,8 +20,8 @@ released provider code; its separate source checkout supplies profiles, notebook
 agent instructions and a persistent workspace for your project records.
 
 ```sh
-git clone --branch v0.1.2 https://github.com/CBS-HPC/model-agent.git model-agent
-git clone --branch v0.1.4 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
+git clone --branch v0.1.3 https://github.com/CBS-HPC/model-agent.git model-agent
+git clone --branch v0.1.5 https://github.com/CBS-HPC/ucloud-vllm-agent.git ucloud-vllm-agent
 ```
 
 On Windows PowerShell, from the parent directory:
@@ -88,8 +88,15 @@ Optional [Link and public-key setup](resource-setup.md) now uses released ucloud
 v0.1.7, with separate preview/apply/recovery/cleanup and no job allocation. Shared
 folders and credentials use the separate [bootstrap guide](bootstrap.md) when no
 prior jobs exist. Template mode still requires both explicit template IDs.
-The published v0.1.4 install above has no bootstrap commands; follow the guide's
-isolated editable-checkout instructions until the new release is published.
+Bootstrap is available from provider v0.1.5; the paired wrapper v0.1.3 consumes
+that release. Use the finalized artifact explicitly with doctor/preview/deploy.
+
+UCLOUD_PROJECT must be the project UUID, not its title or accounting identifier.
+UCLOUD_TOKEN_ID is non-secret metadata used for the expiry check, not a second
+credential. Match it to the token you actually supplied; do not infer identity
+from a credential or merely choose another visible token. A local key path is
+optional when the default OpenSSH key is discovered and its public key is
+registered. Never ask researchers to paste a token/private key into chat.
 
 ## First model: preview before allocating
 

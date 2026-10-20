@@ -293,6 +293,37 @@ def test_activated_preparation_does_not_allocate_another_cpu(tmp_path):
     assert client.submissions == []
 
 
+def test_recovery_after_preparation_poll_failure_reuses_active_cpu(tmp_path, monkeypatch):
+    client = Client()
+    journal = Journal(tmp_path)
+    monkeypatch.setenv('VLLM_API_KEY', 'synthetic-key')
+    monkeypatch.setattr(lifecycle, '_manifest', lambda root: [])
+    monkeypatch.setattr(lifecycle, 'wait_job', lambda c, job_id, **kwargs: c.retrieve_job(job_id))
+    calls, fail = [], [True]
+    class Transport:
+        def __init__(self, *args): pass
+        def run(self, args):
+            calls.append(args)
+            if 'print(' in ' '.join(args) and args[-1].endswith('preparation-result.json'):
+                if fail[0]:
+                    fail[0] = False
+                    raise RuntimeError('synthetic SSH read failure')
+                return '{"state":"prepared"}'
+            return ''
+    monkeypatch.setattr(lifecycle, 'PreparationSSH', Transport)
+    template = {'application': {'name': 'coder-python', 'version': '1.89.1'},
+                'product': {'id': 'cpu', 'category': 'cpu-test', 'provider': 'test'},
+                'parameters': {}, 'resources': []}
+    runtime = {'remote_dir': '/work/vllm/deployments/model/run'}
+    with pytest.raises(RuntimeError, match='SSH read failure'):
+        lifecycle._prepare_remote(client, client.settings, journal, template, runtime)
+    assert journal.data['preparation_launched'] and len(client.submissions) == 1
+    lifecycle._prepare_remote(client, client.settings, Journal(tmp_path), template, runtime)
+    assert Journal(tmp_path).data['preparation_complete']
+    assert len(client.submissions) == 1 and client.terminated == []
+    assert sum('nohup' in ' '.join(args) for args in calls) == 1
+
+
 def test_unknown_preparation_cannot_be_retried(tmp_path):
     client = Client()
     journal = Journal(tmp_path)

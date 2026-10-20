@@ -4,34 +4,39 @@ Publication note: historical operational identifiers use role labels and example
 
 ## Isolated bootstrap continuation (2026-10-20)
 
-Work is on branch `bootstrap-onboarding` in onboarding-sandbox-20261020, not the
-original checkouts. Application-spec bootstrap, fresh namespaced folders/uploads,
-separate exclusive credential provisioning, CPU finish/release/reconciliation,
-and lifecycle/doctor/preview integration are implemented with contract tests.
-Read docs/bootstrap.md and SPEC.md. Do not switch modes when IDs are merely missing.
-Provider v0.1.4 and wrapper v0.1.2 remain the published pair; the wrapper must only
-consume a new provider after a reviewed release is actually published.
+Work is in onboarding-sandbox-20261020 on bootstrap-onboarding; original checkouts
+and deployed folder remain untouched. No-prior-job bootstrap passed live in the
+operator-selected **isolated validation project** project. Read docs/bootstrap.md,
+docs/bootstrap-live-validation.md and SPEC.md before continuing.
 
-Live target is the operator-selected **isolated validation project** project. A blank
-local sandbox .env exists for the operator's new token/token ID/project UUID,
-local identity path and serving key. Do not read its contents into model context,
-copy secrets from the original project or touch its deployed folder. Start with
-read-only scope/product/drive/Link discovery, then record the exact trial plan.
-Small Qwen is the proposed synthetic workload; use fresh storage/hostname and
-bounded CPU/MIG jobs. No cloud jobs/resources have been created by this work.
+Link bootstrap-link and /<DRIVE_ID>/<NAMESPACE>/vllm were newly created with durable
+ownership records. Bootstrap CPU bootstrap-cpu and preparation CPU bootstrap-preparation-cpu were released
+and confirmed SUCCESS. MIG serving job bootstrap-qwen-gpu passed nginx 1.31.2 image syntax
+and all seven chat/auth/SSE checks on loopback, nginx and public HTTPS, using pinned
+Qwen, 4096 context, concurrency 1 and vLLM 0.31.0. Both template IDs are null.
+Recorded GPU expiry: 2026-10-20 14:04:09 Europe/Copenhagen; query status before
+reporting current uptime. Never renew, replace or release this job implicitly.
 
-Implementation commit reviewed-change is pushed on bootstrap-onboarding. Windows/Linux
-CI on Python 3.11/3.13 passed: Linux 144 tests passed with one platform skip;
-Windows 143 passed with two platform skips. Source/wheel builds and offline
-installed-layout checks passed, including packaged bootstrap helpers/contracts.
-Ubuntu nginx syntax passed; this is not the actual UCloud serving image.
-The candidate package version is 0.1.5, not yet a published release. Wrapper
-checkpoint reviewed-change is pushed and its CI passed, retaining the published 0.1.4 pin.
+The local root .env remains operator-owned. Commands used confirmed non-secret
+project/token IDs and the fresh URL through process overrides in ignored
+config/local.operator.json; no secret file was copied or rewritten. The public
+key was already registered. Only the new remote root .env was exclusively created
+through selected-value SSH stdin. Existing Link existing-link remained READY/unbound.
 
-Remaining: publication after the isolated trial/review, live
-generic-nginx/auth/chat/SSE validation and colleague-led acceptance. An operator
-sandbox trial does not complete the colleague gate. A lost folder acknowledgement
-still needs provider/audit confirmation; automatic adoption/deletion is unsupported.
+Live preflight exposed provider HTTP 400 for missing files; fix reviewed-change uses complete
+verified-parent listing and passed Windows/Linux CI. Local 146 tests passed with
+two platform skips before the additional SSH polling-recovery regression; the final
+local suite passed 147 tests with two platform skips. The observed local exception
+left pip active; recovery reused CPU bootstrap-preparation-cpu and the
+same installer, then completed serving. Preserve all journals and receipts.
+
+Remaining: publish reviewed provider v0.1.5, then update/publish wrapper v0.1.3
+against that published dependency and validate the installed release chain. The
+currently published pair is still provider v0.1.4/wrapper v0.1.2. Do not change the
+wrapper pin before provider publication. Independent colleague-led acceptance,
+new-workspace PII and optional key-registration/removal tests remain outside this
+operator trial. Lost folder acknowledgements need provider/audit confirmation;
+automatic folder adoption/deletion is unsupported.
 
 ## Researcher onboarding roadmap
 
@@ -125,13 +130,15 @@ Any setup step requiring a real job needs scoped allocation authorization.
 
 ### 4. Validate and publish the onboarding release
 
-- [ ] Validate generic nginx syntax in the supported serving image and public
-  chat/PII/auth/SSE behavior in an authorized small deployment.
+- [x] Validate generic nginx syntax in the actual serving image and public
+  Qwen chat/auth/SSE behavior in the isolated authorized small deployment.
+- [ ] Revalidate PII in a newly bootstrapped workspace when that workload is requested.
 - [x] Contract-test interrupted Link/key setup/receipt reconciliation, duplicate
   prevention, foreign/occupied Links, existing-key reuse, optional key omission,
   exact cleanup, lost delete acknowledgements and preserved credentials.
-- [ ] Live-test the new setup commands in an identified authorized project, including
-  key registration/removal if requested. Upstream live tests do not validate this adapter.
+- [x] Live-test separate Link setup, bootstrap folders/uploads/credentials, CPU
+  finish and Qwen deployment in the identified authorized project. Existing key
+  reuse was checked; optional registration/removal was not requested or tested.
 - [x] Add Windows/Linux CI matrices and isolated wheel asset-export checks.
   Test results must be checked for each release; colleague-led live onboarding
   remains a separate acceptance step below.
@@ -192,8 +199,8 @@ items pending until that evidence is available.
 - [x] Packaged remote workspace templates: nginx.conf, remote .env.example,
   shared initialization source, generic README and CPU/GPU setup recipes.
   Offline export refuses overwrites; source/code inventory and setup guide included.
-- [ ] Validate the new generic nginx configuration in the supported UCloud image
-  and through public chat/PII/auth/SSE checks before recommending live adoption.
+- [x] Validate the generic nginx configuration in the supported UCloud image and
+  through public chat/auth/SSE checks. New-workspace PII remains a separate workload.
 
 - [x] Separate UCloud hosting from cross-provider orchestration. CBS Model Agent
   owns the LUMI integration; this provider keeps its deterministic UCloud workflow.

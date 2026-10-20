@@ -91,17 +91,23 @@ record live evidence separately (V10).
 | T2 | x | Journal folder/CPU setup and exclusive remote uploads; finish/release/reconcile | V2,V3,V4,V5,V7,V9,I.remote,I.state |
 | T3 | x | Add explicit bootstrap source to lifecycle, doctor, preview and CLI | V1,V6,V8,I.mode,I.cli |
 | T4 | ~ | Update docs; isolated tests/build/CI and reviewable Git publication | V8,V9,I.cli |
-| T5 | . | Run scoped isolated live trial; retain exact evidence and remaining colleague gate | V6,V7,V10,C5 |
+| T5 | x | Run scoped isolated live trial; retain exact evidence and remaining colleague gate | V6,V7,V10,C5 |
 
 ## §B Regression record
 | id | date | cause | fix |
 | --- | --- | --- | --- |
 | B1 | 2026-10-20 | --no-isolation requires a build backend absent from the fresh Python 3.13 venv | Use standard python -m build with its declared isolated backend; no runtime invariant change needed |
 | B2 | 2026-10-20 | Live Files provider reports missing child as HTTP 400, while the mock assumed 404 | V12: verify parent and paginate its reviewed GET /api/files/browse path contract; regression covers absence, late-page collision and denied listing |
+| B3 | 2026-10-20 | SSH polling exception stopped the local CLI while pip remained active in known CPU job bootstrap-preparation-cpu; exact transport cause unobserved | Existing V7 recovery reused the same CPU and launched no second installer; regression injects a read failure and checks one submission/one launch |
 
 Verification checkpoint: implementation reviewed-change passed Windows/Linux CI on
 Python 3.11/3.13, source/wheel builds and offline installed-layout checks. Linux:
 144 passed/1 platform skip; Windows: 143 passed/2 platform skips. Generic nginx
-syntax passed on Ubuntu, not yet in the UCloud image. T4 publication follows the
-isolated trial/review. T5 awaits the operator's new sandbox credentials and exact
-project/drive/product/Link discovery. No cloud resources/jobs have been created.
+syntax also passed inside the actual UCloud nginx 1.31.2 image during T5.
+The isolated trial passed seven checks per loopback/nginx/public path, without
+template IDs. Bootstrap CPU bootstrap-cpu and preparation CPU bootstrap-preparation-cpu were released;
+serving job bootstrap-qwen-gpu has the recorded 2026-10-20 14:04:09 Copenhagen expiry. See
+docs/bootstrap-live-validation.md for evidence and remaining colleague/PII limits.
+T4 release publication and installed-release-chain validation remain pending.
+Final local suite: 147 passed and two platform skips after the SSH recovery
+regression and live-evidence/catalog updates. Operational records remain ignored.

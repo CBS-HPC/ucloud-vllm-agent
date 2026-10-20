@@ -90,10 +90,17 @@ rather than the chat notebook.
   setup, protecting reused resources and uncertain outcomes. No jobs are started.
 - Add a timestamped queue snapshot with `catalog --live`; availability remains
   distinct from memory fit, entitlement and a successful allocation.
+- Bootstrap a fresh namespace, starter files and bounded CPU setup from reviewed
+  application definitions, then deploy without prior job IDs. Credentials remain
+  a separate explicit exclusive-write action; lifecycle pins the source snapshot.
 
 **The adapter uses released ucloud-api v0.1.7.** The automated CPU/GPU
 lifecycle is implemented and unit-tested; template-based live validation passed on 2026-10-06. Earlier
 manual hosting passed all three endpoint paths. Ownership mismatches block deployment.
+The [2026-10-20 isolated bootstrap trial](docs/bootstrap-live-validation.md) also
+passed actual-image nginx syntax and all seven checks on loopback, nginx and
+public HTTPS, using fresh storage and no template IDs. Colleague-led acceptance
+remains separate.
 
 ## Setup on Windows
 

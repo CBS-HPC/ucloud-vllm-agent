@@ -8,11 +8,12 @@ complete job specifications from reviewed application definitions. It does not
 create a dummy GPU job to manufacture a template ID. The existing
 [template-ID path](ucloud-workspace-template.md) remains supported and separate.
 
-Use a new provider checkout/workspace for a different project. Install this
-checkout with `python -m pip install -e '.[ucloud]'` in its own external venv.
-The currently published wrapper still pins provider v0.1.4, which has no bootstrap
-commands; this branch must be installed editable for the isolated trial. A wrapper
-release will consume the new provider only after its reviewed release is published.
+Use a new provider checkout/workspace for a different project. Bootstrap requires
+provider v0.1.5 or later. Install that checkout with
+`python -m pip install -e '.[ucloud]'` in its own external venv, or follow the
+[paired wrapper/provider installation](researcher-onboarding.md). The wrapper must
+consume a published reviewed provider release. Versions v0.1.4 and earlier have no
+bootstrap commands.
 
 ## Intake and read-only plan
 
@@ -135,6 +136,7 @@ using the reviewed Files browse `path` parameter. The live provider reports miss
 retrieve paths with HTTP 400, so neither a 400 nor a 404 is used as absence evidence.
 Denied or incomplete parent listings block planning; creation still uses REJECT.
 
-Offline contract tests are not live platform validation. The isolated operator-led
-trial in "isolated validation project" is pending; colleague-led onboarding and actual
-generic-nginx/public auth/chat/SSE checks remain separate acceptance evidence.
+The [isolated operator-led Qwen trial](bootstrap-live-validation.md) passed in
+"isolated validation project", including actual-image nginx syntax and all seven
+auth/chat/SSE checks on loopback, nginx and public HTTPS. This does not establish
+current uptime, PII behavior in the new workspace, or colleague-led acceptance.

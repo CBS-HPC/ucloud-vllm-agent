@@ -116,7 +116,9 @@ snapshot during recovery/replacement/renewal/rollback. Unknown folder/job/creden
 outcomes block retries. Bootstrap credentials is explicit, stdin-only exclusive
 creation of /work/vllm/.env; never upload the local environment file. Folder
 existence does not prove ownership; no automatic folder adoption/deletion exists.
-Live isolated bootstrap validation and colleague-led acceptance remain pending.
+The isolated Qwen bootstrap trial passed on 2026-10-20; read
+docs/bootstrap-live-validation.md for exact scope, jobs, expiry and limits.
+Colleague-led acceptance and new-workspace PII validation remain pending.
 catalog --live is an observational queue snapshot, not a reservation or sizing change.
 ## Model catalog and documentation
 Consult `vllm-agent models` and docs/model-catalog.md before selecting a known

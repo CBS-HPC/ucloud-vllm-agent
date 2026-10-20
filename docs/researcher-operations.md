@@ -29,7 +29,8 @@ responsibility; no automatic cron renewal is provided.
 | --- | --- |
 | Git/pip cannot access a dependency | Verify CLI GitHub authorization for the private repositories; never paste a token into a URL. |
 | doctor reports missing requirements | Follow each remedy; local settings belong in the provider workspace, not the wrapper. Use absolute SSH key paths. |
-| Online preflight fails | Check both job IDs/project ownership, token coverage, application versions, shared mount and reserved URL. Inspect-template/preview-profile are read-only. |
+| Online preflight fails | Check selected bootstrap artifact or both job IDs, project ownership, token coverage, application versions, shared mount and reserved URL. Preview-profile is read-only. |
+| No prior job IDs | Follow bootstrap.md. It creates fresh namespaced folders/uploads through a bounded CPU job; actual GPU deployment remains separate. |
 | Public URL occupied | Find the existing deployment and its operator. Explicitly replace only an owned record; do not delete/recreate the link. |
 | First-time Link or public-key setup | Follow resource-setup.md: read-only plan, explicit apply, durable ownership receipts. No jobs are started. |
 | Uncertain resource create/delete | Preserve the setup directory and upstream receipts; use setup-status/reconcile. Do not retry or infer ownership from a matching resource. |

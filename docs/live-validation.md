@@ -2,6 +2,10 @@
 
 Publication note: historical operational identifiers use role labels and example URLs; measurements and runtime behavior are retained. Exact identities belong in private journals.
 
+The later [2026-10-20 isolated bootstrap trial](bootstrap-live-validation.md)
+validates the no-prior-job path. The historical template-mode evidence below
+remains unchanged and does not establish current uptime.
+
 The full CPU preparation → upload verification → pinned environment/model cache
 → nginx GPU initialization → WEB registration → three-path verification sequence
 passed on the B200 MIG baseline. UCLOUD_PROJECT was corrected to the UUID that
