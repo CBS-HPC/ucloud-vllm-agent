@@ -8,6 +8,8 @@ version = "0.1.5"
 description = "UCloud model hosting through explicit templates or reviewed bootstrap specifications"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT AND CC-BY-4.0"
+license-files = ["LICENSE.md", "LICENSES/*.txt"]
 dependencies = []
 
 [project.optional-dependencies]

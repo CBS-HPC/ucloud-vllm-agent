@@ -1,5 +1,7 @@
 include AGENTS.md WORKFLOW_CONTRACT.md TODO.md SPEC.md .env.example
 recursive-include docs *.md *.json
+include LICENSE.md
+recursive-include LICENSES *.txt
 recursive-include config *.json
 exclude config/local.*
 include skills/vllm-hosting/SKILL.md

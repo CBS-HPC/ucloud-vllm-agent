@@ -306,3 +306,10 @@ Further reading: [model catalog](docs/model-catalog.md),
 and [remaining work](TODO.md). Controlled Qwen startup measured 148 seconds cold
 and 45 seconds warm; PII full-context load passed with two clients. These are
 dated results for the recorded workload and hardware.
+
+## License
+
+Code, configuration/runtime templates and code examples use MIT. Documentation
+uses CC BY 4.0. Notebook code cells use MIT; notebook prose uses CC BY 4.0.
+See [license scope and attribution](LICENSE.md) and the full texts in
+[LICENSES/](LICENSES/). Dependencies and model weights retain their own licenses.
